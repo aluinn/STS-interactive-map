@@ -294,10 +294,23 @@ export function AtlasView({
   )
 
   function openClusterPanel(cluster: MarkerCluster) {
-    // Deliberately no zoom: the sidebar lists everything in the bubble.
+    // The sidebar snapshots the bubble's entries, then the map zooms in on it
+    // (as it always did) so the individual pins start to separate.
     setPanelEntries(cluster.items.map((i) => i.entry))
     setHighlightedEntryId(null)
     setRouteTooltip(null)
+    const xs = cluster.items.map((i) => i.x)
+    const ys = cluster.items.map((i) => i.y)
+    const spread = Math.hypot(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys))
+    if (spread >= 1 && transform.k < 7) {
+      const desktop = !window.matchMedia('(max-width: 720px)').matches
+      applyZoom(
+        Math.min(transform.k * 2.4, 8),
+        cluster.x,
+        cluster.y,
+        desktop ? Math.min(440, size.width * 0.92) / 2 : 0,
+      )
+    }
   }
 
   function closeClusterPanel() {
