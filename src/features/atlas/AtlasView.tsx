@@ -18,6 +18,7 @@ import {
 } from '../../utils/geo'
 import { MarkerIcon } from '../../components/MarkerIcon'
 import { MapDefs, CompassRose } from './MapGlyphs'
+import { ClusterPanel, type ClusterPanelProps } from './ClusterPanel'
 import styles from './AtlasView.module.css'
 
 interface AtlasViewProps {
@@ -27,6 +28,16 @@ interface AtlasViewProps {
   onSelectEntry: (id: string) => void
   focusEntryId?: string | null
   focusToken?: number
+  /** Hooks into the app for the cluster sidebar's entry details and actions. */
+  clusterTools: Pick<
+    ClusterPanelProps,
+    | 'getRelatedEntries'
+    | 'isSaved'
+    | 'onToggleSave'
+    | 'onOpenDebate'
+    | 'journeysForEntry'
+    | 'onBeginJourney'
+  >
   reducedMotion: boolean
 }
 
@@ -82,6 +93,9 @@ const BaseMap = memo(function BaseMap({
   )
 })
 
+/** On-screen distance (px) within which markers merge into one numbered bubble. */
+const CLUSTER_THRESHOLD_PX = 20
+
 const BROKEN_TYPES = new Set(['replaced', 'criticised', 'contested'])
 
 export function AtlasView({
@@ -91,6 +105,7 @@ export function AtlasView({
   onSelectEntry,
   focusEntryId,
   focusToken,
+  clusterTools,
   reducedMotion,
 }: AtlasViewProps) {
   const wrapRef = useRef<HTMLDivElement>(null)
@@ -100,7 +115,11 @@ export function AtlasView({
   const [size, setSize] = useState({ width: 800, height: 520 })
   const [transform, setTransform] = useState({ x: 0, y: 0, k: 1 })
   const [hoveredId, setHoveredId] = useState<string | null>(null)
-  const [openClusterId, setOpenClusterId] = useState<string | null>(null)
+  // The exact entries behind the bubble the user clicked, captured at click
+  // time so the sidebar keeps showing that cluster even after the map is
+  // zoomed and the bubbles regroup.
+  const [panelEntries, setPanelEntries] = useState<Entry[] | null>(null)
+  const [highlightedEntryId, setHighlightedEntryId] = useState<string | null>(null)
   const [routeTooltip, setRouteTooltip] = useState<RouteTooltip | null>(null)
   const [showList, setShowList] = useState(false)
   const [measured, setMeasured] = useState(false)
@@ -150,7 +169,7 @@ export function AtlasView({
   )
 
   const clusters = useMemo(
-    () => clusterProjected(projected, transform.k, 20),
+    () => clusterProjected(projected, transform.k, CLUSTER_THRESHOLD_PX),
     [projected, transform.k],
   )
 
@@ -188,7 +207,7 @@ export function AtlasView({
   }, [size.width, size.height])
 
   const applyZoom = useCallback(
-    (k: number, cx?: number, cy?: number) => {
+    (k: number, cx?: number, cy?: number, shiftX = 0) => {
       if (!svgRef.current || !zoomBehaviorRef.current) return
       const sel = select(svgRef.current)
       // Anchor on the world point explicitly passed (e.g. an entry/cluster
@@ -198,7 +217,7 @@ export function AtlasView({
       const worldX = cx ?? (size.width / 2 - transform.x) / transform.k
       const worldY = cy ?? (size.height / 2 - transform.y) / transform.k
       const target = zoomIdentity
-        .translate(size.width / 2 - worldX * k, size.height / 2 - worldY * k)
+        .translate(size.width / 2 - shiftX - worldX * k, size.height / 2 - worldY * k)
         .scale(k)
       if (reducedMotion) {
         zoomBehaviorRef.current.transform(sel, target)
@@ -269,18 +288,41 @@ export function AtlasView({
       .filter((x): x is NonNullable<typeof x> => x !== null)
   }, [relationships, visibleEntryIds, screenPositionById])
 
-  const openCluster = clusters.find((c) => c.id === openClusterId) ?? null
+  const panelIds = useMemo(
+    () => (panelEntries ? new Set(panelEntries.map((e) => e.id)) : null),
+    [panelEntries],
+  )
 
-  function handleClusterClick(cluster: MarkerCluster) {
-    const spread = Math.hypot(
-      Math.max(...cluster.items.map((i) => i.x)) - Math.min(...cluster.items.map((i) => i.x)),
-      Math.max(...cluster.items.map((i) => i.y)) - Math.min(...cluster.items.map((i) => i.y)),
-    )
-    if (spread < 1 || transform.k >= 7) {
-      setOpenClusterId(cluster.id)
-    } else {
-      applyZoom(Math.min(transform.k * 2.4, 8), cluster.x, cluster.y)
+  function openClusterPanel(cluster: MarkerCluster) {
+    // Deliberately no zoom: the sidebar lists everything in the bubble.
+    setPanelEntries(cluster.items.map((i) => i.entry))
+    setHighlightedEntryId(null)
+    setRouteTooltip(null)
+  }
+
+  function closeClusterPanel() {
+    // Hand focus back to the bubble (or marker) that stands for the cluster.
+    const target = svgRef.current?.querySelector<HTMLElement>('[data-in-panel="true"]')
+    setPanelEntries(null)
+    setHighlightedEntryId(null)
+    target?.focus()
+  }
+
+  function showEntryOnMap(entryId: string) {
+    const p = projected.find((pr) => pr.entry.id === entryId)
+    if (!p) return
+    setHighlightedEntryId(entryId)
+    // Zoom just far enough that the entry separates from its neighbours,
+    // but never so far that the surrounding geography is lost.
+    let nearest = Infinity
+    for (const other of projected) {
+      if (other.entry.id === entryId) continue
+      nearest = Math.min(nearest, Math.hypot(other.x - p.x, other.y - p.y))
     }
+    const separating = Number.isFinite(nearest) ? (CLUSTER_THRESHOLD_PX / nearest) * 1.25 : 3
+    const k = Math.min(4, Math.max(transform.k, 2.5, separating))
+    const desktop = !window.matchMedia('(max-width: 720px)').matches
+    applyZoom(k, p.x, p.y, desktop ? Math.min(440, size.width * 0.92) / 2 : 0)
   }
 
   return (
@@ -295,7 +337,6 @@ export function AtlasView({
           viewBox={`0 0 ${size.width} ${size.height}`}
           role="application"
           aria-label="Interactive map of the STS Interactive Map atlas. Use the list view toggle for a keyboard- and screen-reader-friendly alternative."
-          onClick={() => setOpenClusterId(null)}
         >
           <MapDefs />
           <g transform={`translate(${transform.x},${transform.y}) scale(${transform.k})`}>
@@ -336,13 +377,17 @@ export function AtlasView({
               if (cluster.items.length === 1) {
                 const { entry, x, y } = cluster.items[0]
                 const selected = entry.id === selectedEntryId
-                const dimmed = hoveredId !== null && hoveredId !== entry.id
+                const inPanel = panelIds?.has(entry.id) ?? false
+                const highlighted = entry.id === highlightedEntryId
+                const dimmed =
+                  (hoveredId !== null && hoveredId !== entry.id) || (panelIds !== null && !inPanel)
                 const r = 9 / Math.sqrt(transform.k)
                 return (
                   <g
                     key={entry.id}
                     transform={`translate(${x},${y})`}
-                    className={`${styles.marker} ${selected ? styles.markerSelected : ''} ${dimmed ? styles.markerDimmed : ''}`}
+                    className={`${styles.marker} ${selected || highlighted ? styles.markerSelected : ''} ${dimmed ? styles.markerDimmed : ''}`}
+                    data-in-panel={inPanel ? 'true' : undefined}
                     tabIndex={0}
                     role="button"
                     aria-label={`${entry.title}, ${entry.dateDisplay}. ${entry.kind}.`}
@@ -352,11 +397,13 @@ export function AtlasView({
                     onBlur={() => setHoveredId(null)}
                     onClick={(e) => {
                       e.stopPropagation()
+                      setPanelEntries(null)
                       onSelectEntry(entry.id)
                     }}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault()
+                        setPanelEntries(null)
                         onSelectEntry(entry.id)
                       }
                     }}
@@ -369,7 +416,7 @@ export function AtlasView({
                     >
                       <MarkerIcon kind={entry.kind} size={14} />
                     </g>
-                    {(transform.k > 4 || hoveredId === entry.id || selected) && (
+                    {(transform.k > 4 || hoveredId === entry.id || selected || highlighted) && (
                       <g transform={`scale(${1 / transform.k})`}>
                         <text className={styles.markerLabel} x={r * transform.k + 6} y={4}>
                           {entry.title}
@@ -380,28 +427,38 @@ export function AtlasView({
                 )
               }
               const r = Math.min(10 + cluster.items.length * 1.3, 22) / Math.sqrt(transform.k)
+              const inPanel = cluster.items.some((i) => panelIds?.has(i.entry.id))
+              const highlighted = cluster.items.some((i) => i.entry.id === highlightedEntryId)
+              const dimmed = panelIds !== null && !inPanel
+              const count = cluster.items.length
               return (
                 <g
                   key={cluster.id}
                   transform={`translate(${cluster.x},${cluster.y})`}
-                  className={styles.cluster}
+                  className={`${styles.cluster} ${inPanel ? styles.clusterSelected : ''} ${dimmed ? styles.clusterDimmed : ''}`}
+                  data-in-panel={inPanel ? 'true' : undefined}
                   tabIndex={0}
                   role="button"
-                  aria-label={`Cluster of ${cluster.items.length} entries. Activate to expand.`}
+                  aria-label={`Open ${count} map entries`}
+                  aria-haspopup="dialog"
+                  aria-expanded={inPanel}
                   onClick={(e) => {
                     e.stopPropagation()
-                    handleClusterClick(cluster)
+                    openClusterPanel(cluster)
                   }}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault()
-                      handleClusterClick(cluster)
+                      openClusterPanel(cluster)
                     }
                   }}
                 >
+                  {(inPanel || highlighted) && (
+                    <circle className={styles.clusterRing} r={r + 5 / Math.sqrt(transform.k)} />
+                  )}
                   <circle className={styles.clusterDot} r={r} />
                   <g transform={`scale(${1 / transform.k})`}>
-                    <text className={styles.clusterCount}>{cluster.items.length}</text>
+                    <text className={styles.clusterCount}>{count}</text>
                   </g>
                 </g>
               )
@@ -486,42 +543,15 @@ export function AtlasView({
         </p>
       )}
 
-      {openCluster && (
-        <div
-          className={styles.tooltip}
-          style={{
-            left: Math.min(openCluster.x + transform.x, size.width - 280),
-            top: Math.max(openCluster.y + transform.y - 10, 10),
-          }}
-          role="dialog"
-          aria-label="Entries at this location"
-        >
-          <strong>{openCluster.items.length} entries here</strong>
-          <ul style={{ listStyle: 'none', margin: 0, padding: 0, pointerEvents: 'auto' }}>
-            {openCluster.items.map(({ entry }) => (
-              <li key={entry.id}>
-                <button
-                  type="button"
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    color: 'var(--color-link)',
-                    cursor: 'pointer',
-                    padding: '2px 0',
-                    textAlign: 'left',
-                    font: 'inherit',
-                  }}
-                  onClick={() => {
-                    onSelectEntry(entry.id)
-                    setOpenClusterId(null)
-                  }}
-                >
-                  {entry.title}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
+      {panelEntries && !showList && (
+        <ClusterPanel
+          // A fresh cluster click resets search, sort and any open entry.
+          key={panelEntries.map((e) => e.id).join('|')}
+          entries={panelEntries}
+          onClose={closeClusterPanel}
+          onShowOnMap={showEntryOnMap}
+          {...clusterTools}
+        />
       )}
 
       {routeTooltip && (

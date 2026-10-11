@@ -1,18 +1,7 @@
 import type { EntryKind, RelationshipType } from '../types'
 import { MarkerIcon } from './MarkerIcon'
+import { KIND_LABELS } from '../utils/kindLabels'
 import styles from './Legend.module.css'
-
-const KIND_LABELS: Record<EntryKind, string> = {
-  person: 'Person',
-  idea: 'Idea / theory',
-  discovery: 'Discovery',
-  experiment: 'Experiment',
-  instrument: 'Instrument',
-  text: 'Text',
-  institution: 'Institution',
-  event: 'Event',
-  debate: 'Debate',
-}
 
 const RELATIONSHIP_LABELS: Record<RelationshipType, string> = {
   influenced: 'Influenced',

@@ -2,7 +2,7 @@ import type { Entry, Relationship } from '../types'
 import type { Filters } from '../hooks/useUrlState'
 
 /** Lower-cases and strips accents/hyphens so "Poincare" finds "Poincaré". */
-function normaliseText(s: string): string {
+export function normaliseText(s: string): string {
   return s
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')

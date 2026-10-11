@@ -166,6 +166,24 @@
   stroke-width: 1.4;
   opacity: 0.9;
 }
+.clusterSelected .clusterDot {
+  stroke: var(--color-gold-bright);
+  stroke-width: 2.4;
+  opacity: 1;
+}
+.clusterRing {
+  fill: none;
+  stroke: var(--color-gold-bright);
+  stroke-width: 1.4;
+  stroke-dasharray: 3 2;
+}
+.clusterDimmed {
+  opacity: 0.7;
+}
+.cluster:focus-visible .clusterDot {
+  stroke: var(--color-gold-bright);
+  stroke-width: 2.6;
+}
 .clusterCount {
   font-family: var(--font-ui);
   font-weight: 600;

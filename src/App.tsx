@@ -13,6 +13,7 @@ import { useUrlState } from './hooks/useUrlState'
 import { useTheme } from './hooks/useTheme'
 import { usePrefersReducedMotion } from './hooks/usePrefersReducedMotion'
 import { useNotebook } from './hooks/useNotebook'
+import type { Entry } from './types'
 import { dataBundle } from './data'
 import { filterEntries, filterRelationships } from './utils/filterEntries'
 
@@ -174,16 +175,27 @@ export default function App() {
     }
     return m
   }, [entries])
-  const relatedEntries = selectedEntry
-    ? [
-        ...new Set([
-          ...selectedEntry.relatedEntryIds,
-          ...(incomingRelated.get(selectedEntry.id) ?? []),
-        ]),
-      ]
+  const getRelatedEntries = useCallback(
+    (entry: Entry) =>
+      [...new Set([...entry.relatedEntryIds, ...(incomingRelated.get(entry.id) ?? [])])]
+        .filter((id) => id !== entry.id)
         .map((id) => entryById.get(id))
-        .filter((e): e is NonNullable<typeof e> => Boolean(e) && e!.id !== selectedEntry.id)
-    : []
+        .filter((e): e is Entry => e !== undefined),
+    [entryById, incomingRelated],
+  )
+  const relatedEntries = selectedEntry ? getRelatedEntries(selectedEntry) : []
+
+  const clusterTools = {
+    getRelatedEntries,
+    isSaved: notebook.isSaved,
+    onToggleSave: notebook.toggleSave,
+    onOpenDebate: openDebateFromEntry,
+    journeysForEntry: (entryId: string) =>
+      journeys
+        .filter((j) => j.stops.some((stop) => stop.entryId === entryId))
+        .map((j) => ({ id: j.id, title: j.title })),
+    onBeginJourney: beginJourney,
+  }
 
   const journeyNavForPanel =
     activeJourney && selectedEntry && currentStop?.entryId === selectedEntry.id
@@ -250,6 +262,7 @@ export default function App() {
                   onSelectEntry={selectEntry}
                   focusEntryId={state.entry}
                   focusToken={focusToken}
+                  clusterTools={clusterTools}
                   reducedMotion={reducedMotion}
                 />
               )}
@@ -277,6 +290,7 @@ export default function App() {
                     onSelectEntry={selectEntry}
                     focusEntryId={currentStop?.entryId ?? null}
                     focusToken={focusToken}
+                    clusterTools={clusterTools}
                     reducedMotion={reducedMotion}
                   />
                   <JourneyStepper
