@@ -60,6 +60,8 @@ const RELATIONSHIP_TYPE_OPTIONS: RelationshipType[] = [
   'represented',
   'materially-enabled',
   'contested',
+  'revised',
+  'applied-to',
 ]
 
 function toggle(list: string[], value: string): string[] {
@@ -194,6 +196,14 @@ export function SearchFilters({ filters, onChange, resultCount }: SearchFiltersP
           onChange={(e) => onChange({ ...filters, onlyContested: e.target.checked })}
         />
         Only contested or overturned theories
+      </label>
+      <label className={styles.toggleRow}>
+        <input
+          type="checkbox"
+          checked={filters.onlyOverturned}
+          onChange={(e) => onChange({ ...filters, onlyOverturned: e.target.checked })}
+        />
+        Only overturned &amp; rejected ideas
       </label>
       <label className={styles.toggleRow}>
         <input

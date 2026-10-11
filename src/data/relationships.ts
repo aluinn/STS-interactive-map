@@ -1030,4 +1030,76 @@ export const relationships: Relationship[] = [
       "Jasanoff's co-production idiom and Daston and Galison's historicised account of objectivity developed as mutually reinforcing ways of showing that scientific standards and social order are made together.",
     confidence: 'likely',
   },
+  {
+    id: 'r115',
+    sourceId: 'imre-lakatos',
+    targetId: 'karl-popper',
+    type: 'revised',
+    summary:
+      "Lakatos revised Popper's falsificationism into a methodology of research programmes, preserving its concern with testability and progress while allowing scientists to rationally persist with a theory through anomalies so long as the surrounding programme kept being progressive.",
+    confidence: 'established',
+  },
+  {
+    id: 'r116',
+    sourceId: 'paul-feyerabend',
+    targetId: 'imre-lakatos',
+    type: 'challenged',
+    summary:
+      "Feyerabend argued that Lakatos's distinction between 'progressive' and 'degenerating' research programmes could only ever be drawn with the benefit of hindsight, and so offered scientists no real guidance in the moment.",
+    confidence: 'likely',
+  },
+  {
+    id: 'r117',
+    sourceId: 'thomas-kuhn',
+    targetId: 'imre-lakatos',
+    type: 'influenced',
+    summary:
+      "Kuhn's historical demonstration that scientists do not abandon a theory at its first failed prediction directly shaped Lakatos's decision to build tolerance for anomaly into the research-programme framework itself.",
+    confidence: 'established',
+  },
+  {
+    id: 'r118',
+    sourceId: 'imre-lakatos',
+    targetId: 'origin-of-species',
+    type: 'applied-to',
+    summary:
+      'Lakatos and later philosophers of biology applied the research-programme framework to Darwinian evolutionary theory, treating natural selection as a hard core defended across generations of revised auxiliary hypotheses about mechanisms of inheritance.',
+    confidence: 'likely',
+  },
+  {
+    id: 'r119',
+    sourceId: 'louis-pasteur',
+    targetId: 'spontaneous-generation-theory',
+    type: 'challenged',
+    summary:
+      "Pasteur's swan-neck flask experiments were designed specifically to refute spontaneous generation, and their wide acceptance was central to its decline as a live scientific theory.",
+    confidence: 'established',
+  },
+  {
+    id: 'r120',
+    sourceId: 'louis-pasteur',
+    targetId: 'john-snow-cholera',
+    type: 'supported',
+    summary:
+      "Pasteur's laboratory-based germ theory gave a specific causal mechanism that later strengthened acceptance of the kind of waterborne-transmission reasoning Snow had argued for epidemiologically a generation earlier.",
+    confidence: 'likely',
+  },
+  {
+    id: 'r121',
+    sourceId: 'ai-governance-and-safety-institutions',
+    targetId: 'science-policy-ecology',
+    type: 'applied-to',
+    summary:
+      'AI safety institutes applied long-standing science-policy questions about expert access and regulatory capture to a new, commercially dominated and fast-moving technology.',
+    confidence: 'likely',
+  },
+  {
+    id: 'r122',
+    sourceId: 'scientific-racism',
+    targetId: 'strong-programme-symmetry',
+    type: 'applied-to',
+    summary:
+      "The strong programme's symmetry principle — explaining both 'true' and 'false' beliefs through the same kinds of social causes — has been applied by historians to scientific racism to explain its persistence among otherwise rigorous researchers without treating it as a simple failure of method.",
+    confidence: 'likely',
+  },
 ]

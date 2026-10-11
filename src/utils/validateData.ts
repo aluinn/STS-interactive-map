@@ -137,6 +137,58 @@ export function validateDataBundle(bundle: DataBundle): ValidationIssue[] {
     }
   }
 
+  const routeIdSet = new Set<string>()
+  const routeSlugSet = new Set<string>()
+  for (const route of bundle.routes) {
+    if (routeIdSet.has(route.id)) {
+      issues.push({ level: 'error', message: `Duplicate route id: ${route.id}` })
+    }
+    routeIdSet.add(route.id)
+
+    if (routeSlugSet.has(route.slug)) {
+      issues.push({ level: 'error', message: `Duplicate route slug: ${route.slug}` })
+    }
+    routeSlugSet.add(route.slug)
+
+    if (route.waypoints.length < 2) {
+      issues.push({
+        level: 'error',
+        message: `Route ${route.id} has fewer than two waypoints`,
+      })
+    }
+
+    for (const wp of route.waypoints) {
+      if (wp.latitude < -90 || wp.latitude > 90 || wp.longitude < -180 || wp.longitude > 180) {
+        issues.push({
+          level: 'error',
+          message: `Route ${route.id} has an out-of-range waypoint coordinate (${wp.latitude}, ${wp.longitude})`,
+        })
+      }
+    }
+
+    if (route.relatedEntryIds.length === 0) {
+      issues.push({
+        level: 'warning',
+        message: `Route ${route.id} has no related entry ids`,
+      })
+    }
+    for (const relatedId of route.relatedEntryIds) {
+      if (!idSet.has(relatedId)) {
+        issues.push({
+          level: 'warning',
+          message: `Route ${route.id} references missing related entry id: ${relatedId}`,
+        })
+      }
+    }
+
+    if (route.sources.length === 0) {
+      issues.push({
+        level: 'warning',
+        message: `Route ${route.id} has no sources`,
+      })
+    }
+  }
+
   // Entries that reference a debate via philosophicalQuestions.debateId must point somewhere real.
   for (const entry of bundle.entries) {
     for (const lens of entry.philosophicalQuestions) {

@@ -134,6 +134,16 @@ export const expertiseAndActivismEntries: Entry[] = [
       "That Franklin's and Wu's contributions went completely unrecognised by their scientific peers at the time.",
     historicalComplication:
       'Both women were respected scientists among specialists during their careers; the exclusion was specifically from the highest public honours and popular credit, not total professional invisibility — a more precise and in some ways more troubling pattern than simple erasure.',
+    missingVoices: [
+      {
+        role: 'Rosalind Franklin',
+        note: "Franklin's X-ray diffraction data (including Photograph 51) was shown to Watson and Crick without her knowledge or consent and was essential to their 1953 DNA model; she died in 1958, four years before the Nobel Prize that recognised Watson, Crick, and Wilkins was awarded.",
+      },
+      {
+        role: 'Chien-Shiung Wu',
+        note: "Wu's 1956 experiment disproved the conservation of parity, a result central to the 1957 Nobel Prize in Physics awarded solely to the theorists Tsung-Dao Lee and Chen-Ning Yang, who had proposed the hypothesis her experiment tested.",
+      },
+    ],
     sources: [
       {
         author: 'Brenda Maddox',

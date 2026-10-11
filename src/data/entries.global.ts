@@ -361,6 +361,12 @@ export const globalEntries: Entry[] = [
       'That natural history illustration was a decorative art separate from serious scientific observation.',
     historicalComplication:
       "Merian's colonial fieldwork relied on the knowledge of enslaved and Indigenous people in Suriname whose names and contributions her published work does not fully credit.",
+    missingVoices: [
+      {
+        role: 'Enslaved and Indigenous informants in Suriname',
+        note: "Merian's published observations drew directly on local knowledge of plant and insect behaviour from enslaved Africans and Indigenous Surinamese people, whose names she did not record and whose expertise her book does not credit as co-authorship.",
+      },
+    ],
     sources: [
       {
         author: 'Kim Todd',

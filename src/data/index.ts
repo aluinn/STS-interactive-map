@@ -16,9 +16,12 @@ import { technologyPoliticsEntries } from './entries.technologyPolitics'
 import { expertiseAndActivismEntries } from './entries.expertiseAndActivism'
 import { openScienceEntries } from './entries.openScience'
 import { vaccineTrustAndDigitalEntries } from './entries.vaccineTrustAndDigital'
+import { overturnedIdeasEntries } from './entries.overturnedIdeas'
+import { newFiguresEntries } from './entries.newFigures'
 import { relationships } from './relationships'
 import { debates } from './debates'
 import { journeys } from './journeys'
+import { knowledgeRoutes } from './knowledgeRoutes'
 
 export const entries: Entry[] = [
   ...ancientEntries,
@@ -38,13 +41,18 @@ export const entries: Entry[] = [
   ...expertiseAndActivismEntries,
   ...openScienceEntries,
   ...vaccineTrustAndDigitalEntries,
+  ...overturnedIdeasEntries,
+  ...newFiguresEntries,
 ]
+
+export const routes = knowledgeRoutes
 
 export const dataBundle: DataBundle = {
   entries,
   relationships,
   debates,
   journeys,
+  routes,
 }
 
 export { relationships, debates, journeys }

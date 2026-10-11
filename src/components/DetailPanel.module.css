@@ -207,6 +207,28 @@
   font-size: 0.82rem;
 }
 
+.sourcesDetails summary {
+  cursor: pointer;
+  list-style: none;
+}
+.sourcesDetails summary::-webkit-details-marker {
+  display: none;
+}
+.sourcesDetails summary::before {
+  content: '▸ ';
+  color: var(--color-oxidised-green-bright);
+}
+.sourcesDetails[open] summary::before {
+  content: '▾ ';
+}
+.sourcesDetails summary:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 2px;
+}
+.sourcesDetails p:first-of-type {
+  margin-top: var(--space-2);
+}
+
 .statusNote {
   font-size: 0.75rem;
   color: var(--color-ink-faint);

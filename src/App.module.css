@@ -4,6 +4,15 @@
   flex-direction: column;
 }
 
+/* While the cinematic intro plays, the real app is mounted (so data and
+   map assets load normally) but pinned full-viewport behind the intro
+   overlay, faded in and made interactive only as the sequence completes. */
+.appBehindIntro {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+}
+
 .body {
   flex: 1;
   display: grid;

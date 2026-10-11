@@ -38,6 +38,8 @@ const RELATIONSHIP_LABELS: Record<RelationshipType, string> = {
   represented: 'Represented',
   'materially-enabled': 'Materially enabled',
   contested: 'Contested',
+  revised: 'Revised',
+  'applied-to': 'Applied to',
 }
 
 const BROKEN_LEGEND_TYPES = new Set<RelationshipType>(['replaced', 'criticised', 'contested'])

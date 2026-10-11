@@ -11,6 +11,7 @@ export interface Filters {
   onlyPhilosophy: boolean
   onlyContested: boolean
   onlyJourney: boolean
+  onlyOverturned: boolean
   yearMin: number | null
   yearMax: number | null
 }
@@ -33,6 +34,7 @@ export const defaultFilters: Filters = {
   onlyPhilosophy: false,
   onlyContested: false,
   onlyJourney: false,
+  onlyOverturned: false,
   yearMin: null,
   yearMax: null,
 }
@@ -68,6 +70,7 @@ function parseState(search: string): AppState {
       onlyPhilosophy: params.get('philosophy') === '1',
       onlyContested: params.get('contested') === '1',
       onlyJourney: params.get('journeyOnly') === '1',
+      onlyOverturned: params.get('overturned') === '1',
       yearMin: params.get('y0') ? Number(params.get('y0')) : null,
       yearMax: params.get('y1') ? Number(params.get('y1')) : null,
     },
@@ -90,6 +93,7 @@ function serializeState(state: AppState): string {
   if (f.onlyPhilosophy) params.set('philosophy', '1')
   if (f.onlyContested) params.set('contested', '1')
   if (f.onlyJourney) params.set('journeyOnly', '1')
+  if (f.onlyOverturned) params.set('overturned', '1')
   if (f.yearMin !== null) params.set('y0', String(f.yearMin))
   if (f.yearMax !== null) params.set('y1', String(f.yearMax))
   const s = params.toString()

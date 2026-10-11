@@ -55,6 +55,8 @@ describe('data integrity', () => {
       'represented',
       'materially-enabled',
       'contested',
+      'revised',
+      'applied-to',
     ]
     for (const t of expected) {
       expect(types.has(t)).toBe(true)

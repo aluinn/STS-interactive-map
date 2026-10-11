@@ -9,6 +9,7 @@ interface NavShellProps {
   onOpenAbout: () => void
   onOpenSources: () => void
   onOpenNotebook: () => void
+  onReplayIntro?: () => void
 }
 
 const TABS: { value: ViewName; label: string }[] = [
@@ -26,6 +27,7 @@ export function NavShell({
   onOpenAbout,
   onOpenSources,
   onOpenNotebook,
+  onReplayIntro,
 }: NavShellProps) {
   return (
     <header className={styles.header}>
@@ -48,6 +50,16 @@ export function NavShell({
         ))}
       </nav>
 
+      {onReplayIntro && (
+        <button
+          type="button"
+          className={styles.iconBtn}
+          onClick={onReplayIntro}
+          title="Replay the cinematic introduction"
+        >
+          ↺ Replay intro
+        </button>
+      )}
       <button type="button" className={styles.iconBtn} onClick={onOpenNotebook}>
         Notebook
       </button>

@@ -32,6 +32,10 @@ export function entryMatchesFilters(entry: Entry, filters: Filters): boolean {
     if (!isContested) return false
   }
   if (filters.onlyJourney && !entry.isJourneyStop) return false
+  if (filters.onlyOverturned) {
+    const overturnedStatuses = new Set(['rejected', 'superseded'])
+    if (!entry.theoryStatus || !overturnedStatuses.has(entry.theoryStatus)) return false
+  }
 
   if (filters.yearMin !== null && (entry.endYear ?? entry.startYear) < filters.yearMin) return false
   if (filters.yearMax !== null && entry.startYear > filters.yearMax) return false

@@ -72,11 +72,31 @@ export type RelationshipType =
   | 'represented'
   | 'materially-enabled'
   | 'contested'
+  | 'revised'
+  | 'applied-to'
 
 /** The social/physical scale a concept or case is best read at. Optional —
  * most entries don't need one, but it helps place abstract sociological and
  * policy concepts (which otherwise resist a single map coordinate). */
 export type EntryScale = 'body' | 'laboratory' | 'institution' | 'nation' | 'network' | 'globe'
+
+/** How settled the evidence or its interpretation is — deliberately NOT a
+ * stand-in for "politically controversial". A well-established fact can
+ * still be politically contested; this field only tracks evidential status. */
+export type EvidenceStatus =
+  | 'well-established'
+  | 'interpretation-debated'
+  | 'historical-details-contested'
+  | 'evidence-incomplete'
+  | 'contemporary-developing'
+
+/** A role or form of labour often missing from conventional accounts of an
+ * entry — only added where the entry's own sourced prose already supports
+ * it, never invented to tick a box. */
+export interface MissingVoice {
+  role: string
+  note: string
+}
 
 /** A short prompt inviting the visitor to reflect philosophically on an entry. */
 export interface PhilosophicalLens {
@@ -152,6 +172,15 @@ export interface Entry {
    * really located anywhere; it's located at the network scale). */
   scale?: EntryScale
 
+  /** How settled the evidence/interpretation is. Optional — only set where
+   * genuinely informative, not applied uniformly. */
+  evidenceStatus?: EvidenceStatus
+  evidenceStatusNote?: string
+
+  /** People or forms of labour conventional accounts of this entry tend to
+   * omit. Only populated where the entry's own sources already support it. */
+  missingVoices?: MissingVoice[]
+
   image?: string
   imageAlt?: string
 
@@ -197,11 +226,19 @@ export interface Debate {
   contemporaryRelevance: string
   furtherReading: Source[]
   themes: string[]
+  /** An optional closing prompt inviting the reader to consider their own
+   * view — never collected, scored, or stored anywhere. */
+  reflectionQuestion?: string
 }
 
 export interface JourneyStop {
   entryId: string
   caption: string
+  /** A sharper, stage-specific philosophical question, when it differs from
+   * (or sharpens) the underlying entry's own philosophicalQuestions. */
+  stageQuestion?: string
+  /** A short sociological or political reading of this specific stage. */
+  stageInterpretation?: string
 }
 
 export interface Journey {
@@ -211,6 +248,56 @@ export interface Journey {
   summary: string
   stops: JourneyStop[]
   themes: string[]
+  /** Closing synthesis shown after the final stop. All optional — short
+   * curated journeys need not fill every field. */
+  whatChanged?: string
+  whatRemainsDisputed?: string
+  reflectionQuestion?: string
+}
+
+/** The kind of channel knowledge travelled through — drives the route's
+ * visual style on the "Ideas on the Move" map layer. */
+export type RouteKind =
+  | 'correspondence'
+  | 'publication'
+  | 'translation'
+  | 'institution'
+  | 'trade'
+  | 'expedition'
+  | 'migration'
+  | 'colonial-network'
+  | 'diplomatic'
+  | 'digital-network'
+
+export interface RouteWaypoint {
+  label: string
+  latitude: number
+  longitude: number
+  /** Human-facing date or date range at this waypoint. */
+  dateDisplay?: string
+  note?: string
+}
+
+/** A larger-scale path knowledge travelled along — distinct from the
+ * entry-to-entry `Relationship` graph, which records a single claimed
+ * connection rather than a journey with waypoints and a date range. */
+export interface KnowledgeRoute {
+  id: string
+  slug: string
+  title: string
+  kind: RouteKind
+  summary: string
+  dateDisplay: string
+  waypoints: RouteWaypoint[]
+  /** What changed about the knowledge as it travelled — never implies it
+   * moved unchanged from one heroic individual to another. */
+  whatChanged: string
+  /** Translators, intermediaries, technicians, or institutions who made the
+   * movement possible, where known. */
+  intermediaries?: string[]
+  relatedEntryIds: string[]
+  sources: Source[]
+  confidence: Confidence
 }
 
 export interface DataBundle {
@@ -218,4 +305,5 @@ export interface DataBundle {
   relationships: Relationship[]
   debates: Debate[]
   journeys: Journey[]
+  routes: KnowledgeRoute[]
 }

@@ -56,6 +56,22 @@
   filter: url(#inkWobble);
 }
 
+.graticule {
+  fill: none;
+  stroke: var(--chart-ink);
+  stroke-width: 0.35;
+  opacity: 0.16;
+  vector-effect: non-scaling-stroke;
+}
+.border {
+  fill: none;
+  stroke: var(--chart-ink);
+  stroke-width: 0.5;
+  stroke-dasharray: 3 2;
+  opacity: 0.35;
+  vector-effect: non-scaling-stroke;
+}
+
 .seaTexture {
   fill: url(#seaWaves);
   opacity: 0.35;

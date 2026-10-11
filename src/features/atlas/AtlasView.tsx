@@ -2,19 +2,20 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { select } from 'd3-selection'
 import 'd3-transition'
 import { zoom as d3zoom, zoomIdentity, type D3ZoomEvent, type ZoomBehavior } from 'd3-zoom'
-import { feature } from 'topojson-client'
-import landTopology from 'world-atlas/land-110m.json'
+import { feature, mesh } from 'topojson-client'
+import landTopology from 'world-atlas/land-50m.json'
+import countriesTopology from 'world-atlas/countries-50m.json'
 import type { Entry, Relationship } from '../../types'
 import {
   createProjection,
   projectEntries,
-  clusterProjected,
   geoPath,
+  clusterProjected,
+  geoGraticule,
   type MarkerCluster,
 } from '../../utils/geo'
 import { MarkerIcon } from '../../components/MarkerIcon'
-import { MapDefs, ForestGlyph, CompassRose } from './MapGlyphs'
-import { forestRegions } from '../../utils/mapDecorations'
+import { MapDefs, CompassRose } from './MapGlyphs'
 import styles from './AtlasView.module.css'
 
 interface AtlasViewProps {
@@ -32,13 +33,6 @@ interface RouteTooltip {
   relationship: Relationship
   x: number
   y: number
-}
-
-interface GlyphPoint {
-  x: number
-  y: number
-  scale?: number
-  rotation?: number
 }
 
 const BROKEN_TYPES = new Set(['replaced', 'criticised', 'contested'])
@@ -97,15 +91,15 @@ export function AtlasView({
     () => pathGenerator(landFeature as never) ?? '',
     [pathGenerator, landFeature],
   )
-
-  const forestPoints = useMemo(() => {
-    const out: GlyphPoint[] = []
-    for (const f of forestRegions) {
-      const p = projection([f.longitude, f.latitude])
-      if (p) out.push({ x: p[0], y: p[1], scale: f.scale, rotation: f.rotation })
-    }
-    return out
-  }, [projection])
+  const borderPath = useMemo(() => {
+    const topo = countriesTopology as never as { objects: { countries: never } }
+    const borders = mesh(countriesTopology as never, topo.objects.countries, (a, b) => a !== b)
+    return pathGenerator(borders) ?? ''
+  }, [pathGenerator])
+  const graticulePath = useMemo(
+    () => pathGenerator(geoGraticule().step([20, 20])()) ?? '',
+    [pathGenerator],
+  )
 
   const projected = useMemo(() => projectEntries(entries, projection), [entries, projection])
   const noCoordEntries = useMemo(
@@ -202,6 +196,7 @@ export function AtlasView({
         const a = screenPositionById.get(r.sourceId)
         const b = screenPositionById.get(r.targetId)
         if (!a || !b) return null
+        if (Math.abs(a.x - b.x) < 0.01 && Math.abs(a.y - b.y) < 0.01) return null
         // Both endpoints collapsed into the same cluster bubble: nothing
         // meaningful to draw.
         if (Math.abs(a.x - b.x) < 0.01 && Math.abs(a.y - b.y) < 0.01) return null
@@ -261,16 +256,9 @@ export function AtlasView({
               height={size.height * 3}
               className={styles.seaTexture}
             />
+            <path className={styles.graticule} d={graticulePath} />
             <path className={styles.land} d={landPath} />
-            {forestPoints.map((f, i) => (
-              <ForestGlyph
-                key={`forest-${i}`}
-                x={f.x}
-                y={f.y}
-                scale={f.scale}
-                rotation={f.rotation}
-              />
-            ))}
+            <path className={styles.border} d={borderPath} />
             {routeCurves.map(({ rel, d, midX, midY }) => {
               const dimmed = hoveredId && rel.sourceId !== hoveredId && rel.targetId !== hoveredId
               return (

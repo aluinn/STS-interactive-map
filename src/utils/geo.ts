@@ -1,4 +1,4 @@
-import { geoNaturalEarth1, geoPath, type GeoProjection } from 'd3-geo'
+import { geoNaturalEarth1, geoPath, geoGraticule, type GeoProjection } from 'd3-geo'
 import type { Entry } from '../types'
 
 export interface ProjectedEntry {
@@ -22,7 +22,7 @@ export function createProjection(
   return geoNaturalEarth1().fitSize([width, height], landFeature as never)
 }
 
-export { geoPath }
+export { geoPath, geoGraticule }
 
 export function projectEntries(entries: Entry[], projection: GeoProjection): ProjectedEntry[] {
   const out: ProjectedEntry[] = []

@@ -1,7 +1,7 @@
 /*
   Design tokens for the Atlas of Ideas.
-  Dark ink-on-parchment is the default theme; [data-theme="light"] gives a
-  high-contrast "day" reading mode. Colours are tuned for antique-atlas mood
+  Dark ink-on-parchment is the default theme; [data-theme="light"] reuses the
+  atlas map's aged-parchment palette. Colours are tuned for antique-atlas mood
   without sacrificing WCAG-conscious contrast for body text.
 */
 
@@ -61,31 +61,31 @@
   --paper-grain-opacity: 0.08;
 }
 
-/* ---- High-contrast light "day" mode ---- */
+/* ---- Light mode: the same aged-parchment palette as the atlas map ---- */
 :root[data-theme='light'] {
-  --color-bg: #f3ebd8;
-  --color-bg-elevated: #faf4e6;
-  --color-parchment: #ece1c6;
-  --color-parchment-elevated: #f6eed9;
-  --color-ink: #241c10;
-  --color-ink-dim: #4a3c28;
-  --color-ink-faint: #6b5739;
-  --color-border: #c9b793;
-  --color-border-strong: #a68e60;
+  --color-bg: #cdb57f;
+  --color-bg-elevated: #d8c28f;
+  --color-parchment: #b89c68;
+  --color-parchment-elevated: #c7ad79;
+  --color-ink: #231c13;
+  --color-ink-dim: #3d3220;
+  --color-ink-faint: #5a4829;
+  --color-border: #9a7f4d;
+  --color-border-strong: #7d6136;
 
-  --color-gold: #8a6322;
-  --color-gold-bright: #6f4e16;
-  --color-burgundy: #7a2328;
-  --color-burgundy-bright: #5e1a1e;
+  --color-gold: #7c5a1f;
+  --color-gold-bright: #5e4313;
+  --color-burgundy: #732f32;
+  --color-burgundy-bright: #5a2023;
   --color-oxidised-green: #3f5c48;
   --color-oxidised-green-bright: #2f4636;
-  --color-charcoal: #241c10;
+  --color-charcoal: #231c13;
 
-  --color-focus: #6f4e16;
-  --color-link: #6f4e16;
+  --color-focus: #732f32;
+  --color-link: #5e4313;
 
-  --overlay-scrim: rgba(243, 235, 216, 0.85);
-  --paper-grain-opacity: 0.1;
+  --overlay-scrim: rgba(205, 181, 127, 0.88);
+  --paper-grain-opacity: 0.12;
 }
 
 /*
@@ -107,8 +107,6 @@
   --chart-marker-fill: #e8d7a8;
   --chart-marker-ink: #231c13;
   --chart-marker-selected: #732f32;
-  --chart-cluster-fill: #732f32;
-  --chart-cluster-ink: #e8d7a8;
   --chart-label-halo: #cdb57f;
   --chart-stain: rgba(70, 50, 20, 0.35);
   /* Deliberately lighter/softer than --chart-ink: used only for faint
@@ -117,6 +115,8 @@
   --chart-texture: rgba(93, 74, 42, 0.5);
 
   /* Back-compat aliases used throughout AtlasView.module.css */
+  --chart-cluster-fill: #732f32;
+  --chart-cluster-ink: #e8d7a8;
   --map-land: var(--chart-paper-deep);
   --map-land-border: var(--chart-ink);
   --map-sea: var(--chart-paper);

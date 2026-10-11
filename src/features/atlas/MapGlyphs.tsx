@@ -68,31 +68,6 @@ export function MapDefs() {
   )
 }
 
-interface GlyphProps {
-  x: number
-  y: number
-  scale?: number
-  rotation?: number
-}
-
-/** A small cluster of scalloped canopy bumps, standing in for a forest. */
-export function ForestGlyph({ x, y, scale = 1, rotation = 0 }: GlyphProps) {
-  return (
-    <g transform={`translate(${x},${y}) rotate(${rotation}) scale(${scale})`}>
-      <path
-        className={styles.forestGlyphOutline}
-        d="M-11,3 C-12,-2 -8,-6 -3,-6 C-2,-9 4,-9 6,-6 C11,-6 13,-1 10,2 C13,5 10,10 5,9 C3,12 -4,12 -6,9 C-11,10 -13,6 -11,3 Z"
-      />
-      <g className={styles.forestGlyph}>
-        <circle cx="-6" cy="2" r="4.6" />
-        <circle cx="0" cy="-2" r="5.4" />
-        <circle cx="6.5" cy="2" r="4.8" />
-        <circle cx="0" cy="4.5" r="4.9" />
-      </g>
-    </g>
-  )
-}
-
 /** A small static compass rose anchoring one corner of the chart. */
 export function CompassRose({ size = 72 }: { size?: number }) {
   const ticks = Array.from({ length: 16 }, (_, i) => i)

@@ -1,7 +1,7 @@
-import { lazy, Suspense, useMemo, useState } from 'react'
+import { lazy, Suspense, useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import styles from './App.module.css'
 import { NavShell } from './components/NavShell'
-import { Intro } from './components/Intro'
+import { CinematicIntro } from './components/CinematicIntro'
 import { Legend } from './components/Legend'
 import { SearchFilters } from './components/SearchFilters'
 import { DetailPanel } from './components/DetailPanel'
@@ -66,13 +66,20 @@ export default function App() {
       return true
     }
   })
-  const [introVisible, setIntroVisible] = useState<boolean>(() => {
+  // The cinematic intro only plays on the plain landing route: no deep link
+  // into a specific entry/debate/journey, and no non-default view already
+  // requested via the URL (both of those should open immediately instead).
+  const [introPhase, setIntroPhase] = useState<'cinematic' | 'done'>(() => {
+    const isLandingRoute =
+      !state.entry && !state.debate && !state.journey && state.view === 'atlas'
+    if (!isLandingRoute) return 'done'
     try {
-      return localStorage.getItem(INTRO_SEEN_KEY) !== '1'
+      return localStorage.getItem(INTRO_SEEN_KEY) === '1' ? 'done' : 'cinematic'
     } catch {
-      return true
+      return 'cinematic'
     }
   })
+  const appBehindRef = useRef<HTMLDivElement>(null)
   const [announcement, setAnnouncement] = useState('')
 
   const { entries, relationships, debates, journeys } = dataBundle
@@ -93,14 +100,35 @@ export default function App() {
     : null
   const currentStop = activeJourney?.stops[state.stop] ?? null
 
-  function enterAtlas() {
-    setIntroVisible(false)
+  const handleIntroProgress = useCallback((p: number) => {
+    const el = appBehindRef.current
+    if (!el) return
+    const t = Math.min(1, Math.max(0, (p - 0.72) / 0.28))
+    const eased = t * t * (3 - 2 * t)
+    el.style.opacity = String(eased)
+    el.style.pointerEvents = p > 0.97 ? 'auto' : 'none'
+  }, [])
+
+  function handleIntroComplete() {
+    setIntroPhase('done')
     try {
       localStorage.setItem(INTRO_SEEN_KEY, '1')
     } catch {
       // ignore
     }
+    window.scrollTo(0, 0)
   }
+
+  function replayIntro() {
+    window.scrollTo(0, 0)
+    setIntroPhase('cinematic')
+  }
+
+  // Guarantee a fresh scroll-driven sequence starts at the top, even if the
+  // page had residual scroll from before a replay was triggered.
+  useLayoutEffect(() => {
+    if (introPhase === 'cinematic') window.scrollTo(0, 0)
+  }, [introPhase])
 
   function selectEntry(id: string) {
     setState({ entry: id })
@@ -156,11 +184,7 @@ export default function App() {
         }
       : undefined
 
-  if (introVisible) {
-    return <Intro onEnter={enterAtlas} reducedMotion={reducedMotion} />
-  }
-
-  return (
+  const appUi = (
     <div className={styles.app}>
       <a href="#main-content" className="skip-link">
         Skip to main content
@@ -177,6 +201,7 @@ export default function App() {
         onOpenAbout={() => setModal('about')}
         onOpenSources={() => setModal('sources')}
         onOpenNotebook={() => setModal('notebook')}
+        onReplayIntro={replayIntro}
       />
 
       <div className={styles.body}>
@@ -298,5 +323,25 @@ export default function App() {
         </Modal>
       )}
     </div>
+  )
+
+  return (
+    <>
+      <div
+        ref={appBehindRef}
+        className={introPhase === 'cinematic' ? styles.appBehindIntro : undefined}
+        style={introPhase === 'cinematic' ? { opacity: 0, pointerEvents: 'none' } : undefined}
+        inert={introPhase === 'cinematic' ? true : undefined}
+      >
+        {appUi}
+      </div>
+      {introPhase === 'cinematic' && (
+        <CinematicIntro
+          reducedMotion={reducedMotion}
+          onProgress={handleIntroProgress}
+          onComplete={handleIntroComplete}
+        />
+      )}
+    </>
   )
 }

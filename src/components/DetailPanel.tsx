@@ -1,6 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
-import type { Entry } from '../types'
+import type { Entry, EvidenceStatus } from '../types'
 import styles from './DetailPanel.module.css'
+
+const EVIDENCE_STATUS_LABELS: Record<EvidenceStatus, string> = {
+  'well-established': 'Evidence: well established',
+  'interpretation-debated': 'Evidence: interpretation debated',
+  'historical-details-contested': 'Evidence: historical details contested',
+  'evidence-incomplete': 'Evidence: incomplete',
+  'contemporary-developing': 'Evidence: still developing',
+}
 
 interface JourneyNav {
   title: string
@@ -101,7 +109,20 @@ export function DetailPanel({
             <span className={styles.chip}>status: {entry.theoryStatus.replace(/-/g, ' ')}</span>
           )}
           {entry.scale && <span className={styles.chip}>scale: {entry.scale}</span>}
+          {entry.evidenceStatus && (
+            <span
+              className={styles.chip}
+              title={entry.evidenceStatusNote}
+              tabIndex={entry.evidenceStatusNote ? 0 : undefined}
+            >
+              {EVIDENCE_STATUS_LABELS[entry.evidenceStatus]}
+            </span>
+          )}
         </div>
+
+        {entry.evidenceStatusNote && (
+          <p className={styles.statusNote}>{entry.evidenceStatusNote}</p>
+        )}
 
         {entry.contentStatus === 'sourceNeeded' && (
           <p className={styles.statusNote}>
@@ -166,6 +187,19 @@ export function DetailPanel({
           </section>
         )}
 
+        {entry.missingVoices && entry.missingVoices.length > 0 && (
+          <section className={styles.section}>
+            <h3 className={styles.sectionHeading}>Whose voice is missing?</h3>
+            <div className={styles.mythBox}>
+              {entry.missingVoices.map((v, i) => (
+                <div key={i}>
+                  <strong>{v.role}:</strong> {v.note}
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
         {relatedEntries.length > 0 && (
           <section className={styles.section}>
             <h3 className={styles.sectionHeading}>Connected entries</h3>
@@ -186,23 +220,33 @@ export function DetailPanel({
         )}
 
         <section className={styles.section}>
-          <h3 className={styles.sectionHeading}>Sources &amp; further reading</h3>
-          {entry.sources.map((s, i) => (
-            <p className={styles.sourceItem} key={i}>
-              <span className={styles.sourceBadge}>{s.type}</span>
-              {s.author ? `${s.author}, ` : ''}
-              <em>{s.title}</em>
-              {s.year ? `, ${s.year}` : ''}
-              {s.url ? (
-                <>
-                  {' — '}
-                  <a href={s.url} target="_blank" rel="noreferrer">
-                    link
-                  </a>
-                </>
-              ) : null}
-            </p>
-          ))}
+          <details className={styles.sourcesDetails}>
+            <summary className={styles.sectionHeading}>
+              Sources &amp; further reading ({entry.sources.length})
+            </summary>
+            {entry.sources.length === 0 ? (
+              <p className={styles.statusNote}>
+                No sources listed yet for this entry — treat its claims as provisional.
+              </p>
+            ) : (
+              entry.sources.map((s, i) => (
+                <p className={styles.sourceItem} key={i}>
+                  <span className={styles.sourceBadge}>{s.type}</span>
+                  {s.author ? `${s.author}, ` : ''}
+                  <em>{s.title}</em>
+                  {s.year ? `, ${s.year}` : ''}
+                  {s.url ? (
+                    <>
+                      {' — '}
+                      <a href={s.url} target="_blank" rel="noreferrer">
+                        link
+                      </a>
+                    </>
+                  ) : null}
+                </p>
+              ))
+            )}
+          </details>
         </section>
 
         <div style={{ display: 'flex', gap: 'var(--space-2)', flexWrap: 'wrap' }}>

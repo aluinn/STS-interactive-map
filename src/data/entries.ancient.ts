@@ -52,7 +52,7 @@ export const ancientEntries: Entry[] = [
         type: 'secondary',
       },
     ],
-    relatedEntryIds: ['venus-tablet', 'ptolemy', 'babylon-to-cosmology-journey'],
+    relatedEntryIds: ['venus-tablet', 'ptolemy'],
     confidence: 'established',
     contentStatus: 'complete',
     isJourneyStop: true,

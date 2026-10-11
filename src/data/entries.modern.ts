@@ -482,6 +482,12 @@ export const modernEntries: Entry[] = [
       'That Watt invented the steam engine, or had his key insight in a sudden flash while watching a kettle boil.',
     historicalComplication:
       'Watt improved on the existing Newcomen engine and depended on precision boring techniques and manufacturing capacity he did not himself invent; his patents also blocked some rival improvements for years.',
+    missingVoices: [
+      {
+        role: 'Precision metalworkers and instrument makers',
+        note: "John Wilkinson's boring techniques and Matthew Boulton's manufactory workforce supplied the precision metalworking Watt's design depended on; the engine's success is as much a craft and industrial achievement as an individual one.",
+      },
+    ],
     sources: [
       {
         author: 'Ben Russell',
@@ -748,6 +754,12 @@ export const modernEntries: Entry[] = [
     ],
     historicalSignificance:
       'One of the starkest cases in the atlas of science directly instrumentalised for colonial violence, important for resisting any tidy separation of "pure" knowledge from its uses.',
+    missingVoices: [
+      {
+        role: 'Congolese forest communities and labourers',
+        note: 'The botanical and geological knowledge this entry describes was gathered with the assistance of, and enforced against, Congolese communities whose own ecological knowledge of the forest went uncredited, and whose forced labour the resulting surveys were used to extract.',
+      },
+    ],
     sources: [
       { author: 'Adam Hochschild', title: "King Leopold's Ghost", year: '1998', type: 'secondary' },
     ],
