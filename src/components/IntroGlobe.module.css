@@ -3,7 +3,7 @@
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  filter: drop-shadow(0 0 min(5vmin, 36px) rgba(224, 189, 110, 0.35));
+  box-shadow: 0 0 min(6vmin, 48px) rgba(224, 189, 110, 0.3);
 }
 
 .shading {

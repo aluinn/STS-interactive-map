@@ -1,10 +1,12 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { select } from 'd3-selection'
 import 'd3-transition'
 import { zoom as d3zoom, zoomIdentity, type D3ZoomEvent, type ZoomBehavior } from 'd3-zoom'
 import { feature, mesh } from 'topojson-client'
 import landTopology from 'world-atlas/land-50m.json'
+import landTopologyCoarse from 'world-atlas/land-110m.json'
 import countriesTopology from 'world-atlas/countries-50m.json'
+import countriesTopologyCoarse from 'world-atlas/countries-110m.json'
 import type { Entry, Relationship } from '../../types'
 import {
   createProjection,
@@ -33,6 +35,52 @@ interface RouteTooltip {
   x: number
   y: number
 }
+
+function landFeatureOf(topology: unknown) {
+  return feature(topology as never, (topology as { objects: { land: never } }).objects.land)
+}
+
+function bordersOf(topology: unknown) {
+  const t = topology as { objects: { countries: never } }
+  return mesh(topology as never, t.objects.countries, (a, b) => a !== b)
+}
+
+/** Static chart layers; memoised so pan/zoom frames don't re-diff them. */
+const BaseMap = memo(function BaseMap({
+  width,
+  height,
+  land,
+  borders,
+  graticule,
+  strokeScale,
+}: {
+  width: number
+  height: number
+  land: string
+  borders: string
+  graticule: string
+  strokeScale: number
+}) {
+  return (
+    <>
+      <rect x={-width} y={-height} width={width * 3} height={height * 3} className={styles.sea} />
+      <rect
+        x={-width}
+        y={-height}
+        width={width * 3}
+        height={height * 3}
+        className={styles.seaTexture}
+      />
+      <path
+        className={styles.graticule}
+        d={graticule}
+        style={{ strokeWidth: 0.35 * strokeScale }}
+      />
+      <path className={styles.land} d={land} style={{ strokeWidth: 0.8 * strokeScale }} />
+      <path className={styles.border} d={borders} style={{ strokeWidth: 0.5 * strokeScale }} />
+    </>
+  )
+})
 
 const BROKEN_TYPES = new Set(['replaced', 'criticised', 'contested'])
 
@@ -71,33 +119,29 @@ export function AtlasView({
     return () => ro.disconnect()
   }, [])
 
-  const landFeature = useMemo(
-    () =>
-      feature(
-        landTopology as never,
-        (landTopology as never as { objects: { land: never } }).objects.land,
-      ),
-    [],
-  )
+  const landFeature = useMemo(() => landFeatureOf(landTopology), [])
 
   const projection = useMemo(
     () => createProjection(size.width, size.height, landFeature as never),
     [size.width, size.height, landFeature],
   )
-  const pathGenerator = useMemo(() => geoPath(projection), [projection])
-  const landPath = useMemo(
-    () => pathGenerator(landFeature as never) ?? '',
+  // 1-decimal precision keeps the path strings small; the browser has to
+  // re-rasterise them on every pan/zoom frame, so their size matters.
+  const pathGenerator = useMemo(() => geoPath(projection).digits(1), [projection])
+
+  // Coarse outlines while zoomed out (cheap to repaint while panning), the
+  // detailed ones once zoomed in far enough for the detail to be visible.
+  const paths = useMemo(
+    () => ({
+      landCoarse: pathGenerator(landFeatureOf(landTopologyCoarse) as never) ?? '',
+      landFine: pathGenerator(landFeature as never) ?? '',
+      bordersCoarse: pathGenerator(bordersOf(countriesTopologyCoarse)) ?? '',
+      bordersFine: pathGenerator(bordersOf(countriesTopology)) ?? '',
+      graticule: pathGenerator(geoGraticule().step([20, 20])()) ?? '',
+    }),
     [pathGenerator, landFeature],
   )
-  const borderPath = useMemo(() => {
-    const topo = countriesTopology as never as { objects: { countries: never } }
-    const borders = mesh(countriesTopology as never, topo.objects.countries, (a, b) => a !== b)
-    return pathGenerator(borders) ?? ''
-  }, [pathGenerator])
-  const graticulePath = useMemo(
-    () => pathGenerator(geoGraticule().step([20, 20])()) ?? '',
-    [pathGenerator],
-  )
+  const detailed = transform.k >= 2.5
 
   const projected = useMemo(() => projectEntries(entries, projection), [entries, projection])
   const noCoordEntries = useMemo(
@@ -113,15 +157,25 @@ export function AtlasView({
   useEffect(() => {
     const svgEl = svgRef.current
     if (!svgEl) return
+    let frame: number | null = null
+    let pendingTransform: { x: number; y: number; k: number } | null = null
     const zb = d3zoom<SVGSVGElement, unknown>()
       .scaleExtent([0.9, 10])
       .on('zoom', (event: D3ZoomEvent<SVGSVGElement, unknown>) => {
-        setTransform({ x: event.transform.x, y: event.transform.y, k: event.transform.k })
+        // Coalesce bursts of wheel/drag events into one React update per frame.
+        pendingTransform = { x: event.transform.x, y: event.transform.y, k: event.transform.k }
+        if (frame === null) {
+          frame = requestAnimationFrame(() => {
+            frame = null
+            if (pendingTransform) setTransform(pendingTransform)
+          })
+        }
       })
     zoomBehaviorRef.current = zb
     select(svgEl).call(zb)
     return () => {
       select(svgEl).on('.zoom', null)
+      if (frame !== null) cancelAnimationFrame(frame)
     }
   }, [])
 
@@ -245,23 +299,14 @@ export function AtlasView({
         >
           <MapDefs />
           <g transform={`translate(${transform.x},${transform.y}) scale(${transform.k})`}>
-            <rect
-              x={-size.width}
-              y={-size.height}
-              width={size.width * 3}
-              height={size.height * 3}
-              className={styles.sea}
+            <BaseMap
+              width={size.width}
+              height={size.height}
+              land={detailed ? paths.landFine : paths.landCoarse}
+              borders={detailed ? paths.bordersFine : paths.bordersCoarse}
+              graticule={paths.graticule}
+              strokeScale={Math.round((1 / transform.k) * 20) / 20}
             />
-            <rect
-              x={-size.width}
-              y={-size.height}
-              width={size.width * 3}
-              height={size.height * 3}
-              className={styles.seaTexture}
-            />
-            <path className={styles.graticule} d={graticulePath} />
-            <path className={styles.land} d={landPath} />
-            <path className={styles.border} d={borderPath} />
             {routeCurves.map(({ rel, d, midX, midY }) => {
               const dimmed = hoveredId && rel.sourceId !== hoveredId && rel.targetId !== hoveredId
               return (

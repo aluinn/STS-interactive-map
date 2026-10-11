@@ -1,30 +1,12 @@
 import styles from './AtlasView.module.css'
 
 /**
- * Static SVG `<defs>` shared by the whole chart: a hand-wobble filter
- * applied to the coastline so it reads as pen-drawn rather than
- * computer-smooth, and a gentle wave pattern for open sea. Rendered once;
+ * Static SVG `<defs>` shared by the whole chart: a gentle wave pattern for open sea. Rendered once;
  * cheap, since filters/patterns are not re-evaluated per zoom frame.
  */
 export function MapDefs() {
   return (
     <defs>
-      <filter id="inkWobble" x="-10%" y="-10%" width="120%" height="120%">
-        <feTurbulence
-          type="fractalNoise"
-          baseFrequency="0.014 0.028"
-          numOctaves="2"
-          seed="7"
-          result="noise"
-        />
-        <feDisplacementMap
-          in="SourceGraphic"
-          in2="noise"
-          scale="3.2"
-          xChannelSelector="R"
-          yChannelSelector="G"
-        />
-      </filter>
       <pattern
         id="seaWaves"
         width="34"

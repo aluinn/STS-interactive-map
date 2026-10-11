@@ -45,7 +45,23 @@ interface CinematicIntroProps {
 export function CinematicIntro({ reducedMotion, onProgress, onComplete }: CinematicIntroProps) {
   const spacerRef = useRef<HTMLDivElement>(null)
   const finishedRef = useRef(false)
-  const stars = STAR_FIELD
+  const starElements = useMemo(
+    () =>
+      STAR_FIELD.map((s, i) => (
+        <span
+          key={i}
+          className={styles.star}
+          style={{
+            left: `${s.x}%`,
+            top: `${s.y}%`,
+            width: `${s.size}px`,
+            height: `${s.size}px`,
+            opacity: s.opacity,
+          }}
+        />
+      )),
+    [],
+  )
 
   function finish() {
     if (finishedRef.current) return
@@ -156,19 +172,7 @@ export function CinematicIntro({ reducedMotion, onProgress, onComplete }: Cinema
       >
         <div className={styles.masked}>
           <div className={styles.stars} style={{ opacity: starOpacity }} aria-hidden>
-            {stars.map((s, i) => (
-              <span
-                key={i}
-                className={styles.star}
-                style={{
-                  left: `${s.x}%`,
-                  top: `${s.y}%`,
-                  width: `${s.size}px`,
-                  height: `${s.size}px`,
-                  opacity: s.opacity,
-                }}
-              />
-            ))}
+            {starElements}
           </div>
           <div className={styles.glow} style={{ opacity: glowOpacity }} aria-hidden />
           <div
