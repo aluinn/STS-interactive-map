@@ -41,11 +41,13 @@ export const knowledgeRoutes: KnowledgeRoute[] = [
     ],
     whatChanged:
       'The texts were not passed along unchanged: Baghdad-era scholars corrected, extended, and argued with Greek sources (notably in astronomy and optics), and the Latin versions that reached European universities were frequently translations of Arabic commentary as much as of the original Greek — a multi-generational, multi-language transformation rather than a single relay.',
-    intermediaries: [
-      'Syriac Christian translators and scholars',
-      'Toledo School of Translators',
+    intermediaries: ['Syriac Christian translators and scholars', 'Toledo School of Translators'],
+    relatedEntryIds: [
+      'house-of-wisdom',
+      'baghdad-translation-movement',
+      'al-khwarizmi',
+      'ibn-al-haytham',
     ],
-    relatedEntryIds: ['house-of-wisdom', 'baghdad-translation-movement', 'al-khwarizmi', 'ibn-al-haytham'],
     sources: [
       {
         author: 'Dimitri Gutas',
@@ -65,7 +67,12 @@ export const knowledgeRoutes: KnowledgeRoute[] = [
       'Henry Oldenburg, as secretary of the Royal Society, maintained an extensive personal correspondence network across Europe, collecting, translating, and circulating reports of experiments and observations well before any of it appeared in print.',
     dateDisplay: 'c. 1660–1680s',
     waypoints: [
-      { label: 'London', latitude: 51.5072, longitude: -0.1276, note: 'Royal Society, hub of the correspondence network.' },
+      {
+        label: 'London',
+        latitude: 51.5072,
+        longitude: -0.1276,
+        note: 'Royal Society, hub of the correspondence network.',
+      },
       { label: 'Paris', latitude: 48.8566, longitude: 2.3522 },
       { label: 'Florence', latitude: 43.7696, longitude: 11.2558 },
       { label: 'Amsterdam', latitude: 52.3676, longitude: 4.9041 },
@@ -90,10 +97,15 @@ export const knowledgeRoutes: KnowledgeRoute[] = [
     title: "Zheng He's Treasure Voyages",
     kind: 'expedition',
     summary:
-      "The Ming admiral Zheng He led seven large state-sponsored maritime expeditions across the Indian Ocean, gathering geographic, nautical, and diplomatic knowledge on a scale that dwarfed contemporary European voyages, before the programme was abruptly discontinued.",
+      'The Ming admiral Zheng He led seven large state-sponsored maritime expeditions across the Indian Ocean, gathering geographic, nautical, and diplomatic knowledge on a scale that dwarfed contemporary European voyages, before the programme was abruptly discontinued.',
     dateDisplay: '1405–1433',
     waypoints: [
-      { label: 'Nanjing', latitude: 32.0603, longitude: 118.7969, note: 'Departure point and shipyards.' },
+      {
+        label: 'Nanjing',
+        latitude: 32.0603,
+        longitude: 118.7969,
+        note: 'Departure point and shipyards.',
+      },
       { label: 'Malacca', latitude: 2.1896, longitude: 102.2501 },
       { label: 'Calicut', latitude: 11.2588, longitude: 75.7804 },
       { label: 'Hormuz', latitude: 26.968, longitude: 56.4522 },
@@ -124,8 +136,18 @@ export const knowledgeRoutes: KnowledgeRoute[] = [
     waypoints: [
       { label: 'Rome', latitude: 41.9028, longitude: 12.4964 },
       { label: 'Lisbon', latitude: 38.7223, longitude: -9.1393 },
-      { label: 'Macau', latitude: 22.1987, longitude: 113.5439, note: 'Staging point for missions into China.' },
-      { label: 'Beijing', latitude: 39.9042, longitude: 116.4074, note: 'Qing imperial court, where Jesuits served as astronomers and mapmakers.' },
+      {
+        label: 'Macau',
+        latitude: 22.1987,
+        longitude: 113.5439,
+        note: 'Staging point for missions into China.',
+      },
+      {
+        label: 'Beijing',
+        latitude: 39.9042,
+        longitude: 116.4074,
+        note: 'Qing imperial court, where Jesuits served as astronomers and mapmakers.',
+      },
     ],
     whatChanged:
       'Knowledge moved in both directions and was reshaped by local priorities: the Qing court adopted specific technical tools (calendrical astronomy, cartography) useful to statecraft while largely declining the religious framework they arrived with, and Jesuit reports back to Europe shaped European perceptions of Chinese philosophy and administration.',
@@ -144,20 +166,33 @@ export const knowledgeRoutes: KnowledgeRoute[] = [
   {
     id: 'route-origin-of-species-translations',
     slug: 'origin-of-species-global-circulation',
-    title: "On the Origin of Species in Translation",
+    title: 'On the Origin of Species in Translation',
     kind: 'publication',
     summary:
       "Darwin's 1859 book was rapidly translated and debated across Europe and beyond, but its reception was not uniform: translators, reviewers, and local scientific communities adapted, resisted, or redirected its arguments to fit existing national scientific and religious debates.",
     dateDisplay: '1859–1870s',
     waypoints: [
       { label: 'London', latitude: 51.5072, longitude: -0.1276, note: 'First publication, 1859.' },
-      { label: 'Berlin', latitude: 52.52, longitude: 13.405, note: 'Rapid German translation and uptake, entangled with existing debates over materialism.' },
-      { label: 'Paris', latitude: 48.8566, longitude: 2.3522, note: 'Slower, more contested reception shaped by existing French natural-history traditions.' },
+      {
+        label: 'Berlin',
+        latitude: 52.52,
+        longitude: 13.405,
+        note: 'Rapid German translation and uptake, entangled with existing debates over materialism.',
+      },
+      {
+        label: 'Paris',
+        latitude: 48.8566,
+        longitude: 2.3522,
+        note: 'Slower, more contested reception shaped by existing French natural-history traditions.',
+      },
       { label: 'New York', latitude: 40.7128, longitude: -74.006 },
     ],
     whatChanged:
       "Darwin's argument did not travel as a fixed package: German readers often read it through an existing Naturphilosophie lens, while French naturalists weighed it against Lamarckian and Cuvierian traditions already established there — translation was an act of interpretation, not transmission.",
-    intermediaries: ['National scientific societies and journal reviewers', 'Translators adapting terminology into local scientific vocabularies'],
+    intermediaries: [
+      'National scientific societies and journal reviewers',
+      'Translators adapting terminology into local scientific vocabularies',
+    ],
     relatedEntryIds: ['origin-of-species', 'darwin', 'alfred-russel-wallace'],
     sources: [
       {
@@ -175,12 +210,22 @@ export const knowledgeRoutes: KnowledgeRoute[] = [
     title: 'Congo Free State Resource and Knowledge Extraction',
     kind: 'colonial-network',
     summary:
-      "Botanical, geological, and ethnographic knowledge about the Congo basin was gathered under conditions of forced labour during Belgian colonial rule, then carried to European institutions where it was credited to European collectors rather than the Congolese communities whose knowledge and labour produced it.",
+      'Botanical, geological, and ethnographic knowledge about the Congo basin was gathered under conditions of forced labour during Belgian colonial rule, then carried to European institutions where it was credited to European collectors rather than the Congolese communities whose knowledge and labour produced it.',
     dateDisplay: '1885–1908',
     waypoints: [
       { label: 'Congo Basin', latitude: -4.4419, longitude: 15.2663 },
-      { label: 'Antwerp', latitude: 51.2194, longitude: 4.4025, note: 'Principal port for Congo rubber and mineral exports.' },
-      { label: 'Brussels', latitude: 50.8503, longitude: 4.3517, note: 'Colonial administration and scientific institutions receiving collected specimens and reports.' },
+      {
+        label: 'Antwerp',
+        latitude: 51.2194,
+        longitude: 4.4025,
+        note: 'Principal port for Congo rubber and mineral exports.',
+      },
+      {
+        label: 'Brussels',
+        latitude: 50.8503,
+        longitude: 4.3517,
+        note: 'Colonial administration and scientific institutions receiving collected specimens and reports.',
+      },
     ],
     whatChanged:
       'What is described in European scientific archives as "collection" or "survey" work depended on Congolese ecological knowledge and forced labour that the resulting publications did not credit, illustrating how colonial science records often erase the very people who made the knowledge-gathering possible.',
@@ -201,7 +246,7 @@ export const knowledgeRoutes: KnowledgeRoute[] = [
     title: 'Mobile Money Across East Africa',
     kind: 'digital-network',
     summary:
-      "M-Pesa, launched in Kenya in 2007, diffused across East Africa through existing social and agent networks rather than formal banking infrastructure, and was adapted by users for purposes (savings, informal credit, remittances) its designers had not fully anticipated.",
+      'M-Pesa, launched in Kenya in 2007, diffused across East Africa through existing social and agent networks rather than formal banking infrastructure, and was adapted by users for purposes (savings, informal credit, remittances) its designers had not fully anticipated.',
     dateDisplay: '2007–2010s',
     waypoints: [
       { label: 'Nairobi', latitude: -1.2921, longitude: 36.8219, note: 'Launch site, 2007.' },

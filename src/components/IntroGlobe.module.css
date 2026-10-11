@@ -8,7 +8,8 @@
 
 .shading {
   position: absolute;
-  inset: 0;
+  /* Matches the SVG globe radius (46 of 100) so no paper band shows outside the sphere. */
+  inset: 4%;
   border-radius: 50%;
   background: radial-gradient(
     circle at 34% 30%,
@@ -44,10 +45,11 @@
 }
 .shine {
   position: absolute;
-  inset: 0;
+  inset: 4%;
   border-radius: 50%;
   pointer-events: none;
-  background: radial-gradient(circle at 32% 28%, rgba(255, 244, 214, 0.28), transparent 45%),
+  background:
+    radial-gradient(circle at 32% 28%, rgba(255, 244, 214, 0.28), transparent 45%),
     radial-gradient(circle at 70% 75%, rgba(20, 14, 8, 0.45), transparent 60%);
 }
 

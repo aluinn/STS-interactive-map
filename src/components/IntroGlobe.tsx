@@ -1,8 +1,9 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { geoOrthographic, geoPath, geoGraticule } from 'd3-geo'
 import { feature, mesh } from 'topojson-client'
 import landTopology from 'world-atlas/land-50m.json'
-import countriesTopology from 'world-atlas/countries-50m.json'
+import landTopologyCoarse from 'world-atlas/land-110m.json'
+import countriesTopology from 'world-atlas/countries-110m.json'
 import styles from './IntroGlobe.module.css'
 
 interface IntroGlobeProps {
@@ -14,6 +15,10 @@ const R = 46
 const land = feature(
   landTopology as never,
   (landTopology as never as { objects: { land: never } }).objects.land,
+)
+const landCoarse = feature(
+  landTopologyCoarse as never,
+  (landTopologyCoarse as never as { objects: { land: never } }).objects.land,
 )
 const borders = mesh(
   countriesTopology as never,
@@ -40,6 +45,16 @@ const sphere = { type: 'Sphere' } as const
  * `rotation` increases.
  */
 export function IntroGlobe({ rotation }: IntroGlobeProps) {
+  // Projecting the 50m coastline takes ~35ms, too slow to redo on every
+  // scroll frame. While the rotation is changing we draw the coarse 110m
+  // coastline (~5ms) and swap the detailed one in once scrolling pauses.
+  const [settledRotation, setSettledRotation] = useState<number | null>(null)
+  useEffect(() => {
+    const t = setTimeout(() => setSettledRotation(rotation), 140)
+    return () => clearTimeout(t)
+  }, [rotation])
+  const detailed = settledRotation === rotation
+
   const paths = useMemo(() => {
     const projection = geoOrthographic()
       .translate([50, 50])
@@ -49,14 +64,14 @@ export function IntroGlobe({ rotation }: IntroGlobeProps) {
       .precision(0.3)
     const path = geoPath(projection)
     return {
-      land: path(land as never) ?? '',
+      land: path((detailed ? land : landCoarse) as never) ?? '',
       borders: path(borders) ?? '',
       fine: path(fineGraticule) ?? '',
       major: path(majorGraticule) ?? '',
       equator: path(equator as never) ?? '',
       sphere: path(sphere as never) ?? '',
     }
-  }, [rotation])
+  }, [rotation, detailed])
 
   return (
     <div className={styles.sphere}>

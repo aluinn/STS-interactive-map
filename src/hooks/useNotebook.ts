@@ -8,10 +8,30 @@ export interface NotebookItem {
 
 const STORAGE_KEY = 'atlas-notebook'
 
-function read(): NotebookItem[] {
+function isNotebookItem(v: unknown): v is NotebookItem {
+  if (typeof v !== 'object' || v === null) return false
+  const o = v as Record<string, unknown>
+  return typeof o.entryId === 'string' && o.entryId.length > 0
+}
+
+/** Reads saved items, tolerating missing, corrupt or older-shaped data. */
+export function readNotebook(): NotebookItem[] {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    return raw ? (JSON.parse(raw) as NotebookItem[]) : []
+    const parsed: unknown = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]')
+    if (!Array.isArray(parsed)) return []
+    const seen = new Set<string>()
+    const items: NotebookItem[] = []
+    for (const raw of parsed) {
+      if (!isNotebookItem(raw) || seen.has(raw.entryId)) continue
+      seen.add(raw.entryId)
+      const o = raw as unknown as Record<string, unknown>
+      items.push({
+        entryId: raw.entryId,
+        note: typeof o.note === 'string' ? o.note : '',
+        savedAt: typeof o.savedAt === 'string' ? o.savedAt : new Date(0).toISOString(),
+      })
+    }
+    return items
   } catch {
     return []
   }
@@ -26,7 +46,7 @@ function write(items: NotebookItem[]) {
 }
 
 export function useNotebook() {
-  const [items, setItems] = useState<NotebookItem[]>(() => read())
+  const [items, setItems] = useState<NotebookItem[]>(() => readNotebook())
 
   useEffect(() => {
     write(items)

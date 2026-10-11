@@ -1,8 +1,11 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { useScrollProgress } from '../hooks/useScrollProgress'
 import { smoothstep, lerpKeyframes } from '../utils/easing'
-import { IntroGlobe } from './IntroGlobe'
 import styles from './CinematicIntro.module.css'
+
+// The globe pulls in the detailed world geometry (~1 MB), so it loads as a
+// separate chunk instead of inflating the initial bundle.
+const IntroGlobe = lazy(() => import('./IntroGlobe').then((m) => ({ default: m.IntroGlobe })))
 
 interface Star {
   x: number
@@ -59,7 +62,10 @@ export function CinematicIntro({ reducedMotion, onProgress, onComplete }: Cinema
     [],
   )
 
-  const progress = useScrollProgress(reducedMotion ? { current: null } : spacerRef, handleProgressTick)
+  const progress = useScrollProgress(
+    reducedMotion ? { current: null } : spacerRef,
+    handleProgressTick,
+  )
 
   // Reduced-motion: a brief, non-scroll-linked fade from globe to map.
   const [reducedFading, setReducedFading] = useState(false)
@@ -92,12 +98,16 @@ export function CinematicIntro({ reducedMotion, onProgress, onComplete }: Cinema
           style={{ opacity: reducedFading ? 0 : 1 }}
         >
           <div className={styles.globeWrap}>
-            <IntroGlobe rotation={0} />
+            <Suspense fallback={null}>
+              <IntroGlobe rotation={0} />
+            </Suspense>
           </div>
           <div className={styles.textWrap}>
             <p className={styles.eyebrow}>An Interactive Atlas</p>
             <h1 className={styles.title}>STS Interactive Map</h1>
-            <p className={styles.tagline}>&ldquo;Knowledge has never travelled in a straight line.&rdquo;</p>
+            <p className={styles.tagline}>
+              &ldquo;Knowledge has never travelled in a straight line.&rdquo;
+            </p>
           </div>
           <div className={styles.vignette} aria-hidden />
         </div>
@@ -122,10 +132,13 @@ export function CinematicIntro({ reducedMotion, onProgress, onComplete }: Cinema
   ])
   const globeRotation = progress * 46
   const glowOpacity = smoothstep(0.5, 0.8, progress)
-  const holeVmax = progress < 0.8 ? 0 : lerpKeyframes(progress, [
-    [0.8, 0],
-    [1, 160],
-  ])
+  const holeVmax =
+    progress < 0.8
+      ? 0
+      : lerpKeyframes(progress, [
+          [0.8, 0],
+          [1, 160],
+        ])
   // mask-image is alpha-composited here: fully transparent = hidden (lets
   // the real app show through the growing hole), fully opaque = still
   // shows this overlay's own background/content around it.
@@ -165,12 +178,16 @@ export function CinematicIntro({ reducedMotion, onProgress, onComplete }: Cinema
               transform: `translate(-50%, -50%) scale(${globeScale})`,
             }}
           >
-            <IntroGlobe rotation={globeRotation} />
+            <Suspense fallback={null}>
+              <IntroGlobe rotation={globeRotation} />
+            </Suspense>
           </div>
           <div className={styles.textWrap} style={{ opacity: textOpacity }}>
             <p className={styles.eyebrow}>An Interactive Atlas</p>
             <h1 className={styles.title}>STS Interactive Map</h1>
-            <p className={styles.tagline}>&ldquo;Knowledge has never travelled in a straight line.&rdquo;</p>
+            <p className={styles.tagline}>
+              &ldquo;Knowledge has never travelled in a straight line.&rdquo;
+            </p>
             <p className={styles.scrollHint}>Scroll to begin your journey ↓</p>
           </div>
           <div className={styles.vignette} aria-hidden />

@@ -26,7 +26,6 @@ interface AtlasViewProps {
   focusEntryId?: string | null
   focusToken?: number
   reducedMotion: boolean
-  onEntriesWithoutLocation?: (entries: Entry[]) => void
 }
 
 interface RouteTooltip {
@@ -45,7 +44,6 @@ export function AtlasView({
   focusEntryId,
   focusToken,
   reducedMotion,
-  onEntriesWithoutLocation,
 }: AtlasViewProps) {
   const wrapRef = useRef<HTMLDivElement>(null)
   const svgRef = useRef<SVGSVGElement>(null)
@@ -106,9 +104,6 @@ export function AtlasView({
     () => entries.filter((e) => e.latitude === undefined || e.longitude === undefined),
     [entries],
   )
-  useEffect(() => {
-    onEntriesWithoutLocation?.(noCoordEntries)
-  }, [noCoordEntries, onEntriesWithoutLocation])
 
   const clusters = useMemo(
     () => clusterProjected(projected, transform.k, 20),
@@ -129,6 +124,14 @@ export function AtlasView({
       select(svgEl).on('.zoom', null)
     }
   }, [])
+
+  // Keep the chart from being dragged entirely out of view.
+  useEffect(() => {
+    zoomBehaviorRef.current?.translateExtent([
+      [-size.width * 0.25, -size.height * 0.25],
+      [size.width * 1.25, size.height * 1.25],
+    ])
+  }, [size.width, size.height])
 
   const applyZoom = useCallback(
     (k: number, cx?: number, cy?: number) => {
@@ -321,7 +324,7 @@ export function AtlasView({
                     >
                       <MarkerIcon kind={entry.kind} size={14} />
                     </g>
-                    {(transform.k > 2.2 || hoveredId === entry.id || selected) && (
+                    {(transform.k > 4 || hoveredId === entry.id || selected) && (
                       <g transform={`scale(${1 / transform.k})`}>
                         <text className={styles.markerLabel} x={r * transform.k + 6} y={4}>
                           {entry.title}
@@ -403,6 +406,33 @@ export function AtlasView({
           ☰
         </button>
       </div>
+
+      {!showList && entries.length === 0 && (
+        <p className={styles.emptyNote} role="status">
+          No entries match the current filters. Clear or reset them to see the map again.
+        </p>
+      )}
+
+      {!showList && noCoordEntries.length > 0 && (
+        <details className={styles.unplaced}>
+          <summary>
+            {noCoordEntries.length} idea{noCoordEntries.length === 1 ? '' : 's'} with no single
+            place
+          </summary>
+          <p className={styles.unplacedHint}>
+            Ideas, methods and movements that span many places are not pinned to the map.
+          </p>
+          <ul>
+            {noCoordEntries.map((entry) => (
+              <li key={entry.id}>
+                <button type="button" onClick={() => onSelectEntry(entry.id)}>
+                  {entry.title}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
 
       {!showList && (
         <p className={styles.borderNote}>

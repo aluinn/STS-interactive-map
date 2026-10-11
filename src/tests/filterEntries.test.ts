@@ -87,3 +87,19 @@ describe('filterRelationships', () => {
     expect(result).toHaveLength(0)
   })
 })
+
+describe('search normalisation', () => {
+  it('ignores accents, so "Rene Descartes" finds "René Descartes"', () => {
+    const result = filterEntries(entries, { ...defaultFilters, q: 'rene descartes' })
+    expect(result.some((e) => e.id === 'descartes')).toBe(true)
+  })
+
+  it('matches place names listed on an entry', () => {
+    const result = filterEntries(entries, { ...defaultFilters, q: 'miletus' })
+    expect(result.some((e) => e.id === 'thales')).toBe(true)
+  })
+
+  it('treats whitespace-only queries as no query', () => {
+    expect(filterEntries(entries, { ...defaultFilters, q: '   ' })).toHaveLength(entries.length)
+  })
+})

@@ -1,21 +1,32 @@
 import type { Entry, Relationship } from '../types'
 import type { Filters } from '../hooks/useUrlState'
 
+/** Lower-cases and strips accents/hyphens so "Poincare" finds "Poincaré". */
+function normaliseText(s: string): string {
+  return s
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/-/g, ' ')
+    .toLowerCase()
+}
+
 export function entryMatchesFilters(entry: Entry, filters: Filters): boolean {
-  if (filters.q) {
-    const q = filters.q.toLowerCase()
-    const haystack = [
-      entry.title,
-      entry.subtitle ?? '',
-      entry.summary,
-      entry.longDescription,
-      ...entry.people,
-      ...entry.cultures,
-      ...entry.disciplines,
-      ...entry.themes,
-    ]
-      .join(' ')
-      .toLowerCase()
+  const query = filters.q.trim()
+  if (query) {
+    const q = normaliseText(query)
+    const haystack = normaliseText(
+      [
+        entry.title,
+        entry.subtitle ?? '',
+        entry.summary,
+        entry.longDescription,
+        ...entry.people,
+        ...entry.cultures,
+        ...entry.disciplines,
+        ...entry.themes,
+        ...entry.places.map((p) => p.name),
+      ].join(' '),
+    )
     if (!haystack.includes(q)) return false
   }
 

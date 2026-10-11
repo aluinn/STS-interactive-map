@@ -78,28 +78,6 @@
   pointer-events: none;
 }
 
-.sphereOutline {
-  fill: none;
-  stroke: var(--chart-ink);
-  stroke-width: 1;
-}
-
-.forestGlyph {
-  fill: var(--chart-ink);
-  fill-opacity: 0.3;
-  pointer-events: none;
-}
-.forestGlyph circle {
-  mix-blend-mode: multiply;
-}
-.forestGlyphOutline {
-  fill: none;
-  stroke: var(--chart-ink);
-  stroke-width: 0.6;
-  stroke-opacity: 0.6;
-  pointer-events: none;
-}
-
 .route {
   fill: none;
   stroke: var(--chart-route-accent);
@@ -168,6 +146,12 @@
   animation: pulseRing 1.6s var(--ease-atlas) infinite;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .marker:hover .pulse {
+    animation: none;
+  }
+}
+
 @keyframes pulseRing {
   0% {
     r: 9;
@@ -233,6 +217,58 @@
   padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-md);
   z-index: 5;
+}
+
+.emptyNote {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 320px;
+  text-align: center;
+  color: var(--color-ink);
+  background: var(--overlay-scrim);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  z-index: 5;
+}
+
+.unplaced {
+  position: absolute;
+  top: var(--space-3);
+  left: var(--space-3);
+  z-index: 6;
+  max-width: min(300px, calc(100% - 90px));
+  font-size: 0.82rem;
+  color: var(--color-ink);
+  background: var(--overlay-scrim);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+}
+.unplaced summary {
+  cursor: pointer;
+  padding: var(--space-2) var(--space-3);
+}
+.unplacedHint {
+  margin: 0;
+  padding: 0 var(--space-3) var(--space-2);
+  color: var(--color-ink-faint);
+}
+.unplaced ul {
+  list-style: none;
+  margin: 0;
+  padding: 0 var(--space-3) var(--space-2);
+  max-height: 40vh;
+  overflow-y: auto;
+}
+.unplaced li button {
+  background: none;
+  border: none;
+  color: var(--color-link);
+  cursor: pointer;
+  font: inherit;
+  padding: 4px 0;
+  text-align: left;
 }
 
 .compassRose {

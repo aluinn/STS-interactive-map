@@ -84,11 +84,3 @@ export function clusterProjected(
   }
   return clusters
 }
-
-/** Deterministic small spiral offsets for entries sharing (near-)identical coordinates. */
-export function spiralOffset(index: number, total: number): { dx: number; dy: number } {
-  if (total <= 1) return { dx: 0, dy: 0 }
-  const radius = 9 + total * 1.1
-  const angle = (index / total) * Math.PI * 2 - Math.PI / 2
-  return { dx: Math.cos(angle) * radius, dy: Math.sin(angle) * radius }
-}

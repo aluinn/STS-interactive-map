@@ -238,7 +238,7 @@ export const globalAndAfricanEntries: Entry[] = [
     slug: 'mobile-money-east-africa',
     title: 'Mobile Money in East Africa',
     subtitle: 'A homegrown digital-financial innovation, not an imported one',
-    kind: 'discovery',
+    kind: 'event',
     period: 'environmental-contemporary',
     summary:
       'M-Pesa, launched in Kenya in 2007, let users without bank accounts transfer money by text message through mobile-network agents, becoming one of the most consequential financial-technology innovations of the twenty-first century — developed and adopted first in East Africa, not imported from wealthier economies.',

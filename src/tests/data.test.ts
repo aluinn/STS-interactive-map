@@ -62,4 +62,18 @@ describe('data integrity', () => {
       expect(types.has(t)).toBe(true)
     }
   })
+
+  it('gives every entry either a map position or a transregional flag', () => {
+    const stranded = dataBundle.entries.filter(
+      (e) => (e.latitude === undefined || e.longitude === undefined) && !e.transregional,
+    )
+    expect(stranded.map((e) => e.id)).toEqual([])
+  })
+
+  it('has no placeholder text or university-facing wording in public entry fields', () => {
+    const offenders = dataBundle.entries.filter((e) =>
+      /\b(todo|tbd|lorem ipsum|placeholder)\b|\b[A-Z]{4}\d{4}\b|\bUCL\b/i.test(JSON.stringify(e)),
+    )
+    expect(offenders.map((e) => e.id)).toEqual([])
+  })
 })

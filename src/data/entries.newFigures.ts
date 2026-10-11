@@ -9,9 +9,9 @@ export const newFiguresEntries: Entry[] = [
     kind: 'person',
     period: 'industrial-imperial',
     summary:
-      'Pasteur\'s laboratory experiments on fermentation and spontaneous generation, and his subsequent work on vaccination, helped establish germ theory and made the controlled laboratory — rather than the bedside or the clinic — a central site of medical authority.',
+      "Pasteur's laboratory experiments on fermentation and spontaneous generation, and his subsequent work on vaccination, helped establish germ theory and made the controlled laboratory — rather than the bedside or the clinic — a central site of medical authority.",
     longDescription:
-      'Beginning with industrial problems (why wine and beer sometimes spoiled), Pasteur\'s fermentation studies led him to argue that specific microorganisms caused specific processes, a line of reasoning he extended into his swan-neck flask experiments refuting spontaneous generation and, later, into attenuated-pathogen vaccines for anthrax and rabies. Pasteur was also a skilled self-promoter and institution-builder: his dramatic public demonstrations (including the widely publicised 1885 treatment of a boy bitten by a rabid dog) and the Pasteur Institute he founded helped establish the laboratory scientist, rather than the practising physician, as the figure whose authority the public and the state increasingly deferred to on questions of disease. Historians including Bruno Latour have used Pasteur\'s career to examine how laboratory results get translated into wider social and political authority, not simply accepted on their technical merits alone.',
+      "Beginning with industrial problems (why wine and beer sometimes spoiled), Pasteur's fermentation studies led him to argue that specific microorganisms caused specific processes, a line of reasoning he extended into his swan-neck flask experiments refuting spontaneous generation and, later, into attenuated-pathogen vaccines for anthrax and rabies. Pasteur was also a skilled self-promoter and institution-builder: his dramatic public demonstrations (including the widely publicised 1885 treatment of a boy bitten by a rabid dog) and the Pasteur Institute he founded helped establish the laboratory scientist, rather than the practising physician, as the figure whose authority the public and the state increasingly deferred to on questions of disease. Historians including Bruno Latour have used Pasteur's career to examine how laboratory results get translated into wider social and political authority, not simply accepted on their technical merits alone.",
     startYear: 1822,
     endYear: 1895,
     dateDisplay: '1822–1895',
@@ -27,15 +27,16 @@ export const newFiguresEntries: Entry[] = [
     philosophicalQuestions: [
       {
         prompt:
-          'Pasteur\'s authority rested partly on dramatic public demonstration as well as laboratory results — how much does scientific credibility depend on effective public performance, separate from the underlying evidence?',
+          "Pasteur's authority rested partly on dramatic public demonstration as well as laboratory results — how much does scientific credibility depend on effective public performance, separate from the underlying evidence?",
         debateId: 'objectivity-values',
       },
     ],
     historicalSignificance:
       'Central to establishing germ theory and the modern laboratory as a site of medical and scientific authority, with lasting influence on public health, vaccination, and the sociology of scientific credibility.',
-    commonMyth: 'That Pasteur single-handedly and instantly proved germ theory, ending all scientific debate on disease causation.',
+    commonMyth:
+      'That Pasteur single-handedly and instantly proved germ theory, ending all scientific debate on disease causation.',
     historicalComplication:
-      'Pasteur\'s rivalry with Félix Pouchet over spontaneous generation, and his later rivalry with Robert Koch over bacteriology, show germ theory\'s acceptance was contested and nationally inflected (French versus German scientific prestige), not a simple, uncontested discovery.',
+      "Pasteur's rivalry with Félix Pouchet over spontaneous generation, and his later rivalry with Robert Koch over bacteriology, show germ theory's acceptance was contested and nationally inflected (French versus German scientific prestige), not a simple, uncontested discovery.",
     sources: [
       {
         author: 'Bruno Latour',
@@ -44,7 +45,11 @@ export const newFiguresEntries: Entry[] = [
         type: 'secondary',
       },
     ],
-    relatedEntryIds: ['spontaneous-generation-theory', 'john-snow-cholera', 'laboratory-ethnography'],
+    relatedEntryIds: [
+      'spontaneous-generation-theory',
+      'john-snow-cholera',
+      'laboratory-ethnography',
+    ],
     confidence: 'established',
     contentStatus: 'complete',
     isJourneyStop: true,
@@ -132,7 +137,11 @@ export const newFiguresEntries: Entry[] = [
     historicalSignificance:
       'A live, contemporary test of whether state oversight can move at the same pace as a commercially driven technology, directly comparable to historical cases of regulation lagging well behind deployment.',
     sources: [],
-    relatedEntryIds: ['ai-academic-knowledge', 'science-policy-ecology', 'assetisation-technoscientific-rent'],
+    relatedEntryIds: [
+      'ai-academic-knowledge',
+      'science-policy-ecology',
+      'assetisation-technoscientific-rent',
+    ],
     confidence: 'likely',
     contentStatus: 'sourceNeeded',
   },

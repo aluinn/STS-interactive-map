@@ -70,8 +70,7 @@ export default function App() {
   // into a specific entry/debate/journey, and no non-default view already
   // requested via the URL (both of those should open immediately instead).
   const [introPhase, setIntroPhase] = useState<'cinematic' | 'done'>(() => {
-    const isLandingRoute =
-      !state.entry && !state.debate && !state.journey && state.view === 'atlas'
+    const isLandingRoute = !state.entry && !state.debate && !state.journey && state.view === 'atlas'
     if (!isLandingRoute) return 'done'
     try {
       return localStorage.getItem(INTRO_SEEN_KEY) === '1' ? 'done' : 'cinematic'
@@ -163,10 +162,27 @@ export default function App() {
     setState({ journey: null, stop: 0 })
   }
 
+  // "Related" links are listed on one side only in the data; treat them as
+  // two-way so an entry is reachable from everything that points at it.
+  const entryById = useMemo(() => new Map(entries.map((e) => [e.id, e])), [entries])
+  const incomingRelated = useMemo(() => {
+    const m = new Map<string, string[]>()
+    for (const e of entries) {
+      for (const target of e.relatedEntryIds) {
+        m.set(target, [...(m.get(target) ?? []), e.id])
+      }
+    }
+    return m
+  }, [entries])
   const relatedEntries = selectedEntry
-    ? selectedEntry.relatedEntryIds
-        .map((id) => entries.find((e) => e.id === id))
-        .filter((e): e is NonNullable<typeof e> => Boolean(e))
+    ? [
+        ...new Set([
+          ...selectedEntry.relatedEntryIds,
+          ...(incomingRelated.get(selectedEntry.id) ?? []),
+        ]),
+      ]
+        .map((id) => entryById.get(id))
+        .filter((e): e is NonNullable<typeof e> => Boolean(e) && e!.id !== selectedEntry.id)
     : []
 
   const journeyNavForPanel =

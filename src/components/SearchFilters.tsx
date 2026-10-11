@@ -2,6 +2,7 @@ import type { EntryKind, Period, RelationshipType } from '../types'
 import type { Filters } from '../hooks/useUrlState'
 import { defaultFilters } from '../hooks/useUrlState'
 import { ALL_THEMES } from '../utils/filterEntries'
+import { dataBundle } from '../data'
 import styles from './SearchFilters.module.css'
 
 interface SearchFiltersProps {
@@ -10,7 +11,7 @@ interface SearchFiltersProps {
   resultCount: number
 }
 
-const KIND_OPTIONS: EntryKind[] = [
+const ALL_KINDS: EntryKind[] = [
   'person',
   'idea',
   'discovery',
@@ -36,7 +37,7 @@ const PERIOD_OPTIONS: { value: Period; label: string }[] = [
   { value: 'philosophy-of-science', label: 'Philosophy of science' },
 ]
 
-const RELATIONSHIP_TYPE_OPTIONS: RelationshipType[] = [
+const ALL_RELATIONSHIP_TYPES: RelationshipType[] = [
   'influenced',
   'taught',
   'translated',
@@ -64,6 +65,18 @@ const RELATIONSHIP_TYPE_OPTIONS: RelationshipType[] = [
   'applied-to',
 ]
 
+// Only offer filter choices that exist in the data; a chip that can only
+// ever return zero results reads as a broken filter.
+const presentKinds = new Set<string>(dataBundle.entries.map((e) => e.kind))
+const presentThemes = new Set<string>(dataBundle.entries.flatMap((e) => e.themes))
+const presentRelTypes = new Set<string>(dataBundle.relationships.map((r) => r.type))
+const KIND_OPTIONS = ALL_KINDS.filter((k) => presentKinds.has(k))
+const THEME_OPTIONS = [
+  ...ALL_THEMES.filter((t) => presentThemes.has(t)),
+  ...[...presentThemes].filter((t) => !ALL_THEMES.includes(t)).sort(),
+]
+const RELATIONSHIP_TYPE_OPTIONS = ALL_RELATIONSHIP_TYPES.filter((t) => presentRelTypes.has(t))
+
 function toggle(list: string[], value: string): string[] {
   return list.includes(value) ? list.filter((v) => v !== value) : [...list, value]
 }
@@ -74,7 +87,7 @@ export function SearchFilters({ filters, onChange, resultCount }: SearchFiltersP
       <input
         type="search"
         className={styles.searchInput}
-        placeholder="Search people, places, ideas, debates…"
+        placeholder="Search people, places and ideas…"
         value={filters.q}
         onChange={(e) => onChange({ ...filters, q: e.target.value })}
         aria-label="Search entries"
@@ -146,7 +159,7 @@ export function SearchFilters({ filters, onChange, resultCount }: SearchFiltersP
           Historical &amp; philosophical theme ({filters.themes.length || 'any'})
         </summary>
         <div className={styles.chipRow} style={{ marginTop: 6 }}>
-          {ALL_THEMES.map((theme) => (
+          {THEME_OPTIONS.map((theme) => (
             <button
               key={theme}
               type="button"

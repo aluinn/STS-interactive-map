@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 export type ViewName = 'atlas' | 'timeline' | 'debates' | 'journeys'
 
@@ -52,6 +52,12 @@ function parseList(v: string | null): string[] {
   return v ? v.split(',').filter(Boolean) : []
 }
 
+function parseYear(v: string | null): number | null {
+  if (!v) return null
+  const n = Number(v)
+  return Number.isFinite(n) ? n : null
+}
+
 function parseState(search: string): AppState {
   const params = new URLSearchParams(search)
   const view = params.get('view')
@@ -60,7 +66,7 @@ function parseState(search: string): AppState {
     entry: params.get('entry'),
     debate: params.get('debate'),
     journey: params.get('journey'),
-    stop: Number(params.get('stop') ?? 0) || 0,
+    stop: Math.max(0, Math.floor(Number(params.get('stop') ?? 0)) || 0),
     filters: {
       q: params.get('q') ?? '',
       kinds: parseList(params.get('kinds')),
@@ -71,8 +77,8 @@ function parseState(search: string): AppState {
       onlyContested: params.get('contested') === '1',
       onlyJourney: params.get('journeyOnly') === '1',
       onlyOverturned: params.get('overturned') === '1',
-      yearMin: params.get('y0') ? Number(params.get('y0')) : null,
-      yearMax: params.get('y1') ? Number(params.get('y1')) : null,
+      yearMin: parseYear(params.get('y0')),
+      yearMax: parseYear(params.get('y1')),
     },
   }
 }
@@ -103,26 +109,40 @@ function serializeState(state: AppState): string {
 /**
  * URL-backed application state. All filters and the current selection live
  * in the query string so any view can be shared via copy-link.
+ *
+ * Navigation changes (view, entry, debate, journey) push a history entry so
+ * the browser back/forward buttons step through them; filter-only changes
+ * replace the current entry so typing in the search box doesn't flood the
+ * history.
  */
 export function useUrlState(): [AppState, (updates: Partial<AppState>) => void] {
   const [state, setState] = useState<AppState>(() =>
     typeof window !== 'undefined' ? parseState(window.location.search) : defaultState,
   )
+  const stateRef = useRef(state)
 
   useEffect(() => {
-    const onPopState = () => setState(parseState(window.location.search))
+    const onPopState = () => {
+      const next = parseState(window.location.search)
+      stateRef.current = next
+      setState(next)
+    }
     window.addEventListener('popstate', onPopState)
     return () => window.removeEventListener('popstate', onPopState)
   }, [])
 
   const update = useCallback((updates: Partial<AppState>) => {
-    setState((prev) => {
-      const next: AppState = { ...prev, ...updates }
-      const qs = serializeState(next)
-      const url = `${window.location.pathname}${qs}${window.location.hash}`
-      window.history.replaceState(null, '', url)
-      return next
-    })
+    const prev = stateRef.current
+    const next: AppState = { ...prev, ...updates }
+    const url = `${window.location.pathname}${serializeState(next)}${window.location.hash}`
+    const currentUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`
+    const filtersOnly = Object.keys(updates).every((k) => k === 'filters')
+    if (url !== currentUrl) {
+      if (filtersOnly) window.history.replaceState(null, '', url)
+      else window.history.pushState(null, '', url)
+    }
+    stateRef.current = next
+    setState(next)
   }, [])
 
   return [state, update]

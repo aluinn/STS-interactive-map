@@ -39,7 +39,8 @@ export function TimelineView({ entries, onSelectEntry }: TimelineViewProps) {
     return (
       <div className={styles.wrap}>
         <p className={styles.empty}>
-          No entries match the current filters. Try resetting the atlas.
+          No entries match the current filters. Use “Reset atlas” in the filters panel to clear
+          them.
         </p>
       </div>
     )
@@ -76,9 +77,7 @@ export function TimelineView({ entries, onSelectEntry }: TimelineViewProps) {
             <h2 className={styles.sectionTitle}>{g.label}</h2>
             <span className={styles.sectionRange}>
               {formatYear(g.items[0].startYear)} –{' '}
-              {formatYear(
-                g.items[g.items.length - 1].endYear ?? g.items[g.items.length - 1].startYear,
-              )}
+              {formatYear(Math.max(...g.items.map((e) => e.endYear ?? e.startYear)))}
             </span>
           </header>
           <div className={styles.spine}>

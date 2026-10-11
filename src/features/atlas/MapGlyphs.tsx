@@ -47,23 +47,6 @@ export function MapDefs() {
           opacity="0.28"
         />
       </pattern>
-      <pattern
-        id="landHatch"
-        width="7"
-        height="7"
-        patternUnits="userSpaceOnUse"
-        patternTransform="rotate(45)"
-      >
-        <line
-          x1="0"
-          y1="0"
-          x2="0"
-          y2="7"
-          stroke="var(--chart-texture)"
-          strokeWidth="0.5"
-          opacity="0.14"
-        />
-      </pattern>
     </defs>
   )
 }
