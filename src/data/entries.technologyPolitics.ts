@@ -212,7 +212,13 @@ export const technologyPoliticsEntries: Entry[] = [
     people: ['matthew-watson', 'jack-stilgoe'],
     cultures: ['British'],
     disciplines: ['climate science', 'science policy'],
-    themes: ['technology-and-politics', 'ethics', 'innovation-policy'],
+    themes: [
+      'technology-and-politics',
+      'ethics',
+      'innovation-policy',
+      'climate',
+      'policy-and-participation',
+    ],
     philosophicalQuestions: [
       {
         prompt:

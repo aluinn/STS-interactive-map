@@ -2,6 +2,7 @@ import type { EntryKind, Period, RelationshipType } from '../types'
 import type { Filters } from '../hooks/useUrlState'
 import { defaultFilters } from '../hooks/useUrlState'
 import { ALL_THEMES } from '../utils/filterEntries'
+import { AREAS, REGIONS, EVIDENCE_LABELS, regionOf } from '../utils/areas'
 import { dataBundle } from '../data'
 import styles from './SearchFilters.module.css'
 
@@ -75,6 +76,13 @@ const THEME_OPTIONS = [
   ...ALL_THEMES.filter((t) => presentThemes.has(t)),
   ...[...presentThemes].filter((t) => !ALL_THEMES.includes(t)).sort(),
 ]
+const AREA_OPTIONS = AREAS.filter((a) => dataBundle.entries.some((e) => a.test(e)))
+const presentRegions = new Set<string>(dataBundle.entries.map(regionOf))
+const REGION_OPTIONS = REGIONS.filter((r) => presentRegions.has(r))
+const presentEvidence = new Set<string>(
+  dataBundle.entries.flatMap((e) => (e.evidenceStatus ? [e.evidenceStatus] : [])),
+)
+const EVIDENCE_OPTIONS = Object.entries(EVIDENCE_LABELS).filter(([k]) => presentEvidence.has(k))
 const RELATIONSHIP_TYPE_OPTIONS = ALL_RELATIONSHIP_TYPES.filter((t) => presentRelTypes.has(t))
 
 function toggle(list: string[], value: string): string[] {
@@ -94,6 +102,23 @@ export function SearchFilters({ filters, onChange, resultCount }: SearchFiltersP
       />
 
       <div className={styles.group}>
+        <span className={styles.groupLabel}>Subject area</span>
+        <div className={styles.chipRow}>
+          {AREA_OPTIONS.map((a) => (
+            <button
+              key={a.id}
+              type="button"
+              className={`${styles.chip} ${filters.areas.includes(a.id) ? styles.chipActive : ''}`}
+              aria-pressed={filters.areas.includes(a.id)}
+              onClick={() => onChange({ ...filters, areas: toggle(filters.areas, a.id) })}
+            >
+              {a.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className={styles.group}>
         <span className={styles.groupLabel}>Entry type</span>
         <div className={styles.chipRow}>
           {KIND_OPTIONS.map((kind) => (
@@ -111,7 +136,7 @@ export function SearchFilters({ filters, onChange, resultCount }: SearchFiltersP
       </div>
 
       <div className={styles.group}>
-        <span className={styles.groupLabel}>Period</span>
+        <span className={styles.groupLabel}>Historical grouping</span>
         <div className={styles.chipRow}>
           {PERIOD_OPTIONS.map((p) => (
             <button
@@ -153,6 +178,45 @@ export function SearchFilters({ filters, onChange, resultCount }: SearchFiltersP
           />
         </div>
       </div>
+
+      <details>
+        <summary className={styles.groupLabel} style={{ cursor: 'pointer' }}>
+          Region ({filters.regions.length || 'any'})
+        </summary>
+        <p className={styles.hint}>Approximate, assigned from each entry&rsquo;s map position.</p>
+        <div className={styles.chipRow} style={{ marginTop: 6 }}>
+          {REGION_OPTIONS.map((r) => (
+            <button
+              key={r}
+              type="button"
+              className={`${styles.chip} ${filters.regions.includes(r) ? styles.chipActive : ''}`}
+              aria-pressed={filters.regions.includes(r)}
+              onClick={() => onChange({ ...filters, regions: toggle(filters.regions, r) })}
+            >
+              {r}
+            </button>
+          ))}
+        </div>
+      </details>
+
+      <details>
+        <summary className={styles.groupLabel} style={{ cursor: 'pointer' }}>
+          Evidence status ({filters.evidence.length || 'any'})
+        </summary>
+        <div className={styles.chipRow} style={{ marginTop: 6 }}>
+          {EVIDENCE_OPTIONS.map(([value, label]) => (
+            <button
+              key={value}
+              type="button"
+              className={`${styles.chip} ${filters.evidence.includes(value) ? styles.chipActive : ''}`}
+              aria-pressed={filters.evidence.includes(value)}
+              onClick={() => onChange({ ...filters, evidence: toggle(filters.evidence, value) })}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </details>
 
       <details>
         <summary className={styles.groupLabel} style={{ cursor: 'pointer' }}>

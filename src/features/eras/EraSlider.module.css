@@ -1,0 +1,313 @@
+.dock {
+  position: relative;
+  flex: none;
+  margin-top: var(--space-3);
+  padding: var(--space-3) var(--space-4) var(--space-2);
+  background: var(--surface-translucent, var(--color-bg-elevated));
+  -webkit-backdrop-filter: var(--panel-backdrop, none);
+  backdrop-filter: var(--panel-backdrop, none);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--panel-shadow, var(--shadow-soft));
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.step,
+.play,
+.more {
+  flex: none;
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-parchment);
+  color: var(--color-ink);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  font: inherit;
+  font-size: 1.3rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.step:hover:not(:disabled),
+.play:hover,
+.more:hover {
+  background: var(--color-parchment-elevated);
+  border-color: var(--color-gold);
+}
+.step:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.play {
+  font-size: 1rem;
+}
+.play[aria-pressed='true'] {
+  background: var(--control-active-bg, var(--color-gold));
+  color: var(--control-active-fg, var(--color-bg));
+  border-color: var(--control-active-edge, var(--color-gold));
+  box-shadow: 0 0 14px var(--accent-glow, transparent);
+}
+.step:focus-visible,
+.play:focus-visible,
+.more:focus-visible,
+.track:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.trackArea {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  padding: 0 14px;
+  margin-bottom: 26px;
+}
+
+.track {
+  position: relative;
+  height: 44px;
+  touch-action: none;
+  cursor: pointer;
+  border-radius: var(--radius-md);
+}
+.rail,
+.fill {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  height: var(--track-height, 4px);
+  margin-top: calc(var(--track-height, 4px) / -2);
+  border-radius: 2px;
+}
+.rail {
+  right: 0;
+  background: var(--color-border);
+}
+.fill {
+  background: var(--color-gold);
+  transition: width var(--duration-slow) var(--ease-atlas);
+}
+
+.stop {
+  position: absolute;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+  border-radius: 50%;
+  background: var(--color-bg-elevated);
+  border: 2px solid var(--color-border-strong);
+  transition:
+    transform var(--duration-base) var(--ease-atlas),
+    background var(--duration-base) var(--ease-atlas);
+}
+.stopPast {
+  border-color: var(--color-gold);
+}
+.stopActive {
+  transform: scale(1.5);
+  background: var(--color-gold);
+  border-color: var(--color-gold-bright);
+  box-shadow: 0 0 10px var(--accent-glow, transparent);
+}
+
+/* Labels sit under the track; on narrow screens only the active one shows
+   so they never overlap. */
+.labels {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  top: 46px;
+  height: 18px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  pointer-events: none;
+}
+.labels li {
+  position: absolute;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 0.72rem;
+  color: var(--color-ink-dim);
+}
+.labels li.labelActive {
+  color: var(--color-ink);
+  font-weight: 700;
+}
+@media (max-width: 900px) {
+  .labels li:not(.labelActive) {
+    display: none;
+  }
+  .labels li.labelActive {
+    font-size: 0.8rem;
+  }
+}
+@media (max-width: 1250px) and (min-width: 901px) {
+  .labels li:not(.labelActive) {
+    display: none;
+  }
+}
+
+.summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-top: var(--space-1);
+}
+.summaryText {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-3);
+  min-width: 0;
+}
+.eraName {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  color: var(--color-ink);
+}
+.eraRange,
+.count {
+  font-family: var(--metadata-font, inherit);
+  font-size: 0.85rem;
+  color: var(--color-ink-dim);
+}
+.more {
+  font-size: 0.85rem;
+  padding: 0 var(--space-3);
+  min-height: 36px;
+}
+
+.details {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 100%;
+  margin-bottom: var(--space-2);
+  max-height: min(62vh, 560px);
+  overflow-y: auto;
+  padding: var(--space-4);
+  background: var(--surface-translucent, var(--color-bg-elevated));
+  -webkit-backdrop-filter: var(--panel-backdrop, none);
+  backdrop-filter: var(--panel-backdrop, none);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--panel-shadow, var(--shadow-soft));
+  z-index: 20;
+  animation: dockIn var(--duration-base) var(--ease-atlas);
+}
+@keyframes dockIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+.description {
+  margin: 0 0 var(--space-2);
+  color: var(--color-ink);
+}
+.caveat {
+  margin: 0 0 var(--space-3);
+  font-size: 0.82rem;
+  color: var(--color-ink-dim);
+}
+.changed summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--color-gold-bright);
+  padding: var(--space-2) 0;
+}
+.changed dl {
+  margin: 0;
+  display: grid;
+  gap: var(--space-1);
+}
+.changed dt {
+  margin-top: var(--space-2);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-ink-faint);
+}
+.changed dd {
+  margin: 0;
+  color: var(--color-ink);
+}
+.settings {
+  margin: var(--space-3) 0 0;
+  padding: var(--space-3);
+  display: grid;
+  gap: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+.settings legend {
+  padding: 0 var(--space-2);
+  font-size: 0.8rem;
+  color: var(--color-ink-faint);
+}
+.settings label {
+  display: flex;
+  gap: var(--space-2);
+  align-items: baseline;
+  cursor: pointer;
+}
+.settings label span {
+  color: var(--color-ink-dim);
+  font-size: 0.82rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fill,
+  .stop,
+  .details {
+    transition: none;
+    animation: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .dock {
+    padding: var(--space-2) var(--space-3) var(--space-2);
+  }
+  .row {
+    gap: var(--space-2);
+  }
+  .step,
+  .play {
+    min-width: 40px;
+  }
+  .eraName {
+    font-size: 1rem;
+  }
+}
+
+/* On narrow screens the page scrolls, so keep the control within reach. */
+@media (max-width: 900px) {
+  .dock {
+    position: sticky;
+    bottom: var(--space-2);
+    z-index: 30;
+  }
+}
+.settings label {
+  font-size: 0.95rem;
+}

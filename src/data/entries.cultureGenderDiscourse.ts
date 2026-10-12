@@ -66,7 +66,7 @@ export const cultureGenderDiscourseEntries: Entry[] = [
     people: ['emily-martin'],
     cultures: ['American'],
     disciplines: ['anthropology of science'],
-    themes: ['gender-and-representation', 'scientific-images'],
+    themes: ['gender-and-representation', 'scientific-images', 'media-and-meaning'],
     philosophicalQuestions: [
       {
         prompt:

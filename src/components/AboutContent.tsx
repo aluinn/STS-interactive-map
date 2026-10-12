@@ -112,6 +112,46 @@ export function AboutContent() {
           historical cases that test or complicate it.
         </p>
       </section>
+      <section>
+        <h3
+          style={{
+            color: 'var(--color-oxidised-green-bright)',
+            fontSize: '0.85rem',
+            textTransform: 'uppercase',
+          }}
+        >
+          Time travel and periods
+        </h3>
+        <p>
+          The control beneath the map moves through eight approximate periods. Their boundaries are
+          navigation conventions, not claims that change happened everywhere at once, and entries
+          may belong to more than one period. &ldquo;Historical echoes&rdquo; keeps the previous
+          period faintly visible. The latest period shows the present-day world as a globe; choose
+          the consistent theme in the time-travel settings to keep the flat chart and one steady
+          look throughout.
+        </p>
+      </section>
+      <section>
+        <h3
+          style={{
+            color: 'var(--color-oxidised-green-bright)',
+            fontSize: '0.85rem',
+            textTransform: 'uppercase',
+          }}
+        >
+          Credits
+        </h3>
+        <p>
+          Globe imagery: NASA Earth Observatory, &ldquo;Blue Marble: Land Surface, Shallow Water,
+          and Shaded Topography&rdquo; (Blue Marble Next Generation, Reto Stöckli and Robert Simmon)
+          and the &ldquo;Earth at Night&rdquo; city-lights composite (2012). NASA imagery is
+          generally not subject to copyright in the United States and may be used with
+          acknowledgement under NASA&rsquo;s media usage guidelines; this use does not imply NASA
+          endorsement. Images were resized for web delivery. Coastlines and borders: Natural Earth
+          via the world-atlas package. Subsea-cable lines on the globe are schematic corridors, not
+          the paths of individual cables.
+        </p>
+      </section>
       <p style={{ fontSize: '0.78rem', color: 'var(--color-ink-faint)' }}>
         Built as a portfolio project. No fabricated quotations or citations appear anywhere in this
         atlas; entries without a verified source are explicitly marked rather than silently assumed.

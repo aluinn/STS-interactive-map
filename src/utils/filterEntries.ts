@@ -1,5 +1,6 @@
 import type { Entry, Relationship } from '../types'
 import type { Filters } from '../hooks/useUrlState'
+import { entryInAnyArea, regionOf } from './areas'
 
 /** Lower-cases and strips accents/hyphens so "Poincare" finds "Poincaré". */
 export function normaliseText(s: string): string {
@@ -33,6 +34,14 @@ export function entryMatchesFilters(entry: Entry, filters: Filters): boolean {
   if (filters.kinds.length && !filters.kinds.includes(entry.kind)) return false
   if (filters.periods.length && !filters.periods.includes(entry.period)) return false
   if (filters.themes.length && !entry.themes.some((t) => filters.themes.includes(t))) return false
+
+  if (filters.areas.length && !entryInAnyArea(entry, filters.areas)) return false
+  if (filters.regions.length && !filters.regions.includes(regionOf(entry))) return false
+  if (
+    filters.evidence.length &&
+    !(entry.evidenceStatus && filters.evidence.includes(entry.evidenceStatus))
+  )
+    return false
 
   if (filters.onlyPhilosophy && entry.philosophicalQuestions.length === 0) return false
   if (filters.onlyContested) {
@@ -123,4 +132,15 @@ export const ALL_THEMES = [
   'gender-and-representation',
   'expertise-and-activism',
   'discourse-and-identity',
+  'communication-and-publics',
+  'media-and-meaning',
+  'digital-technology',
+  'biotechnology',
+  'artificial-intelligence',
+  'climate',
+  'policy-and-participation',
+  'risk-and-uncertainty',
+  'museums-and-collections',
+  'citizen-science',
+  'platform-power',
 ]

@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from 'react'
 import type { Entry, EvidenceStatus } from '../types'
+import { CommunicationModels } from './CommunicationModels'
 import styles from './DetailPanel.module.css'
 
 const EVIDENCE_STATUS_LABELS: Record<EvidenceStatus, string> = {
@@ -8,6 +9,13 @@ const EVIDENCE_STATUS_LABELS: Record<EvidenceStatus, string> = {
   'historical-details-contested': 'Evidence: historical details contested',
   'evidence-incomplete': 'Evidence: incomplete',
   'contemporary-developing': 'Evidence: still developing',
+}
+
+function formatVerified(iso: string): string {
+  const d = new Date(`${iso}T00:00:00`)
+  return Number.isNaN(d.getTime())
+    ? iso
+    : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
 }
 
 export interface JourneyNav {
@@ -83,6 +91,9 @@ export function EntryDetail({
           <span className={styles.chip}>status: {entry.theoryStatus.replace(/-/g, ' ')}</span>
         )}
         {entry.scale && <span className={styles.chip}>scale: {entry.scale}</span>}
+        {entry.lastVerified && (
+          <span className={styles.chip}>last checked {formatVerified(entry.lastVerified)}</span>
+        )}
         {entry.evidenceStatus && (
           <span
             className={styles.chip}
@@ -103,9 +114,18 @@ export function EntryDetail({
         </p>
       )}
 
+      {entry.contentStatus === 'draft' && (
+        <p className={styles.statusNote}>
+          Draft entry: dates and descriptions come from general scholarship rather than a full
+          source check. Please verify current claims before relying on them.
+        </p>
+      )}
+
       <section className={styles.section}>
         <p>{entry.longDescription}</p>
       </section>
+
+      {entry.explorer === 'communication-models' && <CommunicationModels initial={entry.id} />}
 
       <section className={styles.section}>
         <h3 className={styles.sectionHeading}>Why it matters</h3>

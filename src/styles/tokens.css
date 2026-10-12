@@ -42,14 +42,14 @@
   --color-parchment-elevated: #352a1c;
   --color-ink: #e9ddc4;
   --color-ink-dim: #b8a989;
-  --color-ink-faint: #8a7a5c;
+  --color-ink-faint: #9c8c6b;
   --color-border: #4a3c28;
   --color-border-strong: #6b5739;
 
   --color-gold: #c9a24b;
   --color-gold-bright: #e0bd6e;
   --color-burgundy: #8a3b3f;
-  --color-burgundy-bright: #b05459;
+  --color-burgundy-bright: #cc767b;
   --color-oxidised-green: #5c7a63;
   --color-oxidised-green-bright: #7a9c81;
   --color-charcoal: #2c2824;
@@ -63,13 +63,14 @@
 
 /* ---- Light mode: the same aged-parchment palette as the atlas map ---- */
 :root[data-theme='light'] {
+  --map-overlay: rgba(205, 181, 127, 0.94);
   --color-bg: #cdb57f;
   --color-bg-elevated: #d8c28f;
   --color-parchment: #b89c68;
   --color-parchment-elevated: #c7ad79;
   --color-ink: #231c13;
   --color-ink-dim: #3d3220;
-  --color-ink-faint: #5a4829;
+  --color-ink-faint: #4d3d20;
   --color-border: #9a7f4d;
   --color-border-strong: #7d6136;
 
@@ -79,7 +80,7 @@
   --color-burgundy-bright: #5a2023;
   --color-oxidised-green: #3f5c48;
   --color-oxidised-green-bright: #2f4636;
-  --color-charcoal: #231c13;
+  --color-charcoal: #f7efd9;
 
   --color-focus: #732f32;
   --color-link: #5e4313;
@@ -130,4 +131,53 @@
     --duration-base: 0ms;
     --duration-slow: 0ms;
   }
+}
+
+/*
+  Period-aware design tokens.
+
+  These names are the stable vocabulary for components. Defaults below
+  follow the base (All Time) theme; when a period is selected,
+  features/eras/eraTheme.ts writes new values for the underlying tokens on
+  <html> and every alias here follows. Colour tokens are registered with
+  @property in features/eras/eraThemes.css so they interpolate.
+*/
+:root {
+  --app-background: var(--color-bg);
+  --app-background-secondary: var(--color-bg-elevated);
+  --surface: var(--color-bg-elevated);
+  --surface-elevated: var(--color-parchment-elevated);
+  --surface-translucent: var(--color-bg-elevated);
+  --text-primary: var(--color-ink);
+  --text-secondary: var(--color-ink-dim);
+  --text-muted: var(--color-ink-faint);
+  --border: var(--color-border);
+  --border-strong: var(--color-border-strong);
+  --accent: var(--color-gold);
+  --accent-secondary: var(--color-burgundy-bright);
+  --accent-glow: rgba(0, 0, 0, 0);
+  --button-background: var(--color-parchment);
+  --button-hover: var(--color-parchment-elevated);
+  --input-background: var(--color-bg);
+  --panel-shadow: var(--shadow-soft);
+  --map-overlay: rgba(10, 8, 5, 0.9);
+  --cluster-fill: var(--chart-cluster-fill);
+  --cluster-border: var(--chart-ink);
+  --route-colour: var(--chart-route-accent);
+  --timeline-track: var(--color-border);
+  --timeline-active: var(--color-gold);
+  --selection-colour: var(--color-gold);
+  --heading-font: var(--font-display);
+  --body-font: var(--font-body);
+  --metadata-font: inherit;
+  --corner-radius: var(--radius-md);
+  --panel-blur: none;
+  --panel-backdrop: none;
+  --color-on-burgundy: var(--color-ink);
+  --control-active-bg: var(--color-gold);
+  --control-active-fg: var(--color-charcoal);
+  --control-active-edge: var(--color-gold);
+  --control-active-underline: transparent;
+  --track-height: 4px;
+  --search-icon: none;
 }

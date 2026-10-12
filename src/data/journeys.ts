@@ -590,6 +590,20 @@ export const journeys: Journey[] = [
           'Patients without credentials acquire real expertise and change how research gets designed.',
       },
       {
+        entryId: 'patient-organisations-research-in-the-wild',
+        caption: 'Patient groups steer research funding and priorities.',
+      },
+      {
+        entryId: 'collins-evans-expertise',
+        caption:
+          'One framework distinguishes contributory, interactional and experience-based expertise.',
+        stageQuestion: 'How can a non-specialist decide whom to trust?',
+      },
+      {
+        entryId: 'flint-water-community-science',
+        caption: "Residents' evidence is doubted until outside experts confirm it.",
+      },
+      {
         entryId: 'franklin-wu-credit-and-exclusion',
         caption:
           'And two women whose experimental work was essential go under-credited all the same.',

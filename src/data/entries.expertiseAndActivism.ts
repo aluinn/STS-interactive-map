@@ -23,7 +23,12 @@ export const expertiseAndActivismEntries: Entry[] = [
     people: ['brian-wynne'],
     cultures: ['British'],
     disciplines: ['science and technology studies', 'environmental science'],
-    themes: ['expertise-and-activism', 'expertise-and-policy'],
+    themes: [
+      'expertise-and-activism',
+      'expertise-and-policy',
+      'communication-and-publics',
+      'risk-and-uncertainty',
+    ],
     philosophicalQuestions: [
       {
         prompt:
@@ -68,7 +73,7 @@ export const expertiseAndActivismEntries: Entry[] = [
     people: ['steven-epstein'],
     cultures: ['American'],
     disciplines: ['medicine', 'science and technology studies'],
-    themes: ['expertise-and-activism', 'society-and-power'],
+    themes: ['expertise-and-activism', 'society-and-power', 'communication-and-publics'],
     philosophicalQuestions: [
       {
         prompt:

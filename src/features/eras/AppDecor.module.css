@@ -1,0 +1,112 @@
+.stack {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+}
+.layer {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 640ms ease;
+}
+.on {
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .layer {
+    transition: opacity 160ms linear;
+  }
+}
+
+/* Each pattern is tinted from the live ink colour. */
+.ancient {
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      color-mix(in srgb, var(--color-ink) 5%, transparent) 0 1px,
+      transparent 1px 6px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--color-ink) 4%, transparent) 0 1px,
+      transparent 1px 29px
+    );
+}
+.medieval {
+  background-image: repeating-linear-gradient(
+    0deg,
+    color-mix(in srgb, var(--color-ink) 5%, transparent) 0 1px,
+    transparent 1px 30px
+  );
+}
+.earlyModern {
+  background-image:
+    repeating-linear-gradient(
+      45deg,
+      color-mix(in srgb, var(--color-ink) 4%, transparent) 0 1px,
+      transparent 1px 5px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      color-mix(in srgb, var(--color-ink) 3%, transparent) 0 1px,
+      transparent 1px 5px
+    );
+}
+.industryEmpire {
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--color-ink) 6%, transparent) 1px, transparent 1px),
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--color-ink) 6%, transparent) 1px,
+      transparent 1px
+    );
+  background-size: 72px 72px;
+}
+.modernConflict {
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--color-gold) 9%, transparent) 1px, transparent 1px),
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--color-gold) 9%, transparent) 1px,
+      transparent 1px
+    );
+  background-size: 20px 20px;
+}
+.coldWar {
+  background-image:
+    repeating-radial-gradient(
+      circle at 78% 18%,
+      transparent 0 90px,
+      color-mix(in srgb, var(--color-green, #6a8f5a) 14%, transparent) 90px 91px
+    ),
+    linear-gradient(color-mix(in srgb, var(--color-ink) 4%, transparent) 1px, transparent 1px);
+  background-size:
+    100% 100%,
+    100% 48px;
+}
+.networked {
+  background-image: radial-gradient(
+    color-mix(in srgb, var(--color-gold) 22%, transparent) 1.2px,
+    transparent 1.6px
+  );
+  background-size: 28px 28px;
+}
+.platformAge {
+  background-image:
+    radial-gradient(
+      ellipse at 80% -10%,
+      color-mix(in srgb, var(--color-gold) 16%, transparent),
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse at 0% 110%,
+      color-mix(in srgb, var(--color-burgundy) 22%, transparent),
+      transparent 50%
+    ),
+    radial-gradient(color-mix(in srgb, var(--color-ink) 7%, transparent) 1px, transparent 1.4px);
+  background-size:
+    100% 100%,
+    100% 100%,
+    24px 24px;
+}

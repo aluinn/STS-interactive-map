@@ -24,7 +24,12 @@ export const vaccineTrustAndDigitalEntries: Entry[] = [
     people: [],
     cultures: ['Irish'],
     disciplines: ['public health', 'science communication'],
-    themes: ['expertise-and-policy', 'society-and-power'],
+    themes: [
+      'expertise-and-policy',
+      'society-and-power',
+      'communication-and-publics',
+      'risk-and-uncertainty',
+    ],
     philosophicalQuestions: [
       {
         prompt:
@@ -72,7 +77,7 @@ export const vaccineTrustAndDigitalEntries: Entry[] = [
     people: ['alison-darcy'],
     cultures: ['American'],
     disciplines: ['digital health', 'psychology'],
-    themes: ['ethics', 'society-and-power'],
+    themes: ['ethics', 'society-and-power', 'artificial-intelligence', 'digital-technology'],
     philosophicalQuestions: [
       {
         prompt:
@@ -116,7 +121,7 @@ export const vaccineTrustAndDigitalEntries: Entry[] = [
     people: ['cory-doctorow'],
     cultures: ['Canadian', 'British'],
     disciplines: ['digital economy', 'science and technology studies'],
-    themes: ['assetisation', 'society-and-power'],
+    themes: ['assetisation', 'society-and-power', 'digital-technology', 'platform-power'],
     philosophicalQuestions: [
       {
         prompt:

@@ -255,7 +255,12 @@ export const globalAndAfricanEntries: Entry[] = [
     people: [],
     cultures: ['Kenyan'],
     disciplines: ['financial technology'],
-    themes: ['non-western-origins', 'global-knowledge-networks', 'independent-development'],
+    themes: [
+      'non-western-origins',
+      'global-knowledge-networks',
+      'independent-development',
+      'digital-technology',
+    ],
     philosophicalQuestions: [
       {
         prompt:

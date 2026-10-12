@@ -115,7 +115,12 @@ export const sociotechnicalLensesEntries: Entry[] = [
     people: ['maarten-hajer'],
     cultures: ['Dutch'],
     disciplines: ['policy studies'],
-    themes: ['innovation-policy', 'discourse-and-identity', 'society-and-power'],
+    themes: [
+      'innovation-policy',
+      'discourse-and-identity',
+      'society-and-power',
+      'media-and-meaning',
+    ],
     philosophicalQuestions: [
       {
         prompt:

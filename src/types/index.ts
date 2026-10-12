@@ -192,6 +192,24 @@ export interface Entry {
 
   /** Surfaces this entry inside the curated Paths view. */
   isJourneyStop?: boolean
+
+  /* ---- Time-travel metadata. All optional: when absent, visibility in a
+   * navigational period is derived from startYear/endYear (see utils/eras). */
+
+  /** How firmly the dating is known. Drives honest wording, not filtering. */
+  datePrecision?: 'exact' | 'circa' | 'decade' | 'century' | 'uncertain'
+  /** A standing question or concept not tied to one moment: visible in every period. */
+  transhistorical?: boolean
+  /** Explicit override: show this entry only in these navigational periods. */
+  activePeriods?: string[]
+  /** The year an institution or practice closed (visible until then). */
+  closedYear?: number
+  /** The year a theory was overturned; it remains as a faint echo afterwards. */
+  overturnedYear?: number
+  /** ISO date (YYYY-MM-DD) a contemporary claim was last checked. */
+  lastVerified?: string
+  /** Embeds a built-in interactive explainer in the entry's detail view. */
+  explorer?: 'communication-models'
 }
 
 export interface Relationship {

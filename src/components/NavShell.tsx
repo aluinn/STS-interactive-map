@@ -10,6 +10,8 @@ interface NavShellProps {
   onOpenSources: () => void
   onOpenNotebook: () => void
   onReplayIntro?: () => void
+  /** True while a period theme is overriding the light/dark choice. */
+  periodThemed?: boolean
 }
 
 const TABS: { value: ViewName; label: string }[] = [
@@ -28,6 +30,7 @@ export function NavShell({
   onOpenSources,
   onOpenNotebook,
   onReplayIntro,
+  periodThemed,
 }: NavShellProps) {
   return (
     <header className={styles.header}>
@@ -74,6 +77,11 @@ export function NavShell({
         className={styles.iconBtn}
         onClick={onToggleTheme}
         aria-pressed={theme === 'light'}
+        title={
+          periodThemed
+            ? 'Light and dark mode apply to All Time and the consistent theme; each period has its own look.'
+            : undefined
+        }
       >
         {theme === 'dark' ? '☀ Light mode' : '☾ Dark mode'}
       </button>

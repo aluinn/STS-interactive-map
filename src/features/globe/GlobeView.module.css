@@ -1,0 +1,163 @@
+.wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  background-color: #02060d;
+  /* A sparse, fixed star field. */
+  background-image:
+    radial-gradient(1px 1px at 8% 14%, #fff9, transparent),
+    radial-gradient(1px 1px at 22% 72%, #fff8, transparent),
+    radial-gradient(1.4px 1.4px at 37% 31%, #fffb, transparent),
+    radial-gradient(1px 1px at 51% 88%, #fff7, transparent),
+    radial-gradient(1px 1px at 63% 12%, #fff9, transparent),
+    radial-gradient(1.4px 1.4px at 78% 58%, #fffa, transparent),
+    radial-gradient(1px 1px at 91% 27%, #fff8, transparent),
+    radial-gradient(1px 1px at 15% 46%, #fff7, transparent),
+    radial-gradient(1px 1px at 84% 91%, #fff8, transparent),
+    radial-gradient(ellipse at 50% 55%, #0a1a2e 0%, #02060d 70%);
+  animation: globeIn 900ms ease both;
+}
+@keyframes globeIn {
+  from {
+    opacity: 0;
+    transform: scale(1.06);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wrap {
+    animation: globeFade 200ms linear both;
+  }
+  @keyframes globeFade {
+    from {
+      opacity: 0;
+    }
+  }
+}
+
+.atmosphere {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.canvas,
+.svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.svg {
+  cursor: grab;
+  touch-action: none;
+}
+.svg:active {
+  cursor: grabbing;
+}
+.svg:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: -3px;
+}
+
+.rim {
+  fill: none;
+  stroke: rgba(150, 200, 255, 0.35);
+  stroke-width: 1;
+}
+.fallbackLand {
+  fill: #2f5a45;
+  stroke: #9fd0b5;
+  stroke-width: 0.6;
+}
+.borders {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.28);
+  stroke-width: 0.5;
+  pointer-events: none;
+}
+.cable {
+  fill: none;
+  stroke: #67e0ff;
+  stroke-width: 1.4;
+  stroke-dasharray: 5 4;
+  stroke-opacity: 0.8;
+  filter: none;
+}
+.route {
+  fill: none;
+  stroke: #ffd27a;
+  stroke-width: 1.1;
+  stroke-opacity: 0.6;
+  pointer-events: none;
+}
+.routeBroken {
+  stroke: #ff9a8a;
+  stroke-dasharray: 1 4;
+}
+
+.layers {
+  position: absolute;
+  left: var(--space-3);
+  bottom: var(--space-6);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  z-index: 3;
+}
+.layerBtn {
+  min-height: 32px;
+  padding: 0 var(--space-3);
+  border-radius: 999px;
+  border: 1px solid rgba(180, 215, 255, 0.45);
+  background: rgba(5, 14, 26, 0.75);
+  color: #dbeaf7;
+  font: inherit;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+.layerBtn[aria-pressed='true'] {
+  background: #1a8aa0;
+  color: #031018;
+  border-color: #67e0ff;
+}
+.layerBtn:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.status {
+  position: absolute;
+  top: var(--space-3);
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-md);
+  background: rgba(5, 14, 26, 0.85);
+  color: #dbeaf7;
+  font-size: 0.85rem;
+  z-index: 3;
+}
+.attribution {
+  position: absolute;
+  left: var(--space-3);
+  bottom: var(--space-2);
+  max-width: 62%;
+  margin: 0;
+  font-size: 0.7rem;
+  color: rgba(219, 234, 247, 0.7);
+  z-index: 3;
+}
+
+@media (max-width: 600px) {
+  .layers {
+    bottom: 46px;
+  }
+  .attribution {
+    max-width: 88%;
+    font-size: 0.66rem;
+  }
+}

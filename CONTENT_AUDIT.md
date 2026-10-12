@@ -93,3 +93,27 @@ No duplicate IDs, slugs or relationships were found. Overlaps worth a future dec
 8. Medicine and public health beyond cholera.
 9. Statistics, measurement and standardisation.
 10. Add DOIs/URLs to existing sources.
+
+
+## Update: time travel and expansion (October 2026)
+
+The content expansion was started at the owner's explicit request. The dataset now has
+226 entries (86 added), 164 relationships (42 added), 20 debates (2 added) and 29 guided
+paths (5 added, 1 extended).
+
+New strands: **Communication and Publics** (deficit/dialogue/participation models, publics,
+expertise, trust, risk and uncertainty, media and meaning, museums and restitution, citizen
+science, wicked problems), **Digital Power** (a non-inevitable history of computing, the
+web, platforms, AI; elites, business models, knowledge infrastructure, news and
+disinformation, regulation, the self), **Modern scientific geography** (Bay Area history,
+Boston–Cambridge, London, Oxford–Cambridge, Geneva, Bangalore, Shenzhen, Hsinchu,
+Singapore, Seoul, Tokyo, Nairobi, Cape Town and the Karoo) and a **cartography to Earth
+observation** thread (Mercator, the Great Trigonometrical Survey, Earthrise, Landsat, the
+Keeling Curve, the IPCC).
+
+Still thin: South America and the Pacific; Indigenous knowledge systems; medicine and public
+health beyond the cases above; twentieth-century physics and biology milestones; disability.
+
+Entries marked `draft` rely on general scholarship rather than a full source check, and
+`lastVerified` is set only where a claim was checked against live sources (EU digital
+regulation, US v. Google, Meta fact-checking). No second-year material was added.

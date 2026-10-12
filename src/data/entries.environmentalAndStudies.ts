@@ -70,7 +70,7 @@ export const environmentalAndStudiesEntries: Entry[] = [
     people: [],
     cultures: ['American', 'transnational'],
     disciplines: ['climate science', 'science policy'],
-    themes: ['evidence-and-action', 'expertise-and-policy'],
+    themes: ['evidence-and-action', 'expertise-and-policy', 'climate', 'communication-and-publics'],
     philosophicalQuestions: [
       {
         prompt:
@@ -290,7 +290,14 @@ export const environmentalAndStudiesEntries: Entry[] = [
     people: [],
     cultures: ['transnational'],
     disciplines: ['science policy', 'philosophy of science'],
-    themes: ['ethics', 'profession-and-identity', 'objectivity', 'exclusion-and-access'],
+    themes: [
+      'ethics',
+      'profession-and-identity',
+      'objectivity',
+      'exclusion-and-access',
+      'artificial-intelligence',
+      'digital-technology',
+    ],
     philosophicalQuestions: [
       {
         prompt:

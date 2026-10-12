@@ -1,0 +1,286 @@
+/*
+  Registration and transitions for the period-aware tokens.
+
+  The values themselves live in eraTheme.ts and are written onto <html> when
+  the period changes. Registering the colour tokens with @property lets the
+  browser interpolate them, so the whole interface (panels, controls, map
+  and typography colours) drifts between themes instead of snapping.
+  Fonts cannot be interpolated; a brief dip in opacity hides the swap.
+*/
+@property --color-bg {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #15110c;
+}
+@property --color-bg-elevated {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #1d1711;
+}
+@property --color-parchment {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #2a2117;
+}
+@property --color-parchment-elevated {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #352a1c;
+}
+@property --color-ink {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #e9ddc4;
+}
+@property --color-ink-dim {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #b8a989;
+}
+@property --color-ink-faint {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #9c8c6b;
+}
+@property --color-border {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #4a3c28;
+}
+@property --color-border-strong {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #6b5739;
+}
+@property --color-gold {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #c9a24b;
+}
+@property --color-gold-bright {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #e0bd6e;
+}
+@property --color-burgundy {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #8a3b3f;
+}
+@property --color-burgundy-bright {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #cc767b;
+}
+@property --color-oxidised-green {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #5c7a63;
+}
+@property --color-oxidised-green-bright {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #7a9c81;
+}
+@property --color-charcoal {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #2c2824;
+}
+@property --color-focus {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #e0bd6e;
+}
+@property --color-link {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #cdb173;
+}
+@property --overlay-scrim {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: rgba(10, 8, 5, 0.72);
+}
+@property --surface-translucent {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #1d1711;
+}
+@property --accent-glow {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: rgba(0, 0, 0, 0);
+}
+@property --color-on-burgundy {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #e9ddc4;
+}
+@property --control-active-bg {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #c9a24b;
+}
+@property --control-active-fg {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #2c2824;
+}
+@property --control-active-edge {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #c9a24b;
+}
+@property --control-active-underline {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: rgba(0, 0, 0, 0);
+}
+@property --cluster-stroke {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #231c13;
+}
+@property --chart-paper {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #cdb57f;
+}
+@property --chart-paper-deep {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #b89c68;
+}
+@property --chart-ink {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #231c13;
+}
+@property --chart-route-accent {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #7c5a1f;
+}
+@property --chart-route-primary {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #732f32;
+}
+@property --chart-marker-fill {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #e8d7a8;
+}
+@property --chart-marker-ink {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #231c13;
+}
+@property --chart-marker-selected {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #732f32;
+}
+@property --chart-cluster-fill {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #732f32;
+}
+@property --chart-cluster-ink {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #e8d7a8;
+}
+@property --chart-label-halo {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #cdb57f;
+}
+@property --radius-sm {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 3px;
+}
+@property --radius-md {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 6px;
+}
+@property --radius-lg {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 12px;
+}
+
+html {
+  transition:
+    --color-bg 640ms ease,
+    --color-bg-elevated 640ms ease,
+    --color-parchment 640ms ease,
+    --color-parchment-elevated 640ms ease,
+    --color-ink 640ms ease,
+    --color-ink-dim 640ms ease,
+    --color-ink-faint 640ms ease,
+    --color-border 640ms ease,
+    --color-border-strong 640ms ease,
+    --color-gold 640ms ease,
+    --color-gold-bright 640ms ease,
+    --color-burgundy 640ms ease,
+    --color-burgundy-bright 640ms ease,
+    --color-oxidised-green 640ms ease,
+    --color-oxidised-green-bright 640ms ease,
+    --color-charcoal 640ms ease,
+    --color-focus 640ms ease,
+    --color-link 640ms ease,
+    --overlay-scrim 640ms ease,
+    --surface-translucent 640ms ease,
+    --accent-glow 640ms ease,
+    --color-on-burgundy 640ms ease,
+    --control-active-bg 640ms ease,
+    --control-active-fg 640ms ease,
+    --control-active-edge 640ms ease,
+    --control-active-underline 640ms ease,
+    --cluster-stroke 640ms ease,
+    --chart-paper 640ms ease,
+    --chart-paper-deep 640ms ease,
+    --chart-ink 640ms ease,
+    --chart-route-accent 640ms ease,
+    --chart-route-primary 640ms ease,
+    --chart-marker-fill 640ms ease,
+    --chart-marker-ink 640ms ease,
+    --chart-marker-selected 640ms ease,
+    --chart-cluster-fill 640ms ease,
+    --chart-cluster-ink 640ms ease,
+    --chart-label-halo 640ms ease,
+    --radius-sm 640ms ease,
+    --radius-md 640ms ease,
+    --radius-lg 640ms ease;
+}
+/* First paint: no interpolation. */
+html[data-era-instant] {
+  transition: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    transition:
+      --color-bg 160ms linear,
+      --color-bg-elevated 160ms linear,
+      --color-ink 160ms linear,
+      --color-border 160ms linear;
+  }
+}
+
+html[data-era-type-swap] body {
+  animation: eraTypeSwap 560ms ease;
+}
+@keyframes eraTypeSwap {
+  35% {
+    opacity: 0.72;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html[data-era-type-swap] body {
+    animation: none;
+  }
+}

@@ -17,7 +17,7 @@ const DISPLAY_NAMES: Record<string, string> = {
   'Central African Rep.': 'Central African Republic',
   'S. Sudan': 'South Sudan',
   'Bosnia and Herz.': 'Bosnia and Herzegovina',
-  'Czechia': 'Czech Republic',
+  Czechia: 'Czech Republic',
   'Dominican Rep.': 'Dominican Republic',
   'Eq. Guinea': 'Equatorial Guinea',
   'W. Sahara': 'Western Sahara',
@@ -78,7 +78,10 @@ export function countryAt(latitude: number, longitude: number): string | null {
   const all = loadShapes()
   let found: string | null = null
   for (const s of all) {
-    if (inBounds(s.bounds, longitude, latitude) && geoContains(s.geometry as never, [longitude, latitude])) {
+    if (
+      inBounds(s.bounds, longitude, latitude) &&
+      geoContains(s.geometry as never, [longitude, latitude])
+    ) {
       found = s.name
       break
     }

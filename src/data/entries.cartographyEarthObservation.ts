@@ -1,0 +1,230 @@
+import type { Entry } from '../types'
+import { entry, src } from './entryBuilder'
+
+/**
+ * From printed and surveyed maps to planetary observation: the thread that
+ * carries the atlas from its historical chart to its present-day globe.
+ */
+export const cartographyEarthObservationEntries: Entry[] = [
+  entry({
+    id: 'mercator-projection-1569',
+    title: "Mercator's World Map and the Politics of Projection",
+    subtitle: 'A chart for sailors that became the default picture of the world',
+    kind: 'text',
+    period: 'early-modern',
+    summary:
+      "Gerardus Mercator's 1569 world map used a projection that preserves angles, useful for navigation, while stretching areas towards the poles.",
+    long: 'Mercator, working in Duisburg, published a large world map in 1569 whose projection let navigators plot a compass bearing as a straight line. Because it preserves angles it stretches area away from the equator, making Greenland look as large as Africa. The projection was a tool for navigation and was not intended as a statement about importance, but its use in classrooms and later in web maps (the "Web Mercator" used by many online mapping services from the mid-2000s) has made it the default image of the world. Every projection distorts something; choosing one is a decision about what to preserve. The atlas\'s historical map uses a different projection (Natural Earth) and its modern view uses a globe to avoid some of these distortions.',
+    start: 1569,
+    date: '1569',
+    at: [51.4344, 6.7623, 'Duisburg, Germany'],
+    cultures: ['Flemish', 'German'],
+    disciplines: ['cartography', 'navigation'],
+    themes: [
+      'instruments-and-method',
+      'scientific-images',
+      'empire-and-trade',
+      'texts-and-circulation',
+    ],
+    ask: 'What does a map choose to preserve, and what does it distort?',
+    significance: 'Shows how technical choices in representation shape how the world is imagined.',
+    myth: 'That Mercator deliberately made Europe look large.',
+    complication:
+      'The projection was designed for navigation; its later cultural role as a general world picture is a separate history.',
+    sources: [
+      src(
+        'Gerardus Mercator',
+        'Nova et aucta orbis terrae descriptio ad usum navigantium emendate accommodata',
+        '1569',
+        'primary',
+      ),
+      src('Mark Monmonier', 'Rhumb Lines and Map Wars', '2004'),
+    ],
+    related: [
+      'ptolemy',
+      'great-trigonometrical-survey-india',
+      'earthrise-blue-marble',
+      'zheng-he-voyages',
+    ],
+    confidence: 'established',
+    journey: true,
+  }),
+  entry({
+    id: 'great-trigonometrical-survey-india',
+    title: 'The Great Trigonometrical Survey of India',
+    subtitle: 'Mapping a colony, and the Indian surveyors who did the work',
+    kind: 'experiment',
+    period: 'industrial-imperial',
+    summary:
+      'Begun in 1802 by William Lambton and continued by George Everest, the survey measured an arc across the subcontinent for the British East India Company and later the Raj.',
+    long: 'The survey combined geodesy, astronomy and administration: it measured the shape of the Earth and created a framework for land revenue and military control. Matthew Edney has argued that it helped to create "British India" as a mapped object. The work depended on Indian surveyors, calculators and labourers, among them Radhanath Sikdar, chief computer in the Survey in the 1840s–50s, who is often credited with calculating the height of what was later named Mount Everest, although the details of credit are debated. Later "pundit" explorers trained by the survey crossed regions closed to Europeans. Colonial mapping thus served science and empire together, and its legacy includes both a measured geography and a record of unequal credit.',
+    start: 1802,
+    end: 1871,
+    date: '1802–1871',
+    at: [13.0827, 80.2707, 'Madras (Chennai), India'],
+    also: [{ name: 'Dehradun, India', latitude: 30.3165, longitude: 78.0322, role: 'institution' }],
+    cultures: ['Indian', 'British'],
+    disciplines: ['geodesy', 'cartography', 'colonial history'],
+    themes: [
+      'empire-and-trade',
+      'instruments-and-method',
+      'society-and-power',
+      'craft-and-instruments',
+    ],
+    ask: 'Who is remembered as the mapmaker, and who did the measuring?',
+    significance:
+      'A leading example of science carried out within, and in service of, imperial administration.',
+    voices: [
+      {
+        role: 'Indian surveyors, computers and labourers',
+        note: 'Carried out much of the observation and calculation; credit has been uneven.',
+      },
+    ],
+    sources: [
+      src(
+        'Matthew H. Edney',
+        'Mapping an Empire: The Geographical Construction of British India, 1765–1843',
+        '1997',
+      ),
+      src('John Keay', 'The Great Arc', '2000'),
+    ],
+    related: [
+      'mercator-projection-1569',
+      'bengal-famine-science',
+      'colonial-korea-science',
+      'scientific-racism',
+    ],
+    confidence: 'likely',
+  }),
+  entry({
+    id: 'earthrise-blue-marble',
+    title: 'Earthrise and the Blue Marble',
+    subtitle: 'The planet seen from space — and what the image was used for',
+    kind: 'event',
+    period: 'cold-war',
+    summary:
+      'Photographs of Earth from lunar space — "Earthrise" (1968) and "The Blue Marble" (1972) — became icons of environmental and global thinking.',
+    long: 'Astronaut William Anders photographed Earth rising above the Moon during the Apollo 8 mission in December 1968, and the crew of Apollo 17 took the "Blue Marble" photograph in December 1972. Such images were widely used by the environmental movement and by advocates of a global outlook; Stewart Brand had campaigned for a photo of the whole Earth for the cover of the Whole Earth Catalog. The geographer Denis Cosgrove argued that the whole-Earth image carries a long history of "global" imagination and does not simply show something neutral: the view from above also suggests that the planet can be surveyed, managed and owned. The images came from Cold War space programmes and depended on military rocket technology.',
+    start: 1968,
+    end: 1972,
+    date: '1968–1972',
+    at: [28.5729, -80.649, 'Kennedy Space Center, Florida'],
+    disciplines: ['history of space science', 'geography', 'environmental history'],
+    themes: ['scientific-images', 'big-science', 'climate', 'communication-and-publics'],
+    ask: 'Does seeing the whole Earth from outside help us care for it, or imagine we can control it?',
+    significance:
+      'Marks the shift from mapping the Earth by hand to seeing it as a single object from space.',
+    sources: [
+      src(
+        'Denis Cosgrove',
+        '"Contested Global Visions: One-World, Whole-Earth, and the Apollo Space Photographs"',
+        '1994',
+      ),
+      src('Robert Poole', 'Earthrise: How Man First Saw the Earth', '2008'),
+    ],
+    related: [
+      'mercator-projection-1569',
+      'landsat-earth-observation',
+      'rachel-carson-silent-spring',
+      'cold-war-big-science',
+    ],
+    confidence: 'established',
+    journey: true,
+  }),
+  entry({
+    id: 'landsat-earth-observation',
+    title: 'Landsat and Earth Observation',
+    subtitle: 'A continuous satellite record of the land surface',
+    kind: 'instrument',
+    period: 'cold-war',
+    summary:
+      'The first Landsat satellite was launched in 1972; since 2008 its archive has been free to use, supporting studies of forests, farmland, cities and ice.',
+    long: 'Landsat began as the Earth Resources Technology Satellite, launched in July 1972, and the programme has produced a long, continuous record of the land surface from space. Its images have been used in agriculture, forestry, mapping and climate research. In 2008 the US Geological Survey made the archive free to use, which greatly increased its use, an example of the effect of open data policies. Earth observation also has strategic and commercial dimensions: governments and companies control satellites and decide what is collected, shared or sold, and the viewpoint of satellites raises questions about privacy and about who can see whom.',
+    start: 1972,
+    end: 2026,
+    date: '1972–present',
+    at: [43.7333, -96.6244, 'USGS EROS Center, South Dakota'],
+    disciplines: ['remote sensing', 'environmental science'],
+    themes: ['instruments-and-method', 'climate', 'open-science', 'scientific-images'],
+    ask: 'Who decides what is observed from orbit, and who gets to use the data?',
+    significance: 'A long-running scientific record and an influential case of open data.',
+    evidence: 'well-established',
+    sources: [
+      src('US Geological Survey', 'Landsat Missions: history', '2023', 'primary'),
+      src('Curtis E. Woodcock and others', '"Free Access to Landsat Imagery"', '2008'),
+    ],
+    related: ['earthrise-blue-marble', 'keeling-curve-mauna-loa', 'open-access-and-inequality'],
+    confidence: 'established',
+    content: 'draft',
+  }),
+  entry({
+    id: 'keeling-curve-mauna-loa',
+    title: 'The Keeling Curve',
+    subtitle: 'A measurement that made the rise in carbon dioxide visible',
+    kind: 'experiment',
+    period: 'cold-war',
+    summary:
+      'Charles David Keeling began measuring atmospheric carbon dioxide at Mauna Loa, Hawaii, in 1958; the continuing record shows a steady rise.',
+    long: 'Keeling started his measurements in 1958 during the International Geophysical Year, at a remote observatory chosen to sample well-mixed air. The record showed both a yearly cycle, as Northern Hemisphere vegetation takes up and releases carbon dioxide, and a continuing upward trend, from roughly 315 parts per million in 1958 to above 420 in recent years. Sustaining the measurement required repeated funding decisions, since long-term monitoring is hard to fund through short-term research grants. The curve became a central piece of evidence in climate science and public debate, and an example of how an instrument and a place can anchor a global narrative.',
+    start: 1958,
+    end: 2026,
+    date: '1958–present',
+    at: [19.5362, -155.5763, 'Mauna Loa Observatory, Hawaii'],
+    disciplines: ['atmospheric science', 'geochemistry'],
+    themes: ['climate', 'instruments-and-method', 'institutions-and-funding'],
+    ask: 'How does a single long record become a public symbol?',
+    significance: 'One of the foundational datasets of climate science.',
+    sources: [
+      src(
+        'Charles David Keeling',
+        '"The Concentration and Isotopic Abundances of Carbon Dioxide in the Atmosphere"',
+        '1960',
+        'primary',
+      ),
+      src('Scripps Institution of Oceanography', 'The Keeling Curve', '2024', 'primary'),
+    ],
+    related: ['ipcc-assessment-reports', 'climate-science-scepticism', 'landsat-earth-observation'],
+    confidence: 'established',
+    journey: true,
+  }),
+  entry({
+    id: 'ipcc-assessment-reports',
+    title: 'The IPCC: Assessing Climate Knowledge',
+    subtitle: 'Science and governments co-producing a global assessment',
+    kind: 'institution',
+    period: 'environmental-contemporary',
+    summary:
+      'The Intergovernmental Panel on Climate Change was set up in 1988; its assessment reports, approved by governments, summarise research for policy.',
+    long: 'The IPCC was established by the World Meteorological Organization and the United Nations Environment Programme in 1988. Hundreds of volunteer scientists write reports that assess published literature; governments then approve the Summaries for Policymakers line by line, which is why science and diplomacy meet in the text. The panel shared the 2007 Nobel Peace Prize. Science and technology studies describe it as a case of co-production, and it has been criticised from several directions — as too cautious by some climate scientists, and as too political by sceptics. A 2010 review by the InterAcademy Council recommended changes in procedures. Its structure shows how global environmental problems are made into objects of governance.',
+    start: 1988,
+    date: '1988 onward',
+    at: [46.2044, 6.1432, 'Geneva, Switzerland'],
+    disciplines: ['climate science', 'international relations'],
+    themes: [
+      'climate',
+      'expertise-and-policy',
+      'policy-and-participation',
+      'institutions-and-funding',
+    ],
+    ask: 'What happens to scientific findings when governments must approve how they are summarised?',
+    significance:
+      'The main mechanism through which climate knowledge reaches international policy.',
+    sources: [
+      src('Clark A. Miller and Paul N. Edwards (eds.)', 'Changing the Atmosphere', '2001'),
+      src(
+        'InterAcademy Council',
+        'Climate Change Assessments: Review of the Processes and Procedures of the IPCC',
+        '2010',
+        'primary',
+      ),
+    ],
+    related: [
+      'keeling-curve-mauna-loa',
+      'climate-science-scepticism',
+      'co-production',
+      'wicked-problems-rittel-webber',
+    ],
+    confidence: 'established',
+    journey: true,
+  }),
+]

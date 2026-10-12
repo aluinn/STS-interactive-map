@@ -346,7 +346,7 @@ export const sociologyOfPracticeEntries: Entry[] = [
     people: [],
     cultures: ['transnational'],
     disciplines: ['science policy', 'economic sociology'],
-    themes: ['assetisation', 'society-and-power', 'ethics'],
+    themes: ['assetisation', 'society-and-power', 'ethics', 'platform-power'],
     philosophicalQuestions: [
       {
         prompt:

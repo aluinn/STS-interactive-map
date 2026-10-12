@@ -18,6 +18,9 @@ import {
 } from '../../utils/geo'
 import { MarkerIcon } from '../../components/MarkerIcon'
 import { MapDefs, CompassRose } from './MapGlyphs'
+import { EraDecor } from '../eras/EraDecor'
+import { EntryListFallback } from './EntryListFallback'
+import type { MapFocus } from '../../utils/mapFocus'
 import { ClusterPanel, type ClusterPanelProps } from './ClusterPanel'
 import styles from './AtlasView.module.css'
 
@@ -39,6 +42,16 @@ interface AtlasViewProps {
     | 'onBeginJourney'
   >
   reducedMotion: boolean
+  /** Selected period id (null = All Time) and whether its theme is applied. */
+  eraId?: string | null
+  immersive?: boolean
+  /** Faint entries and relationships carried over from the previous period. */
+  ghostEntries?: Entry[]
+  ghostRelationships?: Relationship[]
+  /** Entries shown only because the search reaches outside the period. */
+  outsideIds?: Set<string>
+  /** Shared with the globe so switching projection keeps the viewer's place. */
+  focusRef?: { current: MapFocus | null }
 }
 
 interface RouteTooltip {
@@ -107,6 +120,12 @@ export function AtlasView({
   focusToken,
   clusterTools,
   reducedMotion,
+  eraId = null,
+  immersive = false,
+  ghostEntries,
+  ghostRelationships,
+  outsideIds,
+  focusRef,
 }: AtlasViewProps) {
   const wrapRef = useRef<HTMLDivElement>(null)
   const svgRef = useRef<SVGSVGElement>(null)
@@ -172,6 +191,26 @@ export function AtlasView({
     () => clusterProjected(projected, transform.k, CLUSTER_THRESHOLD_PX),
     [projected, transform.k],
   )
+  const ghostProjected = useMemo(
+    () => (ghostEntries?.length ? projectEntries(ghostEntries, projection) : []),
+    [ghostEntries, projection],
+  )
+
+  // On arrival from the globe the map starts centred on where it was looking;
+  // until that has been consumed, don't overwrite the shared focus.
+  const arrivedRef = useRef(false)
+
+  // Remember what the viewer is looking at so the globe can open there.
+  useEffect(() => {
+    if (!focusRef || !measured || !arrivedRef.current) return
+    const centre = projection.invert?.([
+      (size.width / 2 - transform.x) / transform.k,
+      (size.height / 2 - transform.y) / transform.k,
+    ])
+    if (centre && Number.isFinite(centre[0]) && Number.isFinite(centre[1])) {
+      focusRef.current = { lon: centre[0], lat: centre[1], k: transform.k }
+    }
+  }, [focusRef, measured, projection, size.width, size.height, transform])
 
   useEffect(() => {
     const svgEl = svgRef.current
@@ -227,6 +266,21 @@ export function AtlasView({
     },
     [size.width, size.height, transform.x, transform.y, transform.k, reducedMotion],
   )
+
+  useEffect(() => {
+    if (arrivedRef.current || !measured || !zoomBehaviorRef.current) return
+    arrivedRef.current = true
+    if (!focusRef?.current) return
+    const f = focusRef.current
+    const point = projection([f.lon, f.lat])
+    if (point && f.fromGlobe) {
+      applyZoom(Math.min(Math.max(f.k, 1.6), 3), point[0], point[1])
+    } else {
+      setTransform((t) => ({ ...t }))
+    }
+    // Only on first measurement.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [measured])
 
   const resetView = useCallback(() => {
     if (!svgRef.current || !zoomBehaviorRef.current) return
@@ -288,9 +342,39 @@ export function AtlasView({
       .filter((x): x is NonNullable<typeof x> => x !== null)
   }, [relationships, visibleEntryIds, screenPositionById])
 
+  // Echo routes: relationships touching a faint entry from the previous
+  // period, drawn very lightly so continuity is visible without clutter.
+  const ghostCurves = useMemo(() => {
+    if (!ghostRelationships?.length) return []
+    const ghostPos = new Map(ghostProjected.map((g) => [g.entry.id, { x: g.x, y: g.y }]))
+    const pos = (id: string) => ghostPos.get(id) ?? screenPositionById.get(id)
+    return ghostRelationships
+      .map((r) => {
+        const a = pos(r.sourceId)
+        const b = pos(r.targetId)
+        if (!a || !b || (Math.abs(a.x - b.x) < 0.01 && Math.abs(a.y - b.y) < 0.01)) return null
+        const mx = (a.x + b.x) / 2
+        const my = (a.y + b.y) / 2
+        const len = Math.hypot(b.x - a.x, b.y - a.y) || 1
+        const off = len * 0.18
+        return {
+          id: r.id,
+          d: `M${a.x},${a.y} Q${mx - ((b.y - a.y) * off) / len},${my + ((b.x - a.x) * off) / len} ${b.x},${b.y}`,
+        }
+      })
+      .filter((x): x is NonNullable<typeof x> => x !== null)
+  }, [ghostRelationships, ghostProjected, screenPositionById])
+
+  // The sidebar keeps the cluster the user opened, but never lists an entry
+  // the current period or filters have since hidden.
+  const livePanelEntries = useMemo(
+    () => (panelEntries ? panelEntries.filter((e) => visibleEntryIds.has(e.id)) : null),
+    [panelEntries, visibleEntryIds],
+  )
+  if (panelEntries && livePanelEntries && livePanelEntries.length === 0) setPanelEntries(null)
   const panelIds = useMemo(
-    () => (panelEntries ? new Set(panelEntries.map((e) => e.id)) : null),
-    [panelEntries],
+    () => (livePanelEntries ? new Set(livePanelEntries.map((e) => e.id)) : null),
+    [livePanelEntries],
   )
 
   function openClusterPanel(cluster: MarkerCluster) {
@@ -340,6 +424,7 @@ export function AtlasView({
 
   return (
     <div className={styles.wrap} ref={wrapRef}>
+      {!showList && immersive && <EraDecor eraId={eraId} />}
       {!showList && <div className={styles.vignette} aria-hidden />}
       {!showList && <div className={styles.ageStains} aria-hidden />}
       {!showList && <CompassRose />}
@@ -386,6 +471,34 @@ export function AtlasView({
               )
             })}
 
+            {ghostCurves.map((g) => (
+              <path
+                key={`ghost-${g.id}`}
+                d={g.d}
+                className={styles.ghostRoute}
+                style={{ strokeWidth: 1 / Math.sqrt(transform.k) }}
+                aria-hidden
+              />
+            ))}
+            {ghostProjected.map(({ entry, x, y }) => (
+              <circle
+                key={`ghost-${entry.id}`}
+                cx={x}
+                cy={y}
+                r={5.5 / Math.sqrt(transform.k)}
+                className={styles.ghostMarker}
+                style={{ strokeWidth: 1 / Math.sqrt(transform.k) }}
+                aria-hidden
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setPanelEntries(null)
+                  onSelectEntry(entry.id)
+                }}
+              >
+                <title>{`${entry.title} (${entry.dateDisplay}) — echo from the previous period`}</title>
+              </circle>
+            ))}
+
             {clusters.map((cluster) => {
               if (cluster.items.length === 1) {
                 const { entry, x, y } = cluster.items[0]
@@ -394,16 +507,17 @@ export function AtlasView({
                 const highlighted = entry.id === highlightedEntryId
                 const dimmed =
                   (hoveredId !== null && hoveredId !== entry.id) || (panelIds !== null && !inPanel)
+                const outside = outsideIds?.has(entry.id) ?? false
                 const r = 9 / Math.sqrt(transform.k)
                 return (
                   <g
                     key={entry.id}
                     transform={`translate(${x},${y})`}
-                    className={`${styles.marker} ${selected || highlighted ? styles.markerSelected : ''} ${dimmed ? styles.markerDimmed : ''}`}
+                    className={`${styles.marker} ${selected || highlighted ? styles.markerSelected : ''} ${dimmed ? styles.markerDimmed : ''} ${outside ? styles.markerOutside : ''}`}
                     data-in-panel={inPanel ? 'true' : undefined}
                     tabIndex={0}
                     role="button"
-                    aria-label={`${entry.title}, ${entry.dateDisplay}. ${entry.kind}.`}
+                    aria-label={`${entry.title}, ${entry.dateDisplay}. ${entry.kind}.${outside ? ' Outside the selected period.' : ''}`}
                     onMouseEnter={() => setHoveredId(entry.id)}
                     onMouseLeave={() => setHoveredId(null)}
                     onFocus={() => setHoveredId(entry.id)}
@@ -556,11 +670,12 @@ export function AtlasView({
         </p>
       )}
 
-      {panelEntries && !showList && (
+      {panelEntries && livePanelEntries && livePanelEntries.length > 0 && !showList && (
         <ClusterPanel
           // A fresh cluster click resets search, sort and any open entry.
           key={panelEntries.map((e) => e.id).join('|')}
-          entries={panelEntries}
+          entries={livePanelEntries}
+          outsideIds={outsideIds}
           onClose={closeClusterPanel}
           onShowOnMap={showEntryOnMap}
           {...clusterTools}
@@ -604,55 +719,6 @@ export function AtlasView({
           </button>
         </div>
       )}
-    </div>
-  )
-}
-
-function EntryListFallback({
-  entries,
-  onSelectEntry,
-  selectedEntryId,
-}: {
-  entries: Entry[]
-  onSelectEntry: (id: string) => void
-  selectedEntryId: string | null
-}) {
-  return (
-    <div style={{ height: '100%', overflow: 'auto', padding: 'var(--space-4)' }}>
-      <h3 style={{ marginTop: 0 }}>Entries ({entries.length})</h3>
-      <ul
-        style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: 'var(--space-2)' }}
-      >
-        {entries.map((entry) => (
-          <li key={entry.id}>
-            <button
-              type="button"
-              aria-current={entry.id === selectedEntryId}
-              onClick={() => onSelectEntry(entry.id)}
-              style={{
-                width: '100%',
-                textAlign: 'left',
-                background:
-                  entry.id === selectedEntryId
-                    ? 'var(--color-parchment-elevated)'
-                    : 'var(--color-bg-elevated)',
-                border: '1px solid var(--color-border)',
-                borderRadius: 'var(--radius-md)',
-                padding: 'var(--space-3)',
-                color: 'var(--color-ink)',
-                cursor: 'pointer',
-                font: 'inherit',
-              }}
-            >
-              <strong style={{ fontFamily: 'var(--font-display)' }}>{entry.title}</strong>
-              <div style={{ fontSize: '0.8rem', color: 'var(--color-ink-dim)' }}>
-                {entry.kind} · {entry.dateDisplay}
-                {entry.places[0] ? ` · ${entry.places[0].name}` : ''}
-              </div>
-            </button>
-          </li>
-        ))}
-      </ul>
     </div>
   )
 }

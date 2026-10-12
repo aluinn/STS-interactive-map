@@ -123,7 +123,14 @@ export const newFiguresEntries: Entry[] = [
     people: [],
     cultures: ['British', 'American', 'transnational'],
     disciplines: ['science policy', 'computer science'],
-    themes: ['innovation-policy', 'expertise-and-policy', 'ethics'],
+    themes: [
+      'innovation-policy',
+      'expertise-and-policy',
+      'ethics',
+      'artificial-intelligence',
+      'digital-technology',
+      'policy-and-participation',
+    ],
     evidenceStatus: 'contemporary-developing',
     evidenceStatusNote:
       'As a very recent and still-evolving policy area, claims here describe the state of institutions as of the mid-2020s rather than a settled historical record.',

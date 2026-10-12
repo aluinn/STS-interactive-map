@@ -106,7 +106,7 @@ export const openScienceEntries: Entry[] = [
     people: [],
     cultures: ['transnational'],
     disciplines: ['genomics', 'science policy'],
-    themes: ['open-science', 'assetisation'],
+    themes: ['open-science', 'assetisation', 'biotechnology'],
     philosophicalQuestions: [
       {
         prompt:
@@ -150,7 +150,7 @@ export const openScienceEntries: Entry[] = [
     people: [],
     cultures: ['transnational'],
     disciplines: ['scientific publishing', 'science policy'],
-    themes: ['open-science', 'global-knowledge-networks', 'assetisation'],
+    themes: ['open-science', 'global-knowledge-networks', 'assetisation', 'digital-technology'],
     philosophicalQuestions: [
       {
         prompt:
@@ -191,7 +191,13 @@ export const openScienceEntries: Entry[] = [
     people: ['chris-lintott'],
     cultures: ['British', 'American'],
     disciplines: ['astronomy'],
-    themes: ['open-science', 'scientific-practice'],
+    themes: [
+      'open-science',
+      'scientific-practice',
+      'citizen-science',
+      'digital-technology',
+      'communication-and-publics',
+    ],
     philosophicalQuestions: [
       {
         prompt:

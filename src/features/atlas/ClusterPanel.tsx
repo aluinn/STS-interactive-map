@@ -17,6 +17,8 @@ import styles from './ClusterPanel.module.css'
 export interface ClusterPanelProps {
   /** Exactly the entries represented by the clicked bubble. */
   entries: Entry[]
+  /** Entries listed only because a search reached outside the selected period. */
+  outsideIds?: Set<string>
   onClose: () => void
   onShowOnMap: (entryId: string) => void
   getRelatedEntries: (entry: Entry) => Entry[]
@@ -43,6 +45,7 @@ function plural(n: number, one: string, many: string): string {
  */
 export function ClusterPanel({
   entries: rawEntries,
+  outsideIds,
   onClose,
   onShowOnMap,
   getRelatedEntries,
@@ -372,7 +375,12 @@ export function ClusterPanel({
                       {open && (
                         <ul id={regionId} className={styles.list}>
                           {group.entries.map((entry) => (
-                            <EntryRow key={entry.id} entry={entry} onOpen={setDetailId} />
+                            <EntryRow
+                              key={entry.id}
+                              entry={entry}
+                              onOpen={setDetailId}
+                              outside={outsideIds?.has(entry.id)}
+                            />
                           ))}
                         </ul>
                       )}
@@ -392,9 +400,18 @@ export function ClusterPanel({
   )
 }
 
-function EntryRow({ entry, onOpen }: { entry: Entry; onOpen: (id: string) => void }) {
+function EntryRow({
+  entry,
+  onOpen,
+  outside,
+}: {
+  entry: Entry
+  onOpen: (id: string) => void
+  outside?: boolean
+}) {
   const place = primaryPlace(entry)
   const flags: string[] = []
+  if (outside) flags.push('◌ outside the selected period')
   if (entry.confidence === 'contested') flags.push('⚠ contested')
   else if (entry.confidence === 'speculative') flags.push('⚠ speculative')
   if (entry.theoryStatus === 'superseded' || entry.theoryStatus === 'rejected') {

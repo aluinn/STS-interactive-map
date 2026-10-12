@@ -18,9 +18,16 @@ import { openScienceEntries } from './entries.openScience'
 import { vaccineTrustAndDigitalEntries } from './entries.vaccineTrustAndDigital'
 import { overturnedIdeasEntries } from './entries.overturnedIdeas'
 import { newFiguresEntries } from './entries.newFigures'
-import { relationships } from './relationships'
-import { debates } from './debates'
-import { journeys } from './journeys'
+import { communicationPublicsEntries } from './entries.communicationPublics'
+import { digitalPowerEntries } from './entries.digitalPower'
+import { modernGeographyEntries } from './entries.modernGeography'
+import { cartographyEarthObservationEntries } from './entries.cartographyEarthObservation'
+import { relationships as baseRelationships } from './relationships'
+import { timeTravelRelationships } from './relationships.timeTravel'
+import { debates as baseDebates } from './debates'
+import { platformKnowledgeDebates } from './debates.platformKnowledge'
+import { journeys as baseJourneys } from './journeys'
+import { timeTravelJourneys } from './journeys.timeTravel'
 import { knowledgeRoutes } from './knowledgeRoutes'
 
 export const entries: Entry[] = [
@@ -43,7 +50,15 @@ export const entries: Entry[] = [
   ...vaccineTrustAndDigitalEntries,
   ...overturnedIdeasEntries,
   ...newFiguresEntries,
+  ...communicationPublicsEntries,
+  ...digitalPowerEntries,
+  ...modernGeographyEntries,
+  ...cartographyEarthObservationEntries,
 ]
+
+export const relationships = [...baseRelationships, ...timeTravelRelationships]
+export const debates = [...baseDebates, ...platformKnowledgeDebates]
+export const journeys = [...baseJourneys, ...timeTravelJourneys]
 
 export const routes = knowledgeRoutes
 
@@ -54,5 +69,3 @@ export const dataBundle: DataBundle = {
   journeys,
   routes,
 }
-
-export { relationships, debates, journeys }

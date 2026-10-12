@@ -14,6 +14,10 @@ export interface Filters {
   onlyOverturned: boolean
   yearMin: number | null
   yearMax: number | null
+  /** Topic-area ids (see utils/areas). */
+  areas: string[]
+  regions: string[]
+  evidence: string[]
 }
 
 export interface AppState {
@@ -22,6 +26,8 @@ export interface AppState {
   debate: string | null
   journey: string | null
   stop: number
+  /** Selected navigational period id; null means "All Time". */
+  era: string | null
   filters: Filters
 }
 
@@ -37,6 +43,9 @@ export const defaultFilters: Filters = {
   onlyOverturned: false,
   yearMin: null,
   yearMax: null,
+  areas: [],
+  regions: [],
+  evidence: [],
 }
 
 const defaultState: AppState = {
@@ -45,6 +54,7 @@ const defaultState: AppState = {
   debate: null,
   journey: null,
   stop: 0,
+  era: null,
   filters: defaultFilters,
 }
 
@@ -67,6 +77,7 @@ function parseState(search: string): AppState {
     debate: params.get('debate'),
     journey: params.get('journey'),
     stop: Math.max(0, Math.floor(Number(params.get('stop') ?? 0)) || 0),
+    era: params.get('era'),
     filters: {
       q: params.get('q') ?? '',
       kinds: parseList(params.get('kinds')),
@@ -79,6 +90,9 @@ function parseState(search: string): AppState {
       onlyOverturned: params.get('overturned') === '1',
       yearMin: parseYear(params.get('y0')),
       yearMax: parseYear(params.get('y1')),
+      areas: parseList(params.get('areas')),
+      regions: parseList(params.get('regions')),
+      evidence: parseList(params.get('evidence')),
     },
   }
 }
@@ -90,6 +104,7 @@ function serializeState(state: AppState): string {
   if (state.debate) params.set('debate', state.debate)
   if (state.journey) params.set('journey', state.journey)
   if (state.journey && state.stop) params.set('stop', String(state.stop))
+  if (state.era) params.set('era', state.era)
   const f = state.filters
   if (f.q) params.set('q', f.q)
   if (f.kinds.length) params.set('kinds', f.kinds.join(','))
@@ -102,6 +117,9 @@ function serializeState(state: AppState): string {
   if (f.onlyOverturned) params.set('overturned', '1')
   if (f.yearMin !== null) params.set('y0', String(f.yearMin))
   if (f.yearMax !== null) params.set('y1', String(f.yearMax))
+  if (f.areas.length) params.set('areas', f.areas.join(','))
+  if (f.regions.length) params.set('regions', f.regions.join(','))
+  if (f.evidence.length) params.set('evidence', f.evidence.join(','))
   const s = params.toString()
   return s ? `?${s}` : ''
 }
@@ -136,7 +154,7 @@ export function useUrlState(): [AppState, (updates: Partial<AppState>) => void] 
     const next: AppState = { ...prev, ...updates }
     const url = `${window.location.pathname}${serializeState(next)}${window.location.hash}`
     const currentUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`
-    const filtersOnly = Object.keys(updates).every((k) => k === 'filters')
+    const filtersOnly = Object.keys(updates).every((k) => k === 'filters' || k === 'era')
     if (url !== currentUrl) {
       if (filtersOnly) window.history.replaceState(null, '', url)
       else window.history.pushState(null, '', url)
