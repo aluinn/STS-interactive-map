@@ -124,6 +124,7 @@ export default function App() {
   const [layout, setLayout] = useState<'map' | 'concepts'>('map')
   const [fit, setFit] = useState<{ token: number; points: [number, number][] } | null>(null)
   const [importNotice, setImportNotice] = useState('')
+  const [droppedFiles, setDroppedFiles] = useState<File[]>([])
 
   const { debates } = dataBundle
   const curatedEntries = dataBundle.entries
@@ -140,23 +141,12 @@ export default function App() {
     ],
     [personal, curatedEntries],
   )
-  const entries = useMemo(() => {
-    if (mode === 'curated') return curatedEntries
-    if (mode === 'mine') return mineEntries
-    return [
-      ...curatedEntries.map((e) => withNotesMentions(e, personal.linkedCurated.get(e.id))),
-      ...personal.entries,
-    ]
-  }, [mode, curatedEntries, mineEntries, personal])
-  const relationships = useMemo<Relationship[]>(() => {
-    const base = dataBundle.relationships
-    if (mode === 'curated') return base
-    const ids = new Set(entries.map((e) => e.id))
-    return [
-      ...base.filter((r) => ids.has(r.sourceId) && ids.has(r.targetId)),
-      ...personal.relationships,
-    ]
-  }, [mode, entries, personal])
+  const entries = mode === 'curated' ? curatedEntries : mineEntries
+  // Your Notes draws only the relationships found in the viewer's own notes.
+  const relationships = useMemo<Relationship[]>(
+    () => (mode === 'curated' ? dataBundle.relationships : personal.relationships),
+    [mode, personal],
+  )
   // Journeys, debates and the notebook refer to curated entries (and the
   // viewer's own), whichever collection is showing.
   const allEntries = useMemo(
@@ -273,11 +263,7 @@ export default function App() {
     if (m === 'mine' && notes.active) adaptTo(notes.active)
     if (m === 'curated') setLayout('map')
     setAnnouncement(
-      m === 'curated'
-        ? 'Showing the curated atlas.'
-        : m === 'mine'
-          ? 'Showing only your notes.'
-          : 'Showing the curated atlas and your notes together; your notes are marked.',
+      m === 'curated' ? 'Showing the General Notes atlas.' : 'Showing your notes on their own map.',
     )
   }
   function handleImported(c: PersonalCollection, summary: string) {
@@ -548,6 +534,10 @@ export default function App() {
                   loading={notes.loading}
                   reason={mineEntries.length === 0 ? 'no-collection' : 'no-entries-in-view'}
                   onImport={() => setNotesModal('import')}
+                  onFiles={(files) => {
+                    setDroppedFiles(files)
+                    setNotesModal('import')
+                  }}
                   onShowCurated={() => chooseMode('curated')}
                 />
               )}
@@ -690,8 +680,12 @@ export default function App() {
             onAppearance={chooseAppearance}
             onResetSettings={resetNotesSettings}
             initial={notesModal}
+            initialFiles={droppedFiles}
             onImported={handleImported}
-            onClose={() => setNotesModal(null)}
+            onClose={() => {
+              setNotesModal(null)
+              setDroppedFiles([])
+            }}
           />
         </Suspense>
       )}

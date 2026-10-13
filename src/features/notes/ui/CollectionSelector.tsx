@@ -12,9 +12,12 @@ interface CollectionSelectorProps {
 }
 
 const OPTIONS: { value: CollectionMode; label: string; help: string }[] = [
-  { value: 'curated', label: 'Curated Atlas', help: 'The verified first-year material only.' },
-  { value: 'mine', label: 'My Notes', help: 'Only what was built from your imported notes.' },
-  { value: 'combined', label: 'Combined', help: 'Both, with their provenance marked.' },
+  { value: 'curated', label: 'General Notes', help: 'The shared atlas, the same for everyone.' },
+  {
+    value: 'mine',
+    label: 'Your Notes',
+    help: 'A separate map built only from the notes you add. It stays on this device.',
+  },
 ]
 
 /** The three-way collection choice, plus the way into importing notes. */
@@ -50,12 +53,14 @@ export function CollectionSelector({
       <p className={styles.small}>
         {current?.help}{' '}
         {mode === 'curated'
-          ? `${curatedCount} curated entries.`
-          : `${mineCount} entr${mineCount === 1 ? 'y' : 'ies'} from ${collectionName ? `“${collectionName}”` : 'your notes'}${mode === 'combined' ? `, shown with ${curatedCount} curated` : ''}.`}
+          ? `${curatedCount} entries.`
+          : mineCount === 0
+            ? 'Nothing added yet.'
+            : `${mineCount} entr${mineCount === 1 ? 'y' : 'ies'} from ${collectionName ? `“${collectionName}”` : 'your notes'}, including any General Notes entries they mention.`}
       </p>
       <div className={styles.row}>
         <button type="button" className={styles.btn} onClick={onImport}>
-          Import My Notes…
+          Add your notes…
         </button>
         <button type="button" className={styles.btn} onClick={onManage}>
           Manage

@@ -21,6 +21,8 @@ interface NotesModalProps {
   onAppearance: (a: Appearance) => void
   onResetSettings: () => void
   initial: Screen
+  /** Files already chosen (dropped on the blank map) to start the import with. */
+  initialFiles?: File[]
   /** Called with the collection after a successful import, so the interface can adapt. */
   onImported: (collection: PersonalCollection, summary: string) => void
   onClose: () => void
@@ -38,6 +40,7 @@ export function NotesModal({
   onAppearance,
   onResetSettings,
   initial,
+  initialFiles = [],
   onImported,
   onClose,
 }: NotesModalProps) {
@@ -50,6 +53,14 @@ export function NotesModal({
   )
   const session = useImportSession(curated, knownHashes)
   const headingRef = useRef<HTMLHeadingElement>(null)
+  // Files dropped on the blank map start reading straight away.
+  const startedWith = useRef(false)
+  useEffect(() => {
+    if (startedWith.current || initialFiles.length === 0) return
+    startedWith.current = true
+    void session.addFiles(initialFiles)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
   const stage = screen === 'home' ? 'home' : session.stage
 
   // Move focus to the heading of whichever stage is now showing.
@@ -105,7 +116,7 @@ export function NotesModal({
   }
 
   return (
-    <Modal title="My Notes" onClose={requestClose} wide>
+    <Modal title="Your Notes" onClose={requestClose} wide>
       {saveMessage && <p role="status">{saveMessage}</p>}
       {screen === 'home' && (
         <NotesManager
@@ -140,7 +151,7 @@ export function NotesModal({
                 setScreen('home')
               }}
             >
-              ← Back to My Notes
+              ← Back to Your Notes
             </button>
           </p>
         </>

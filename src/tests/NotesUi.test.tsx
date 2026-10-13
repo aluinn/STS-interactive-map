@@ -46,11 +46,11 @@ describe('collection selector', () => {
     )
     const group = screen.getByRole('radiogroup')
     expect(group).toBeInTheDocument()
-    expect(screen.getByRole('radio', { name: 'Curated Atlas' })).toHaveAttribute(
+    expect(screen.getByRole('radio', { name: 'General Notes' })).toHaveAttribute(
       'aria-checked',
       'true',
     )
-    await userEvent.click(screen.getByRole('radio', { name: 'My Notes' }))
+    await userEvent.click(screen.getByRole('radio', { name: 'Your Notes' }))
     expect(onMode).toHaveBeenCalledWith('mine')
   })
 })
@@ -111,18 +111,35 @@ describe('import panel', () => {
 })
 
 describe('empty state', () => {
-  it('explains why the map is empty and how to proceed', async () => {
-    const onImport = vi.fn()
+  it('offers a drop target on the blank map and passes chosen files on', async () => {
+    const onFiles = vi.fn()
     render(
       <NotesEmpty
         reason="no-collection"
         loading={false}
-        onImport={onImport}
+        onImport={() => {}}
+        onFiles={onFiles}
         onShowCurated={() => {}}
       />,
     )
-    expect(screen.getByText('Your notes atlas is empty')).toBeInTheDocument()
-    await userEvent.click(screen.getByRole('button', { name: 'Import My Notes…' }))
+    expect(screen.getByText('Drop your notes here to build your own map')).toBeInTheDocument()
+    const input = screen.getByLabelText('Choose note files to add') as HTMLInputElement
+    await userEvent.upload(input, new File(['Galileo used a telescope in 1609.'], 'a.md'))
+    expect(onFiles).toHaveBeenCalledTimes(1)
+  })
+  it('explains an empty view of existing notes and how to proceed', async () => {
+    const onImport = vi.fn()
+    render(
+      <NotesEmpty
+        reason="no-entries-in-view"
+        loading={false}
+        onImport={onImport}
+        onFiles={() => {}}
+        onShowCurated={() => {}}
+      />,
+    )
+    expect(screen.getByText('Nothing from your notes in this view')).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Add your notes…' }))
     expect(onImport).toHaveBeenCalled()
   })
 })

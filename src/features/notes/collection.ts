@@ -293,7 +293,7 @@ export function sanitiseCollection(raw: unknown): PersonalCollection {
   return {
     schemaVersion: SCHEMA_VERSION,
     id: collectionId,
-    name: str(migrated.name, 120, 'My notes'),
+    name: str(migrated.name, 120, 'Your notes'),
     createdAt: iso(migrated.createdAt, now),
     updatedAt: iso(migrated.updatedAt, now),
     documents: list(migrated.documents, LIMITS.documents, documentRecord),
@@ -371,7 +371,7 @@ export function createCollection(name: string): PersonalCollection {
   return {
     schemaVersion: SCHEMA_VERSION,
     id: newId('col'),
-    name: str(name, 120, 'My notes') || 'My notes',
+    name: str(name, 120, 'Your notes') || 'Your notes',
     createdAt: now,
     updatedAt: now,
     documents: [],

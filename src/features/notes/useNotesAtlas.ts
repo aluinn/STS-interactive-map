@@ -13,7 +13,8 @@ import { deleteDatabase } from './storage/store'
 import { personalAtlas, type PersonalAtlas } from './toEntries'
 import type { PersonalCollection } from './types'
 
-export type CollectionMode = 'curated' | 'mine' | 'combined'
+/** `curated` is the shared General Notes atlas; `mine` is the visitor's own notes map. */
+export type CollectionMode = 'curated' | 'mine'
 
 const MODE_KEY = 'atlas-collection-mode'
 const ACTIVE_KEY = 'atlas-active-collection'
@@ -65,13 +66,13 @@ export interface NotesAtlas {
 
 /**
  * Personal collections: load from this device, keep the active one, and offer
- * the three-way Curated / My Notes / Combined choice. Nothing here touches
+ * the General Notes / Your Notes choice (two separate maps, never merged). Nothing here touches
  * the network.
  */
 export function useNotesAtlas(): NotesAtlas {
   const [mode, setModeState] = useState<CollectionMode>(() => {
     const v = readLocal(MODE_KEY)
-    return v === 'mine' || v === 'combined' ? v : 'curated'
+    return v === 'mine' ? v : 'curated'
   })
   const [collections, setCollections] = useState<PersonalCollection[]>([])
   const [activeId, setActiveId] = useState<string | null>(() => readLocal(ACTIVE_KEY))

@@ -123,14 +123,13 @@ export function AboutContent() {
           Building an atlas from your own notes
         </h3>
         <p>
-          &ldquo;My Notes&rdquo; turns text-based PDFs, .txt and .md files into a personal atlas.
+          &ldquo;Your Notes&rdquo; turns text-based PDFs, .txt and .md files into a personal atlas.
           Your notes are processed on this device by simple, fixed rules (known names, dates and
           phrases). They are not uploaded, no AI service is used, and nothing you import is made
           public. Imported collections stay in this browser unless you export them, and browser
           storage is not encrypted. Material from your notes is always labelled as yours and
-          unverified; the curated atlas stays separate unless you choose &ldquo;Combined&rdquo;. See
-          docs/MY_NOTES.md in the project for exactly what is kept and which requests the page
-          makes.
+          unverified; the General Notes atlas is always a separate map. See docs/MY_NOTES.md in the
+          project for exactly what is kept and which requests the page makes.
         </p>
       </section>
       <section>

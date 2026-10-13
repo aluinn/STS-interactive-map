@@ -76,7 +76,7 @@ export function NotesManager({
   return (
     <div className={styles.stack}>
       <h3 className={styles.heading} tabIndex={-1} ref={headingRef}>
-        My Notes
+        Your Notes
       </h3>
 
       <div className={`${styles.callout} ${styles.calloutInfo}`}>

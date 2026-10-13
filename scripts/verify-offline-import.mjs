@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Browser check for "My Notes": importing must work with the network switched
+ * Browser check for "Your Notes": importing must work with the network switched
  * off and must make no request to anything but the app's own origin.
  *
  * It opens the app, switches the browser fully offline, imports a generated
@@ -60,7 +60,7 @@ await page
   .getByText('Skip introduction')
   .click()
   .catch(() => undefined)
-await page.getByRole('button', { name: 'Import My Notes…' }).click()
+await page.getByRole('button', { name: 'Add your notes…' }).click()
 await page.waitForTimeout(1500) // let the PDF reader load while still online
 
 const cut = requests.length
@@ -106,7 +106,7 @@ await page.reload()
 await page.waitForTimeout(2000)
 const mode = await page.locator('[role=radio][aria-checked=true]').textContent()
 check(
-  mode?.includes('My Notes') === true,
+  mode?.includes('Your Notes') === true,
   'the personal atlas survived a reload (saved on this device)',
 )
 

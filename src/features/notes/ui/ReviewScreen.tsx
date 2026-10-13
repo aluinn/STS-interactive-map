@@ -96,7 +96,7 @@ export function ReviewScreen({
   const [shown, setShown] = useState(PAGE)
   const [keepUndecided, setKeepUndecided] = useState(false)
   const [targetId, setTargetId] = useState<string>(activeId ?? 'new')
-  const [newName, setNewName] = useState('My notes')
+  const [newName, setNewName] = useState('Your notes')
   const [announce, setAnnounce] = useState('')
   const curatedSorted = useMemo(() => sortedCurated(curated), [curated])
   const gazetteer = useMemo(() => buildGazetteer(curated), [curated])

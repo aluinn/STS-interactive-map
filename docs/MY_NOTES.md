@@ -1,6 +1,6 @@
-# My Notes: building an atlas from your own notes
+# Your Notes: building an atlas from your own notes
 
-"My Notes" turns a student's own text-based PDFs, `.txt` and `.md` files into a personal atlas that
+"Your Notes" turns a student's own text-based PDFs, `.txt` and `.md` files into a personal atlas that
 sits beside the curated one. It is **local-first**: everything happens in the browser, no server is
 involved, and **no AI service is called**.
 
@@ -37,7 +37,7 @@ with a message instead of breaking the app.
 
 None are made by the import. The only requests are for the app's own static files:
 
-1. Opening the "My Notes" dialog loads one lazy script chunk (`NotesModal-*.js`).
+1. Opening the "Your Notes" dialog loads one lazy script chunk (`NotesModal-*.js`).
 2. Opening the import panel loads the PDF reader chunk (`pdf-*.js`) and its worker (`pdf.worker.min-*.mjs`).
    This is done _before_ any file is chosen, so a PDF import then works even if the connection drops.
 3. Unrelated to notes: the page's web fonts (Google Fonts) and the globe's `/earth/*.jpg` textures.
@@ -114,17 +114,20 @@ user's own passages and says no AI was used.
 
 ## Collections and adaptation
 
-The sidebar selector chooses **Curated Atlas**, **My Notes** (personal entries plus the curated entries
-the notes mention, clearly marked) or **Combined**; the choice is remembered. Debates and the curated
-Paths remain curated; one extra path, "Your notes, in date order", is generated when three or more
+The app has two separate maps, chosen in the sidebar and remembered: **General Notes** (the shared,
+curated atlas, identical for everyone) and **Your Notes** (a blank map the visitor fills by dropping in
+their own files). They are never merged: Your Notes shows only the visitor's imported entries, the
+relationships found in their notes, and any General Notes entries those notes mention (marked as such,
+so a note about Newton lands on the Newton entry rather than a duplicate). Debates and the curated Paths
+remain General Notes; one extra path, "Your notes, in date order", is generated when three or more
 entries are dated and located.
 
-After an import, or when switching to My Notes, `adapt.ts` counts the entries and (when the user's
+After an import, or when switching to Your Notes, `adapt.ts` counts the entries and (when the user's
 appearance setting is **Adaptive**) may: select the period holding ≥60% of dated entries (otherwise All
 Time) which applies that period's existing theme; frame the map around the located entries without
 zooming past ×4; open the concept network when ≥70% of entries have no place; suggest the leading
 subject areas in the filters (★); and show per-period counts on the slider, dimming empty periods.
-The user can switch to **Manual** or the **Consistent accessible theme** at any time (My Notes →
+The user can switch to **Manual** or the **Consistent accessible theme** at any time (Your Notes →
 Appearance).
 
 ## Export, restore, delete
@@ -166,6 +169,6 @@ npm i -D playwright-core && npx playwright-core install chromium
 npm run verify:import                   # in another: offline import check
 ```
 
-Manual: open the app, **My Notes → Import notes…**, choose a text PDF or `.md` file, open DevTools →
+Manual: open the app, **Your Notes → Import notes…**, choose a text PDF or `.md` file, open DevTools →
 Network, and confirm no request is made after the panel opens. Then switch DevTools to **Offline** and
 import again.

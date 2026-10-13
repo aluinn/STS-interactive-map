@@ -70,7 +70,7 @@ export function NavShell({
       )}
       {onOpenNotes && (
         <button type="button" className={styles.iconBtn} onClick={onOpenNotes}>
-          My Notes
+          Your Notes
         </button>
       )}
       <button type="button" className={styles.iconBtn} onClick={onOpenNotebook}>
