@@ -511,8 +511,128 @@ export const ERA_THEMES: Record<EraId, EraTheme> = {
   },
 }
 
-export function eraThemeFor(id: string | null | undefined): EraTheme | null {
-  return id && id in ERA_THEMES ? ERA_THEMES[id as EraId] : null
+// ---- Light variants --------------------------------------------------------
+
+type Hsl = [number, number, number]
+function hexToHsl(hex: string): Hsl {
+  const n = parseInt(hex.slice(1), 16)
+  const r = ((n >> 16) & 255) / 255
+  const g = ((n >> 8) & 255) / 255
+  const b = (n & 255) / 255
+  const max = Math.max(r, g, b)
+  const min = Math.min(r, g, b)
+  const l = (max + min) / 2
+  const d = max - min
+  if (d === 0) return [0, 0, l]
+  const sat = d / (1 - Math.abs(2 * l - 1))
+  let h: number
+  if (max === r) h = ((g - b) / d) % 6
+  else if (max === g) h = (b - r) / d + 2
+  else h = (r - g) / d + 4
+  return [(h * 60 + 360) % 360, sat, l]
+}
+function hsl(h: number, s: number, l: number): string {
+  const a = s * Math.min(l, 1 - l)
+  const f = (k: number) => {
+    const m = (k + h / 30) % 12
+    const v = l - a * Math.max(-1, Math.min(m - 3, 9 - m, 1))
+    return Math.round(v * 255)
+      .toString(16)
+      .padStart(2, '0')
+  }
+  return `#${f(0)}${f(8)}${f(4)}`
+}
+
+/** Light chart palette for the one period whose dark map is a night chart. */
+const LIGHT_CHART_OVERRIDES: Partial<Record<EraId, Partial<EraTheme['chart']>>> = {
+  'platform-age': {
+    paper: '#e4eef2',
+    deep: '#c3d9d9',
+    ink: '#10252f',
+    routeAccent: '#1d7c90',
+    routePrimary: '#b4622a',
+    markerFill: '#f7fcfd',
+    markerInk: '#10252f',
+    markerSelected: '#b4622a',
+    clusterFill: 'rgba(29, 124, 144, 0.3)',
+    clusterInk: '#10252f',
+    labelHalo: '#e4eef2',
+    aged: '0.2',
+    clusterStroke: '#1d7c90',
+  },
+}
+
+/**
+ * The same period in daylight: hues are taken from the dark theme, lightness
+ * is flipped so the page is pale and the text and accents are dark.
+ */
+function lightVariant(id: EraId, t: EraTheme): EraTheme {
+  const c = t.colour
+  const [h, bs] = hexToHsl(c.bg)
+  const tint = Math.min(0.42, Math.max(0.2, bs + 0.1))
+  const [gh, gs] = hexToHsl(c.gold)
+  const [bh, bgs] = hexToHsl(c.burgundy)
+  const [rh, rs] = hexToHsl(c.green)
+  const [lh, ls] = hexToHsl(c.link)
+  const accent = (hue: number, sat: number, l: number) => hsl(hue, Math.min(0.7, sat), l)
+  const gold = accent(gh, gs, 0.27)
+  const bgElevated = hsl(h, tint, 0.95)
+  const ink = hsl(h, 0.35, 0.11)
+  const translucentAlpha = /[\d.]+\)$/.exec(t.surface.translucent)
+  const translucent =
+    t.surface.translucent === 'transparent'
+      ? 'transparent'
+      : hexToRgba(bgElevated, Math.min(1, Number(translucentAlpha?.[0].slice(0, -1) ?? 0.8) + 0.1))
+  const inkFaint = hsl(h, 0.18, 0.33)
+  return {
+    ...t,
+    scheme: 'light',
+    colour: {
+      bg: hsl(h, tint, 0.9),
+      bgElevated,
+      parchment: hsl(h, tint * 0.9, 0.85),
+      parchmentElevated: hsl(h, tint * 0.9, 0.8),
+      ink,
+      inkDim: hsl(h, 0.25, 0.24),
+      inkFaint,
+      border: hsl(h, 0.2, 0.72),
+      borderStrong: hsl(h, 0.2, 0.42),
+      gold,
+      goldBright: accent(gh, gs, 0.22),
+      burgundy: accent(bh, bgs, 0.34),
+      burgundyBright: accent(bh, bgs, 0.3),
+      green: accent(rh, rs, 0.28),
+      greenBright: accent(rh, rs, 0.24),
+      charcoal: hsl(h, 0.4, 0.97),
+      focus: accent(gh, gs, 0.26),
+      link: accent(lh, ls, 0.27),
+      scrim: hexToRgba(hsl(h, tint, 0.9), 0.85),
+    },
+    surface: {
+      translucent,
+      opaque: t.surface.opaque === 'transparent' ? 'transparent' : bgElevated,
+      backdrop: t.surface.backdrop,
+      shadow: '0 6px 22px rgba(40, 32, 20, 0.16)',
+      glow: t.surface.glow === 'rgba(0, 0, 0, 0)' ? t.surface.glow : hexToRgba(gold, 0.14),
+    },
+    active: classicActive(gold, ink),
+    chart: { ...t.chart, ...LIGHT_CHART_OVERRIDES[id] },
+    searchIcon: t.searchIcon === 'none' ? 'none' : searchIconFor(inkFaint),
+  }
+}
+
+export const ERA_THEMES_LIGHT = Object.fromEntries(
+  (Object.keys(ERA_THEMES) as EraId[]).map((id) => [id, lightVariant(id, ERA_THEMES[id])]),
+) as Record<EraId, EraTheme>
+
+export type ThemeMode = 'light' | 'dark'
+
+export function eraThemeFor(
+  id: string | null | undefined,
+  mode: ThemeMode = 'dark',
+): EraTheme | null {
+  const set = mode === 'light' ? ERA_THEMES_LIGHT : ERA_THEMES
+  return id && id in set ? set[id as EraId] : null
 }
 
 /** Flattens a theme into the CSS custom properties it controls. */
@@ -598,6 +718,7 @@ const FONT_VARS = ['--font-display', '--font-body', '--font-ui']
 export interface ApplyOptions {
   /** Null clears the era theme (All Time or the consistent accessible theme). */
   eraId: string | null
+  mode?: ThemeMode
   translucent: boolean
   instant: boolean
   reducedMotion: boolean
@@ -607,8 +728,8 @@ let appliedEra: string | null = null
 
 /** Writes (or clears) the era theme on the document root. */
 export function applyEraTheme(root: HTMLElement, o: ApplyOptions): void {
-  const theme = eraThemeFor(o.eraId)
-  const nextKey = theme ? `${o.eraId}:${o.translucent}` : null
+  const theme = eraThemeFor(o.eraId, o.mode)
+  const nextKey = theme ? `${o.eraId}:${o.mode ?? 'dark'}:${o.translucent}` : null
   const previousFonts = FONT_VARS.map((v) => root.style.getPropertyValue(v))
 
   if (o.instant) root.setAttribute('data-era-instant', '')

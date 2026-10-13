@@ -144,7 +144,7 @@ export default function App() {
   // chose the consistent theme, which keeps the flat chart throughout).
   const showGlobe = era?.id === 'platform-age' && eraPrefs.immersive
   // One source of truth: the selected period drives the whole interface theme.
-  useEraTheme(era?.id ?? null, eraPrefs.immersive, reducedMotion)
+  useEraTheme(era?.id ?? null, eraPrefs.immersive, reducedMotion, theme)
 
   // Start fetching the imagery one period early so the globe doesn't wait.
   useEffect(() => {

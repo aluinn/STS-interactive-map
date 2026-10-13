@@ -29,15 +29,17 @@ export function useEraTheme(
   eraId: string | null,
   immersive: boolean,
   reducedMotion: boolean,
+  mode: 'light' | 'dark' = 'dark',
 ): void {
   const first = useRef(true)
   useLayoutEffect(() => {
     applyEraTheme(document.documentElement, {
       eraId: immersive ? eraId : null,
+      mode,
       translucent: canUseTranslucency(),
       instant: first.current,
       reducedMotion,
     })
     first.current = false
-  }, [eraId, immersive, reducedMotion])
+  }, [eraId, immersive, reducedMotion, mode])
 }

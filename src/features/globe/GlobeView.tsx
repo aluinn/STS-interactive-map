@@ -1,3 +1,4 @@
+import { connectionWidth } from '../../utils/connectionWeight'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { geoOrthographic, geoPath } from 'd3-geo'
 import { feature, mesh } from 'topojson-client'
@@ -523,6 +524,7 @@ export function GlobeView({
                 key={rel.id}
                 d={d}
                 className={`${styles.route} ${BROKEN_TYPES.has(rel.type) ? styles.routeBroken : ''}`}
+                style={{ strokeWidth: connectionWidth(rel) }}
                 aria-hidden
               />
             ))}

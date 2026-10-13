@@ -1,3 +1,4 @@
+import { connectionWidth } from '../../utils/connectionWeight'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { select } from 'd3-selection'
 import 'd3-transition'
@@ -453,7 +454,7 @@ export function AtlasView({
                   key={rel.id}
                   d={d}
                   className={`${styles.route} ${BROKEN_TYPES.has(rel.type) ? styles.routeBroken : ''} ${dimmed ? styles.routeDimmed : ''}`}
-                  style={{ strokeWidth: 1.1 / Math.sqrt(transform.k) }}
+                  style={{ strokeWidth: connectionWidth(rel) / Math.sqrt(transform.k) }}
                   tabIndex={0}
                   role="button"
                   aria-label={`${rel.type} relationship: ${rel.summary}`}

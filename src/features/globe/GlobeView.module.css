@@ -161,3 +161,47 @@
     font-size: 0.66rem;
   }
 }
+
+/* ---- Light reading mode: a pale sky behind the same planet ---- */
+:global(:root[data-theme='light']) .wrap {
+  background-color: #dfe9ee;
+  background-image: radial-gradient(ellipse at 50% 55%, #f3f8fa 0%, #cddbe3 78%);
+}
+:global(:root[data-theme='light']) .rim {
+  stroke: rgba(40, 90, 140, 0.4);
+}
+:global(:root[data-theme='light']) .fallbackLand {
+  fill: #9cc0a6;
+  stroke: #3f6b52;
+}
+:global(:root[data-theme='light']) .borders {
+  stroke: rgba(255, 255, 255, 0.45);
+}
+:global(:root[data-theme='light']) .cable {
+  stroke: #0a7a94;
+  stroke-opacity: 0.95;
+}
+:global(:root[data-theme='light']) .route {
+  stroke: #b4631a;
+  stroke-opacity: 0.8;
+}
+:global(:root[data-theme='light']) .routeBroken {
+  stroke: #b3362a;
+}
+:global(:root[data-theme='light']) .layerBtn {
+  border-color: var(--color-border-strong);
+  background: rgba(255, 255, 255, 0.82);
+  color: var(--color-ink);
+}
+:global(:root[data-theme='light']) .layerBtn[aria-pressed='true'] {
+  background: var(--color-gold);
+  color: var(--color-charcoal);
+  border-color: var(--color-gold);
+}
+:global(:root[data-theme='light']) .status {
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--color-ink);
+}
+:global(:root[data-theme='light']) .attribution {
+  color: var(--color-ink-dim);
+}

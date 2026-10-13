@@ -35,8 +35,11 @@ export function NavShell({
   return (
     <header className={styles.header}>
       <div className={styles.brand}>
-        <h1 className={styles.brandTitle}>STS Interactive Map</h1>
-        <span className={styles.brandSub}>A History &amp; Philosophy of Science</span>
+        <div className={styles.brandLine}>
+          <h1 className={styles.brandTitle}>STS Interactive Map</h1>
+          <span className={styles.brandSub}>A History &amp; Philosophy of Science</span>
+        </div>
+        <span className={styles.brandBy}>by Aluinn McDonald</span>
       </div>
 
       <nav className={styles.tabs} aria-label="Main views">

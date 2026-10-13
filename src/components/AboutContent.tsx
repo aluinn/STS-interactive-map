@@ -141,6 +141,7 @@ export function AboutContent() {
         >
           Credits
         </h3>
+        <p>Created by Aluinn McDonald.</p>
         <p>
           Globe imagery: NASA Earth Observatory, &ldquo;Blue Marble: Land Surface, Shallow Water,
           and Shaded Topography&rdquo; (Blue Marble Next Generation, Reto Stöckli and Robert Simmon)
