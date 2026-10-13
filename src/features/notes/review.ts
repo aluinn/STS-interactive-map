@@ -87,6 +87,16 @@ function displayTitle(c: Candidate): string {
   return c.label.charAt(0).toUpperCase() + c.label.slice(1)
 }
 
+/** The notes under a heading, trimmed to whole sentences, as a starting description. */
+function sectionSummary(text: string | undefined): string {
+  if (!text) return ''
+  const t = text.replace(/\s+/g, ' ').trim()
+  if (t.length <= 600) return t
+  const cut = t.slice(0, 600)
+  const end = Math.max(cut.lastIndexOf('. '), cut.lastIndexOf('; '))
+  return `${end > 200 ? cut.slice(0, end + 1) : cut.replace(/\s+\S*$/, '')} …`
+}
+
 /** Converts raw analysis into the list the user will review. */
 export function buildReview(analysis: AnalysisResult, documents: DocumentRecord[]): ReviewState {
   const items: ReviewItem[] = analysis.candidates.map((c, n) => {
@@ -100,7 +110,7 @@ export function buildReview(analysis: AnalysisResult, documents: DocumentRecord[
       touched: false,
       title: displayTitle(c),
       kind: kindForCategory(c.category),
-      summary: '',
+      summary: linkedId ? '' : sectionSummary(c.sectionText),
       date: storedDateFrom(c),
       place,
       placeChoice: choice,
@@ -203,7 +213,8 @@ export function commitReview(
     const c = it.candidate
     if (it.linkedId) {
       const status: CuratedLink['status'] = accepted && it.touched ? 'user-confirmed' : 'imported'
-      if (!accepted) continue // an unreviewed curated match is not worth storing
+      // An undecided match is kept only when it is exact and unambiguous.
+      if (!accepted && c.confidence !== 'high') continue
       const existing = links.find((l) => l.curatedId === it.linkedId)
       if (existing) {
         existing.mentions = mergeMentions(existing.mentions, c.mentions)

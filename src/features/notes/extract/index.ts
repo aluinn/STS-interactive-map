@@ -6,6 +6,7 @@ import {
   type FileKind,
   type ImportLimits,
 } from '../types'
+import { stripRepeatedLines } from './clean'
 import { extractPdf } from './pdf'
 import { plainTextToPages } from './plainText'
 
@@ -122,7 +123,8 @@ export async function extractFile(
   const warnings: string[] = []
 
   if (kind === 'pdf') {
-    const result = await extractPdf(new Uint8Array(buffer), fileName, limits, onProgress, signal)
+    const raw = await extractPdf(new Uint8Array(buffer), fileName, limits, onProgress, signal)
+    const result = { ...raw, pages: stripRepeatedLines(raw.pages) }
     const totalChars = result.pages.reduce((n, p) => n + p.text.length, 0)
     // Fewer than ~25 characters a page on average means the pages are images, not text.
     const scanned = totalChars / Math.max(1, result.pages.length) < 25

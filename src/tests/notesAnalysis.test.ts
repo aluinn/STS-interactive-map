@@ -3,6 +3,7 @@ import { entries as curated } from '../data'
 import { analyseDocuments } from '../features/notes/analysis/analyse'
 import { findDates, periodForYear } from '../features/notes/analysis/dates'
 import { buildGazetteer, findPlaces, resolvePlace } from '../features/notes/analysis/gazetteer'
+import { stripRepeatedLines } from '../features/notes/extract/clean'
 import { splitSentences } from '../features/notes/analysis/text'
 import { plainTextToPages } from '../features/notes/extract/plainText'
 import type { ExtractedDocument } from '../features/notes/types'
@@ -173,5 +174,73 @@ describe('analyseDocuments', () => {
     const t0 = performance.now()
     await analyseDocuments([doc(hostile)], { curated })
     expect(performance.now() - t0).toBeLessThan(5000)
+  })
+})
+
+describe('notes with headings and terse bullets', () => {
+  const slides = `# Lecture title
+
+# Henry Moseley:
+
+Rushed to volunteer for fighting during the first world war.
+
+Dies after being shot in 1915.
+
+Enrico Fermi
+
+Leaves and goes to the US
+
+# Bomb Project in Britain
+
+MAUD Committee 1940
+
+Tizard mission to US September 1940
+
+Scale and Organisation of Projects
+
+Cost - 2 billion
+
+Government support`
+
+  it('turns headings into entries and keeps the notes under them', async () => {
+    const r = await analyseDocuments([doc(slides)], { curated })
+    const mose = r.candidates.find((c) => c.curatedIds.includes('moseley'))
+    expect(mose?.mentions.map((m) => m.passage).join(' ')).toContain('Rushed to volunteer')
+    const bomb = r.candidates.find((c) => c.label.startsWith('Bomb Project'))
+    expect(bomb).toBeTruthy()
+    expect(bomb?.sectionText).toContain('Tizard mission')
+    expect(bomb?.date?.start).toBe(1940)
+  })
+  it('treats a standalone Title Case line as a topic, and a lone name as a person', async () => {
+    const r = await analyseDocuments([doc(slides)], { curated })
+    expect(r.candidates.some((c) => c.label === 'Enrico Fermi' && c.category === 'person')).toBe(
+      true,
+    )
+    expect(r.candidates.some((c) => c.label === 'Scale and Organisation of Projects')).toBe(true)
+  })
+  it('does not turn the document title or generic headings into entries', async () => {
+    const r = await analyseDocuments(
+      [doc('# Test notes\n\n# Summary\n\nSomething.\n\n# Questions\n\nMore.')],
+      { curated },
+    )
+    expect(r.candidates.map((c) => c.label)).toEqual([])
+  })
+  it('reads names written with a modifier-letter apostrophe', async () => {
+    const r = await analyseDocuments([doc('Moseleyʼs X-ray experiments changed chemistry.')], {
+      curated,
+    })
+    expect(r.candidates.some((c) => c.curatedIds.includes('moseley'))).toBe(true)
+  })
+})
+
+describe('running headers and footers', () => {
+  it('removes lines that repeat on many pages but keeps content', () => {
+    const words = ['alpha', 'bravo', 'charlie', 'delta', 'echo']
+    const pages = words.map((w, n) => ({
+      page: n + 1,
+      text: `Real content about ${w} is here.\n\nScience and War lecture ${n + 1}`,
+    }))
+    const out = stripRepeatedLines(pages)
+    expect(out[2].text).toBe('Real content about charlie is here.')
   })
 })

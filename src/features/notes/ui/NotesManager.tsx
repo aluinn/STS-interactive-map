@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { Entry } from '../../../types'
 import { buildProjectFile, describeDocumentRemoval, ValidationError } from '../collection'
 import {
@@ -16,6 +16,7 @@ import styles from './notes.module.css'
 type Confirm =
   | { kind: 'document'; collectionId: string; id: string; name: string }
   | { kind: 'collection'; id: string; name: string }
+  | { kind: 'item'; collectionId: string; id: string; name: string }
   | { kind: 'everything' }
   | null
 
@@ -42,6 +43,15 @@ export function NotesManager({
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
   const fileInput = useRef<HTMLInputElement>(null)
+  const confirmRef = useRef<HTMLDivElement>(null)
+  // The confirmation sits at the top; bring it into view and focus it so a
+  // click on a Delete button further down never looks like it did nothing.
+  useEffect(() => {
+    if (confirm) {
+      confirmRef.current?.scrollIntoView({ block: 'nearest' })
+      confirmRef.current?.focus()
+    }
+  }, [confirm])
   const active = notes.active
 
   async function onProjectFile(file: File | undefined) {
@@ -118,6 +128,56 @@ export function NotesManager({
         <p className={`${styles.callout} ${styles.calloutWarn}`} role="alert">
           {error}
         </p>
+      )}
+
+      {confirm && (
+        <div
+          ref={confirmRef}
+          tabIndex={-1}
+          className={`${styles.callout} ${styles.calloutWarn}`}
+          role="alertdialog"
+          aria-labelledby="confirm-title"
+          aria-describedby="confirm-body"
+        >
+          <strong id="confirm-title">
+            {confirm.kind === 'document' && `Delete “${confirm.name}”?`}
+            {confirm.kind === 'item' && `Remove “${confirm.name}” from this collection?`}
+            {confirm.kind === 'collection' && `Delete the collection “${confirm.name}”?`}
+            {confirm.kind === 'everything' && 'Clear all personal atlas data?'}
+          </strong>
+          <p id="confirm-body">
+            {confirm.kind === 'document' &&
+              removal &&
+              `This removes the document from this collection, ${removal.items} entr${removal.items === 1 ? 'y' : 'ies'} that came only from it, ${removal.links} link${removal.links === 1 ? '' : 's'} to curated entries and ${removal.relationships} relationship${removal.relationships === 1 ? '' : 's'}. ${removal.sharedItems} entr${removal.sharedItems === 1 ? 'y' : 'ies'} also supported by other documents will stay, with their other passages. Curated atlas content is not affected.`}
+            {confirm.kind === 'item' &&
+              'This removes this entry and any relationships that involve it. Your other entries and the document itself are not affected.'}
+            {confirm.kind === 'collection' &&
+              'This removes every entry, link, relationship and document record in this collection from this device. Export a project file first if you may want it back. Curated atlas content is not affected.'}
+            {confirm.kind === 'everything' &&
+              `This removes all ${notes.collections.length} personal collection${notes.collections.length === 1 ? '' : 's'} and their saved settings from this browser. It cannot be undone. Export project files first if you may want them back.`}
+          </p>
+          <div className={styles.row}>
+            <button
+              type="button"
+              className={`${styles.btn} ${styles.btnDanger}`}
+              onClick={async () => {
+                if (confirm.kind === 'document')
+                  await notes.deleteDocument(confirm.collectionId, confirm.id)
+                else if (confirm.kind === 'item')
+                  await notes.deleteItem(confirm.collectionId, confirm.id)
+                else if (confirm.kind === 'collection') await notes.deleteCollection(confirm.id)
+                else await notes.clearEverything()
+                setMessage('Deleted.')
+                setConfirm(null)
+              }}
+            >
+              Yes, delete
+            </button>
+            <button type="button" className={styles.btn} onClick={() => setConfirm(null)}>
+              Keep it
+            </button>
+          </div>
+        </div>
       )}
 
       <div className={styles.row}>
@@ -258,6 +318,52 @@ export function NotesManager({
 
           <Suggestions notes={notes} />
 
+          <section className={styles.section} aria-label="Entries in the active collection">
+            <h4 className={styles.heading}>
+              Entries in “{active.name}” ({active.items.length})
+            </h4>
+            {active.items.length === 0 ? (
+              <p className={styles.sub}>
+                No entries of your own yet. Notes that only mention General Notes entries are listed
+                as links under each document.
+              </p>
+            ) : (
+              <ul className={styles.cards}>
+                {active.items.slice(0, 100).map((i) => (
+                  <li key={i.id} className={styles.card}>
+                    <div className={styles.cardHead}>
+                      <p className={styles.cardTitle}>{i.title}</p>
+                      <span className={styles.small}>
+                        {i.date.display}
+                        {i.place.name && !i.place.nonGeographical ? ` · ${i.place.name}` : ''}
+                      </span>
+                    </div>
+                    <div className={styles.row}>
+                      <button
+                        type="button"
+                        className={`${styles.btn} ${styles.btnDanger}`}
+                        aria-label={`Remove ${i.title}`}
+                        onClick={() =>
+                          setConfirm({
+                            kind: 'item',
+                            collectionId: active.id,
+                            id: i.id,
+                            name: i.title,
+                          })
+                        }
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {active.items.length > 100 && (
+              <p className={styles.small}>Showing the first 100 entries.</p>
+            )}
+          </section>
+
           <section className={styles.section} aria-label="Export">
             <h4 className={styles.heading}>Export “{active.name}”</h4>
             <p className={styles.small}>
@@ -355,49 +461,6 @@ export function NotesManager({
           </button>
         </div>
       </section>
-
-      {confirm && (
-        <div
-          className={`${styles.callout} ${styles.calloutWarn}`}
-          role="alertdialog"
-          aria-labelledby="confirm-title"
-          aria-describedby="confirm-body"
-        >
-          <strong id="confirm-title">
-            {confirm.kind === 'document' && `Delete “${confirm.name}”?`}
-            {confirm.kind === 'collection' && `Delete the collection “${confirm.name}”?`}
-            {confirm.kind === 'everything' && 'Clear all personal atlas data?'}
-          </strong>
-          <p id="confirm-body">
-            {confirm.kind === 'document' &&
-              removal &&
-              `This removes the document from this collection, ${removal.items} entr${removal.items === 1 ? 'y' : 'ies'} that came only from it, ${removal.links} link${removal.links === 1 ? '' : 's'} to curated entries and ${removal.relationships} relationship${removal.relationships === 1 ? '' : 's'}. ${removal.sharedItems} entr${removal.sharedItems === 1 ? 'y' : 'ies'} also supported by other documents will stay, with their other passages. Curated atlas content is not affected.`}
-            {confirm.kind === 'collection' &&
-              'This removes every entry, link, relationship and document record in this collection from this device. Export a project file first if you may want it back. Curated atlas content is not affected.'}
-            {confirm.kind === 'everything' &&
-              `This removes all ${notes.collections.length} personal collection${notes.collections.length === 1 ? '' : 's'} and their saved settings from this browser. It cannot be undone. Export project files first if you may want them back.`}
-          </p>
-          <div className={styles.row}>
-            <button
-              type="button"
-              className={`${styles.btn} ${styles.btnDanger}`}
-              onClick={async () => {
-                if (confirm.kind === 'document')
-                  await notes.deleteDocument(confirm.collectionId, confirm.id)
-                else if (confirm.kind === 'collection') await notes.deleteCollection(confirm.id)
-                else await notes.clearEverything()
-                setMessage('Deleted.')
-                setConfirm(null)
-              }}
-            >
-              Yes, delete
-            </button>
-            <button type="button" className={styles.btn} onClick={() => setConfirm(null)}>
-              Keep it
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

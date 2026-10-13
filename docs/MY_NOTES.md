@@ -94,13 +94,20 @@ when sensible. Password-protected and damaged files get their own messages. A fi
   developed). Passive voice swaps the direction. Each keeps its sentence and page, is marked
   _proposed_ until confirmed, and shows as a dashed line.
 
-These rules recognise vocabulary; they do not understand arguments.
+**Headings and terse notes.** Lecture slides and outliners are mostly short bullets, so headings are
+treated as topics: each heading (or a short Title Case line standing alone) becomes an entry, and the
+notes beneath it become its description and supporting passages. If the heading is a person or an
+idea already in the curated atlas, the notes are attached to that match instead. Running headers and
+footers that repeat on many pages ("Lecture 3") are removed first. Generic headings ("Summary",
+"Questions") and the document title are skipped.
+
+These rules recognise vocabulary and structure; they do not understand arguments.
 
 ## The review step
 
 Nothing reaches the map until it is accepted. Sections: all, confirmed matches, possible matches, new
 personal entries, ambiguous places, missing dates, missing locations, proposed relationships, ignored,
-warnings. Each item shows its supporting passage and can be accepted, rejected, edited (title,
+warnings. By default the items you have not decided on are kept as "needs review" suggestions (untick the box to drop them), and exact curated matches are linked. Each item shows its supporting passage and can be accepted, rejected, edited (title,
 category, date, location, merge with a curated entry, short description) or restored. Only exact,
 unambiguous curated matches can be accepted in bulk; bulk-accepted items are labelled _imported_,
 individually accepted or edited ones _confirmed by you_.

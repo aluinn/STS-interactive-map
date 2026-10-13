@@ -144,6 +144,8 @@ export interface Candidate {
   place: PlaceGuess | null
   disciplines: string[]
   topics: string[]
+  /** What the notes say under this item's heading (used as its description). */
+  sectionText?: string
 }
 
 export interface AnalysisWarning {

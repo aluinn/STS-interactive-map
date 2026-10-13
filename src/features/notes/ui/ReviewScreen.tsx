@@ -94,7 +94,7 @@ export function ReviewScreen({
 }: ReviewScreenProps) {
   const [tab, setTab] = useState<Tab>('all')
   const [shown, setShown] = useState(PAGE)
-  const [keepUndecided, setKeepUndecided] = useState(false)
+  const [keepUndecided, setKeepUndecided] = useState(true)
   const [targetId, setTargetId] = useState<string>(activeId ?? 'new')
   const [newName, setNewName] = useState('Your notes')
   const [announce, setAnnounce] = useState('')
@@ -291,7 +291,7 @@ export function ReviewScreen({
               checked={keepUndecided}
               onChange={(e) => setKeepUndecided(e.target.checked)}
             />
-            <span>Also keep the undecided items, marked as unreviewed suggestions</span>
+            <span>Also keep the {undecided} undecided items, marked as unreviewed suggestions</span>
           </label>
         </div>
         <label className={styles.label}>

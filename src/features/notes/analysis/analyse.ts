@@ -126,7 +126,7 @@ const CONNECTORS = new Set([
   'for',
   'the',
 ])
-const MAX_MENTIONS = 4
+const MAX_MENTIONS = 6
 const MAX_NEW_CANDIDATES = 400
 const DATE_RANK: Record<ParsedDate['precision'], number> = {
   exact: 5,
@@ -204,6 +204,8 @@ interface Draft {
   passages: string[]
   weak: boolean
   cue: boolean
+  /** What the notes say under this item's heading, for its description. */
+  body: string
 }
 
 function overlaps(spans: [number, number][], a: number, b: number): boolean {
@@ -261,6 +263,54 @@ function toParsed(f: FoundDate): ParsedDate {
   }
 }
 
+const GENERIC_HEADING =
+  /^(introduction|intro|summary|conclusions?|references?|bibliography|questions?|overview|contents?|table of contents|notes?|to ?do|agenda|readings?|further reading|key terms?|glossary|abstract|appendix|(week|lecture|session|class|seminar|slide|page)\s*\d*|type|class|date|status|prep status|attendance)$/i
+
+/** A heading worth turning into an entry of its own, or null. */
+function headingLabel(raw: string, docTitle: string): string | null {
+  const cleaned = raw
+    .replace(/^[^\p{L}\p{N}]+/u, '')
+    .replace(/[:：]+\s*$/, '')
+    .replace(/^\d+(?:\.\d+)*[.)]?\s+/, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+  if (cleaned.length < 3 || cleaned.length > 90) return null
+  // A long, sentence-like line is body text that happened to be set in a larger size.
+  if (cleaned.split(' ').length > 12) return null
+  if (!/\p{L}{3}/u.test(cleaned)) return null
+  if (GENERIC_HEADING.test(cleaned)) return null
+  if (normalisePhrase(cleaned) === normalisePhrase(docTitle)) return null
+  return cleaned
+}
+
+/**
+ * A short Title Case line standing alone ("Enrico Fermi", "Scale and
+ * Organisation of Manhattan Project") is how slides and outliners mark a topic
+ * even when the PDF gives it no heading style.
+ */
+function looksLikeTopicLine(text: string): boolean {
+  if (text.length < 4 || text.length > 70 || text.includes('\n')) return false
+  if (!/^[\p{L}][\p{L} '&-]*$/u.test(text)) return false
+  const words = text.split(/\s+/)
+  if (words.length < 2 || words.length > 8) return false
+  const significant = words.filter(
+    (w) => !CONNECTORS.has(w.toLowerCase()) && !/^(and|in|on|to|a|an)$/i.test(w),
+  )
+  const capital = significant.filter((w) => /^\p{Lu}/u.test(w)).length
+  return significant.length >= 2 && capital / significant.length >= 0.75
+}
+
+const SECTION_CATEGORY_OK = new Set<ItemCategory>([
+  'person',
+  'institution',
+  'publication',
+  'concept',
+  'theory',
+  'technology',
+  'instrument',
+  'event',
+])
+
 const PLACE_BEARING = new Set<ItemCategory>([
   'person',
   'institution',
@@ -313,6 +363,7 @@ export async function analyseDocuments(
         passages: [],
         weak: false,
         cue: false,
+        body: '',
         ...init,
       }
       drafts.set(key, d)
@@ -327,16 +378,23 @@ export async function analyseDocuments(
     return d
   }
 
+  let headingKeys: string[] = []
   for (const doc of docs) {
+    // The heading in force, which can run on across pages.
+    let section: string | undefined
+    let sectionDraft: Draft | null = null
     for (const page of doc.pages) {
       if (opts.signal?.aborted) throw new DOMException('Analysis cancelled', 'AbortError')
-      let section: string | undefined
       for (const paragraph of page.text.split(/\n{2,}/)) {
-        const trimmed = paragraph.trim()
+        const trimmed = paragraph.trim().replace(/[\u02BC\u2018\u2019\u0060\u00B4]/g, "'")
         if (!trimmed) continue
-        const isHeading = trimmed.startsWith('# ')
-        const body = isHeading ? trimmed.replace(/^#+\s*/, '') : trimmed
-        if (isHeading) section = body.slice(0, 120)
+        const isHeading = trimmed.startsWith('# ') || looksLikeTopicLine(trimmed)
+        const body = trimmed.startsWith('# ') ? trimmed.replace(/^#+\s*/, '') : trimmed
+        if (isHeading) {
+          section = body.slice(0, 120)
+          sectionDraft = null
+          headingKeys = []
+        }
         topicText.push(body)
 
         const sentences = splitSentences(body)
@@ -495,7 +553,9 @@ export async function analyseDocuments(
               const afterTok =
                 tokens[tokens.indexOf(run.tokens[run.tokens.length - 1]) + 1]?.norm ?? ''
               const rest = sentence.slice(run.end, run.end + 60)
+              const alone = run.start === 0 && sentence.slice(run.end).replace(/[\s.:]/g, '') === ''
               cue =
+                alone ||
                 PERSON_TITLES.has(before) ||
                 ROLE_NOUNS.has(before) ||
                 PERSON_VERBS.has(afterTok) ||
@@ -524,6 +584,7 @@ export async function analyseDocuments(
           }
 
           for (const q of queue) attachNow(q.d, q.start, q.end)
+          if (isHeading) headingKeys.push(...occurrences.map((o) => o.key))
 
           // 5. Relationships between entities that a cue phrase connects.
           occurrences.sort((a, b) => a.start - b.start)
@@ -542,6 +603,67 @@ export async function analyseDocuments(
               })
             }
           }
+        }
+
+        // Headings become entries; the notes under them become their description.
+        if (isHeading) {
+          const known = headingKeys
+            .map((k) => drafts.get(k))
+            .find(
+              (d): d is Draft =>
+                d !== undefined && SECTION_CATEGORY_OK.has(d.category) && !(d.weak && !d.cue),
+            )
+          if (known) sectionDraft = known
+          else {
+            const label = headingLabel(body, doc.title)
+            if (label) {
+              const words = tokenize(label).map((t) => t.norm)
+              const category: ItemCategory = words.some((w) => EVENT_WORDS.has(w))
+                ? 'event'
+                : words.some((w) => INSTITUTION_WORDS.has(w))
+                  ? 'institution'
+                  : 'concept'
+              sectionDraft = register(
+                `section:${normalisePhrase(label)}`,
+                label,
+                category,
+                { confidence: 'medium' },
+                {
+                  fileId: doc.fileId,
+                  fileName: doc.fileName,
+                  docTitle: doc.title,
+                  page: page.page,
+                  passage: label,
+                  method: 'heading',
+                },
+              )
+              for (const area of topicsOf(label)) sectionDraft.topics.add(area)
+            }
+          }
+        } else if (sectionDraft && sectionDraft.body.length < 1500) {
+          const d: Draft = sectionDraft
+          d.body += `${d.body ? ' ' : ''}${body}`
+          for (const sent of sentences.slice(0, 2)) {
+            if (d.mentions.length >= MAX_MENTIONS) break
+            const passage = excerpt(sent.text, 0, sent.text.length)
+            if (!d.mentions.some((m) => m.passage === passage)) {
+              d.mentions.push({
+                fileId: doc.fileId,
+                fileName: doc.fileName,
+                docTitle: doc.title,
+                page: page.page,
+                ...(section ? { section } : {}),
+                passage,
+                method: 'section-text',
+              })
+            }
+          }
+          if (!d.date && paraDates.length > 0) d.date = toParsed(paraDates[0])
+          if (PLACE_BEARING.has(d.category) && !d.place) {
+            const pl = findPlaces(body, idx.gazetteer)[0]
+            if (pl) d.place = resolvePlace(pl, body)
+          }
+          for (const area of topicsOf(body)) d.topics.add(area)
         }
       }
       donePages++
@@ -576,6 +698,7 @@ export async function analyseDocuments(
         place: d.place,
         disciplines,
         topics: [...d.topics].slice(0, 3),
+        sectionText: d.body.trim() ? d.body.trim().slice(0, 1200) : undefined,
       }
     })
 
