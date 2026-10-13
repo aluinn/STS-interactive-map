@@ -53,6 +53,8 @@ interface AtlasViewProps {
   outsideIds?: Set<string>
   /** Shared with the globe so switching projection keeps the viewer's place. */
   focusRef?: { current: MapFocus | null }
+  /** Frames a set of places (lon, lat) when `token` changes, without over-zooming. */
+  fitPoints?: { token: number; points: [number, number][] } | null
 }
 
 interface RouteTooltip {
@@ -119,6 +121,7 @@ export function AtlasView({
   onSelectEntry,
   focusEntryId,
   focusToken,
+  fitPoints,
   clusterTools,
   reducedMotion,
   eraId = null,
@@ -303,6 +306,33 @@ export function AtlasView({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [focusEntryId, focusToken, measured])
 
+  // Frame a set of places (e.g. where the viewer's notes are) without
+  // zooming in so far that a single marker fills the screen.
+  const fitToken = fitPoints?.token
+  useEffect(() => {
+    if (!fitPoints || fitPoints.points.length === 0 || !measured) return
+    const pts = fitPoints.points
+      .map((p) => projection(p))
+      .filter((p): p is [number, number] => p !== null && Number.isFinite(p[0]))
+    if (pts.length === 0) return
+    const xs = pts.map((p) => p[0])
+    const ys = pts.map((p) => p[1])
+    const w = Math.max(...xs) - Math.min(...xs)
+    const h = Math.max(...ys) - Math.min(...ys)
+    const cx = (Math.max(...xs) + Math.min(...xs)) / 2
+    const cy = (Math.max(...ys) + Math.min(...ys)) / 2
+    const k =
+      w < 8 && h < 8
+        ? 2.2
+        : Math.min(
+            4,
+            Math.max(1, 0.72 * Math.min(size.width / Math.max(w, 1), size.height / Math.max(h, 1))),
+          )
+    applyZoom(k, cx, cy)
+    // Only an explicit request (a new token) should reframe the map.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fitToken, measured])
+
   const visibleEntryIds = useMemo(() => new Set(entries.map((e) => e.id)), [entries])
 
   // Routes must land on whatever is actually drawn on screen — a cluster
@@ -453,7 +483,7 @@ export function AtlasView({
                 <path
                   key={rel.id}
                   d={d}
-                  className={`${styles.route} ${BROKEN_TYPES.has(rel.type) ? styles.routeBroken : ''} ${dimmed ? styles.routeDimmed : ''}`}
+                  className={`${styles.route} ${BROKEN_TYPES.has(rel.type) ? styles.routeBroken : ''} ${rel.proposed ? styles.routeProposed : ''} ${dimmed ? styles.routeDimmed : ''}`}
                   style={{ strokeWidth: connectionWidth(rel) / Math.sqrt(transform.k) }}
                   tabIndex={0}
                   role="button"
@@ -518,7 +548,7 @@ export function AtlasView({
                     data-in-panel={inPanel ? 'true' : undefined}
                     tabIndex={0}
                     role="button"
-                    aria-label={`${entry.title}, ${entry.dateDisplay}. ${entry.kind}.${outside ? ' Outside the selected period.' : ''}`}
+                    aria-label={`${entry.title}, ${entry.dateDisplay}. ${entry.kind}.${entry.origin === 'personal' ? ' From your notes.' : ''}${outside ? ' Outside the selected period.' : ''}`}
                     onMouseEnter={() => setHoveredId(entry.id)}
                     onMouseLeave={() => setHoveredId(null)}
                     onFocus={() => setHoveredId(entry.id)}
@@ -537,6 +567,18 @@ export function AtlasView({
                     }}
                   >
                     <circle className={styles.pulse} r={r} />
+                    {entry.origin === 'personal' && (
+                      <rect
+                        className={`${styles.personalRing} ${entry.personal?.status === 'needs-review' ? styles.personalRingUnreviewed : ''}`}
+                        x={-(r + 3 / Math.sqrt(transform.k))}
+                        y={-(r + 3 / Math.sqrt(transform.k))}
+                        width={(r + 3 / Math.sqrt(transform.k)) * 2}
+                        height={(r + 3 / Math.sqrt(transform.k)) * 2}
+                        transform="rotate(45)"
+                        style={{ strokeWidth: 1.6 / Math.sqrt(transform.k) }}
+                        aria-hidden
+                      />
+                    )}
                     <circle className={styles.markerDot} r={r} />
                     <g
                       className={styles.markerIcon}

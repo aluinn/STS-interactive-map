@@ -74,6 +74,10 @@ export type RelationshipType =
   | 'contested'
   | 'revised'
   | 'applied-to'
+  // Used by relationships proposed from a user's own notes.
+  | 'worked-at'
+  | 'published'
+  | 'developed'
 
 /** The social/physical scale a concept or case is best read at. Optional —
  * most entries don't need one, but it helps place abstract sociological and
@@ -210,6 +214,44 @@ export interface Entry {
   lastVerified?: string
   /** Embeds a built-in interactive explainer in the entry's detail view. */
   explorer?: 'communication-models'
+
+  /* ---- Provenance. Absent on curated content (which is the default). */
+
+  /** `personal` entries were built from the viewer's own notes on this device. */
+  origin?: 'curated' | 'personal'
+  /** The notes gave no usable date; shown without a timeline position. */
+  undated?: boolean
+  personal?: PersonalProvenance
+  /** On a curated entry: where the viewer's own notes mention it. */
+  notesMentions?: SourceMention[]
+}
+
+/** A passage in a user's own document that supports an imported item. */
+export interface SourceMention {
+  fileId: string
+  fileName: string
+  docTitle: string
+  /** 1-based page (PDF) or 1 for plain text. */
+  page: number
+  section?: string
+  passage: string
+  method: string
+}
+
+/** How an item that came from the user's own notes got into the atlas. */
+export interface PersonalProvenance {
+  collectionId: string
+  /** `user-confirmed`: accepted or edited by the user. `imported`: bulk-accepted
+   * without individual review. `needs-review`: kept as an unreviewed suggestion. */
+  status: 'user-confirmed' | 'imported' | 'needs-review'
+  confidence: 'high' | 'medium' | 'low'
+  extraction: string
+  importedAt: string
+  /** Names of the fields the user changed after extraction. */
+  edits: string[]
+  mentions: SourceMention[]
+  /** Place was matched from context rather than stated. */
+  placeNote?: string
 }
 
 export interface Relationship {
@@ -221,6 +263,11 @@ export interface Relationship {
   evidence?: string
   confidence: Confidence
   sourceIds?: string[]
+  /** Set on relationships inferred locally from a user's notes. */
+  origin?: 'personal'
+  /** True until the user has confirmed an inferred relationship. */
+  proposed?: boolean
+  passage?: SourceMention
 }
 
 export interface DebatePosition {

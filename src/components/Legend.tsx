@@ -29,11 +29,14 @@ const RELATIONSHIP_LABELS: Record<RelationshipType, string> = {
   contested: 'Contested',
   revised: 'Revised',
   'applied-to': 'Applied to',
+  'worked-at': 'Worked at',
+  published: 'Published',
+  developed: 'Developed',
 }
 
 const BROKEN_LEGEND_TYPES = new Set<RelationshipType>(['replaced', 'criticised', 'contested'])
 
-export function Legend() {
+export function Legend({ showProvenance = false }: { showProvenance?: boolean }) {
   return (
     <div className={styles.legend} aria-label="Map legend">
       <h3 className={styles.heading}>Marker kinds</h3>
@@ -43,6 +46,28 @@ export function Legend() {
           <span>{KIND_LABELS[kind]}</span>
         </div>
       ))}
+
+      {showProvenance && (
+        <>
+          <h3 className={styles.heading}>Where it came from</h3>
+          <div className={styles.row}>
+            <span aria-hidden>●</span>
+            <span>Curated and sourced atlas entry (round marker)</span>
+          </div>
+          <div className={styles.row}>
+            <span aria-hidden>◆</span>
+            <span>From your notes (marker inside a diamond outline)</span>
+          </div>
+          <div className={styles.row}>
+            <span aria-hidden>◇</span>
+            <span>From your notes, not yet reviewed (dotted diamond)</span>
+          </div>
+          <div className={styles.row}>
+            <span aria-hidden>- -</span>
+            <span>Proposed relationship (dashed line)</span>
+          </div>
+        </>
+      )}
 
       <details>
         <summary>Relationship types (click any route on the map)</summary>

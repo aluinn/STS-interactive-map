@@ -1,3 +1,4 @@
+import { ProvenanceBadge } from '../notes/ui/ProvenanceBadge'
 import { useRef } from 'react'
 import type { Entry, Period } from '../../types'
 import { MarkerIcon } from '../../components/MarkerIcon'
@@ -30,10 +31,17 @@ function formatYear(y: number): string {
 export function TimelineView({ entries, onSelectEntry }: TimelineViewProps) {
   const wrapRef = useRef<HTMLDivElement>(null)
 
-  const grouped = PERIODS.map((p) => ({
+  // Entries whose notes gave no date are listed apart, never placed at a
+  // made-up position on the timeline.
+  const dated = entries.filter((e) => !e.undated)
+  const grouped: { value: string; label: string; items: Entry[] }[] = PERIODS.map((p) => ({
     ...p,
-    items: entries.filter((e) => e.period === p.value).sort((a, b) => a.startYear - b.startYear),
+    items: dated.filter((e) => e.period === p.value).sort((a, b) => a.startYear - b.startYear),
   })).filter((g) => g.items.length > 0)
+  const undated = entries.filter((e) => e.undated)
+  if (undated.length > 0) {
+    grouped.push({ value: 'undated', label: 'No date in your notes', items: undated })
+  }
 
   if (grouped.length === 0) {
     return (
@@ -76,8 +84,9 @@ export function TimelineView({ entries, onSelectEntry }: TimelineViewProps) {
           <header className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>{g.label}</h2>
             <span className={styles.sectionRange}>
-              {formatYear(g.items[0].startYear)} –{' '}
-              {formatYear(Math.max(...g.items.map((e) => e.endYear ?? e.startYear)))}
+              {g.value === 'undated'
+                ? 'no date found in your notes'
+                : `${formatYear(g.items[0].startYear)} – ${formatYear(Math.max(...g.items.map((e) => e.endYear ?? e.startYear)))}`}
             </span>
           </header>
           <div className={styles.spine}>
@@ -92,7 +101,15 @@ export function TimelineView({ entries, onSelectEntry }: TimelineViewProps) {
                 <div className={styles.cardDate}>
                   <MarkerIcon kind={entry.kind} size={11} /> {entry.dateDisplay}
                 </div>
-                <h3 className={styles.cardTitle}>{entry.title}</h3>
+                <h3 className={styles.cardTitle}>
+                  {entry.title}
+                  {entry.origin === 'personal' && (
+                    <>
+                      {' '}
+                      <ProvenanceBadge entry={entry} short />
+                    </>
+                  )}
+                </h3>
                 <p className={styles.cardSummary}>{entry.summary}</p>
               </button>
             ))}

@@ -9,6 +9,7 @@ interface NavShellProps {
   onOpenAbout: () => void
   onOpenSources: () => void
   onOpenNotebook: () => void
+  onOpenNotes?: () => void
   onReplayIntro?: () => void
   /** True while a period theme is overriding the light/dark choice. */
   periodThemed?: boolean
@@ -29,6 +30,7 @@ export function NavShell({
   onOpenAbout,
   onOpenSources,
   onOpenNotebook,
+  onOpenNotes,
   onReplayIntro,
   periodThemed,
 }: NavShellProps) {
@@ -64,6 +66,11 @@ export function NavShell({
           title="Replay the cinematic introduction"
         >
           ↺ Replay intro
+        </button>
+      )}
+      {onOpenNotes && (
+        <button type="button" className={styles.iconBtn} onClick={onOpenNotes}>
+          My Notes
         </button>
       )}
       <button type="button" className={styles.iconBtn} onClick={onOpenNotebook}>

@@ -10,6 +10,10 @@ interface SearchFiltersProps {
   filters: Filters
   onChange: (filters: Filters) => void
   resultCount: number
+  /** Subject areas that stand out in the viewer's own notes, offered first. */
+  suggestedAreas?: string[]
+  /** Relationship types present only in the viewer's notes. */
+  extraRelationshipTypes?: string[]
 }
 
 const ALL_KINDS: EntryKind[] = [
@@ -64,6 +68,9 @@ const ALL_RELATIONSHIP_TYPES: RelationshipType[] = [
   'contested',
   'revised',
   'applied-to',
+  'worked-at',
+  'published',
+  'developed',
 ]
 
 // Only offer filter choices that exist in the data; a chip that can only
@@ -89,7 +96,23 @@ function toggle(list: string[], value: string): string[] {
   return list.includes(value) ? list.filter((v) => v !== value) : [...list, value]
 }
 
-export function SearchFilters({ filters, onChange, resultCount }: SearchFiltersProps) {
+export function SearchFilters({
+  filters,
+  onChange,
+  resultCount,
+  suggestedAreas = [],
+  extraRelationshipTypes = [],
+}: SearchFiltersProps) {
+  const areaOptions = [
+    ...AREA_OPTIONS.filter((a) => suggestedAreas.includes(a.id)),
+    ...AREA_OPTIONS.filter((a) => !suggestedAreas.includes(a.id)),
+  ]
+  const relationshipOptions = [
+    ...RELATIONSHIP_TYPE_OPTIONS,
+    ...ALL_RELATIONSHIP_TYPES.filter(
+      (t) => extraRelationshipTypes.includes(t) && !RELATIONSHIP_TYPE_OPTIONS.includes(t),
+    ),
+  ]
   return (
     <div className={styles.panel} role="search" aria-label="Search and filter the atlas">
       <input
@@ -104,7 +127,7 @@ export function SearchFilters({ filters, onChange, resultCount }: SearchFiltersP
       <div className={styles.group}>
         <span className={styles.groupLabel}>Subject area</span>
         <div className={styles.chipRow}>
-          {AREA_OPTIONS.map((a) => (
+          {areaOptions.map((a) => (
             <button
               key={a.id}
               type="button"
@@ -113,6 +136,12 @@ export function SearchFilters({ filters, onChange, resultCount }: SearchFiltersP
               onClick={() => onChange({ ...filters, areas: toggle(filters.areas, a.id) })}
             >
               {a.label}
+              {suggestedAreas.includes(a.id) && (
+                <span title="Stands out in your notes" aria-label=", suggested for your notes">
+                  {' '}
+                  ★
+                </span>
+              )}
             </button>
           ))}
         </div>
@@ -242,7 +271,7 @@ export function SearchFilters({ filters, onChange, resultCount }: SearchFiltersP
           Relationship type ({filters.relationTypes.length || 'any'})
         </summary>
         <div className={styles.chipRow} style={{ marginTop: 6 }}>
-          {RELATIONSHIP_TYPE_OPTIONS.map((type) => (
+          {relationshipOptions.map((type) => (
             <button
               key={type}
               type="button"

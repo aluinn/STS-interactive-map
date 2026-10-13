@@ -32,6 +32,15 @@ import type { Entry } from './types'
 import type { MapFocus } from './utils/mapFocus'
 import { dataBundle } from './data'
 import { filterEntries, filterRelationships } from './utils/filterEntries'
+import { useNotesAtlas, type CollectionMode } from './features/notes/useNotesAtlas'
+import { useNotesPrefs, type Appearance } from './features/notes/useNotesPrefs'
+import { prefersConceptView, profileEntries } from './features/notes/adapt'
+import { personalAtlas, withNotesMentions } from './features/notes/toEntries'
+import { CollectionSelector } from './features/notes/ui/CollectionSelector'
+import { NotesEmpty } from './features/notes/ui/NotesEmpty'
+import type { Journey, Relationship } from './types'
+import type { PersonalCollection } from './features/notes/types'
+import notesStyles from './features/notes/ui/notes.module.css'
 
 const AtlasView = lazy(() =>
   import('./features/atlas/AtlasView').then((m) => ({ default: m.AtlasView })),
@@ -47,6 +56,12 @@ const DebatesView = lazy(() =>
 )
 const JourneysView = lazy(() =>
   import('./features/journeys/JourneysView').then((m) => ({ default: m.JourneysView })),
+)
+const NotesModal = lazy(() =>
+  import('./features/notes/ui/NotesModal').then((m) => ({ default: m.NotesModal })),
+)
+const ConceptNetwork = lazy(() =>
+  import('./features/notes/ui/ConceptNetwork').then((m) => ({ default: m.ConceptNetwork })),
 )
 const JourneyStepper = lazy(() =>
   import('./features/journeys/JourneyStepper').then((m) => ({ default: m.JourneyStepper })),
@@ -103,7 +118,76 @@ export default function App() {
   const appBehindRef = useRef<HTMLDivElement>(null)
   const [announcement, setAnnouncement] = useState('')
 
-  const { entries, relationships, debates, journeys } = dataBundle
+  const notes = useNotesAtlas()
+  const [appearance, setAppearance] = useNotesPrefs()
+  const [notesModal, setNotesModal] = useState<'home' | 'import' | null>(null)
+  const [layout, setLayout] = useState<'map' | 'concepts'>('map')
+  const [fit, setFit] = useState<{ token: number; points: [number, number][] } | null>(null)
+  const [importNotice, setImportNotice] = useState('')
+
+  const { debates } = dataBundle
+  const curatedEntries = dataBundle.entries
+  const personal = notes.atlas
+  const mode = notes.mode
+
+  // What the map, timeline and filters draw depends on the chosen collection.
+  const mineEntries = useMemo(
+    () => [
+      ...personal.entries,
+      ...curatedEntries
+        .filter((e) => personal.linkedCurated.has(e.id))
+        .map((e) => withNotesMentions(e, personal.linkedCurated.get(e.id))),
+    ],
+    [personal, curatedEntries],
+  )
+  const entries = useMemo(() => {
+    if (mode === 'curated') return curatedEntries
+    if (mode === 'mine') return mineEntries
+    return [
+      ...curatedEntries.map((e) => withNotesMentions(e, personal.linkedCurated.get(e.id))),
+      ...personal.entries,
+    ]
+  }, [mode, curatedEntries, mineEntries, personal])
+  const relationships = useMemo<Relationship[]>(() => {
+    const base = dataBundle.relationships
+    if (mode === 'curated') return base
+    const ids = new Set(entries.map((e) => e.id))
+    return [
+      ...base.filter((r) => ids.has(r.sourceId) && ids.has(r.targetId)),
+      ...personal.relationships,
+    ]
+  }, [mode, entries, personal])
+  // Journeys, debates and the notebook refer to curated entries (and the
+  // viewer's own), whichever collection is showing.
+  const allEntries = useMemo(
+    () => [...curatedEntries, ...personal.entries],
+    [curatedEntries, personal],
+  )
+  const allRelationships = useMemo(
+    () => [...dataBundle.relationships, ...personal.relationships],
+    [personal],
+  )
+  const journeys = useMemo<Journey[]>(() => {
+    const stops = personal.entries
+      .filter((e) => !e.undated && e.latitude !== undefined)
+      .sort((a, b) => a.startYear - b.startYear)
+      .slice(0, 12)
+    if (stops.length < 3) return dataBundle.journeys
+    return [
+      ...dataBundle.journeys,
+      {
+        id: 'my-notes-path',
+        slug: 'my-notes-path',
+        title: 'Your notes, in date order',
+        summary: `A walk through ${stops.length} dated, located entries from your own notes. These come from your notes and have not been verified.`,
+        themes: [],
+        stops: stops.map((e) => ({
+          entryId: e.id,
+          caption: e.personal?.mentions[0]?.passage ?? e.summary,
+        })),
+      },
+    ]
+  }, [personal])
   const entryById = useMemo(() => new Map(entries.map((e) => [e.id, e])), [entries])
 
   const filteredEntries = useMemo(
@@ -139,6 +223,78 @@ export default function App() {
         (state.filters.relationTypes.length === 0 || state.filters.relationTypes.includes(r.type)),
     )
   }, [era, split.echoes, relationships, visibleIds, state.filters.relationTypes])
+  // How the viewer's notes spread over the periods (shown on the slider).
+  const distribution = useMemo(() => {
+    if (mode !== 'mine') return null
+    const d: Record<string, number> = { all: mineEntries.length }
+    for (const e of mineEntries) {
+      if (e.undated) continue
+      const id = eraOfYear(e.startYear).id
+      d[id] = (d[id] ?? 0) + 1
+    }
+    return d
+  }, [mode, mineEntries])
+  const profile = useMemo(() => profileEntries(mineEntries), [mineEntries])
+  const suggestedAreas = useMemo(
+    () => (mode === 'curated' ? [] : profile.areas.slice(0, 3)),
+    [mode, profile],
+  )
+  const extraRelationshipTypes = useMemo(
+    () => [...new Set(personal.relationships.map((r) => r.type))],
+    [personal],
+  )
+  const displayAppearance: Appearance = !eraPrefs.immersive
+    ? 'consistent'
+    : appearance === 'consistent'
+      ? 'adaptive'
+      : appearance
+  function chooseAppearance(a: Appearance) {
+    setAppearance(a)
+    setEraPrefs({ immersive: a !== 'consistent' })
+  }
+  // Keep the saved appearance choice and the period-theme switch in step.
+  useEffect(() => {
+    if (appearance === 'consistent' && eraPrefs.immersive) setEraPrefs({ immersive: false })
+    // Only on first load: after that the two are changed together.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  /** Applies a collection's profile to the interface: period, map framing and view. */
+  function adaptTo(c: PersonalCollection) {
+    const atlas = personalAtlas(c)
+    const linked = curatedEntries.filter((e) => atlas.linkedCurated.has(e.id))
+    const p = profileEntries([...atlas.entries, ...linked])
+    if (displayAppearance === 'adaptive') setState({ era: p.dominantEra })
+    if (p.points.length > 0) setFit({ token: Date.now(), points: p.points })
+    setLayout(prefersConceptView(p) ? 'concepts' : 'map')
+  }
+  function chooseMode(m: CollectionMode) {
+    notes.setMode(m)
+    if (m === 'mine' && notes.active) adaptTo(notes.active)
+    if (m === 'curated') setLayout('map')
+    setAnnouncement(
+      m === 'curated'
+        ? 'Showing the curated atlas.'
+        : m === 'mine'
+          ? 'Showing only your notes.'
+          : 'Showing the curated atlas and your notes together; your notes are marked.',
+    )
+  }
+  function handleImported(c: PersonalCollection, summary: string) {
+    setNotesModal(null)
+    setImportNotice(summary)
+    setAnnouncement(summary)
+    if (mode === 'curated') notes.setMode('mine')
+    adaptTo(c)
+  }
+  function resetNotesSettings() {
+    notes.setMode('curated')
+    setAppearance('adaptive')
+    setEraPrefs({ immersive: true })
+    setLayout('map')
+    setAnnouncement('Collection and appearance choices were reset.')
+  }
+
   const mapFocusRef = useRef<MapFocus | null>(null)
   // The latest period is shown as a satellite-style globe (unless the viewer
   // chose the consistent theme, which keeps the flat chart throughout).
@@ -151,7 +307,11 @@ export default function App() {
     if (era?.id === 'networked' || era?.id === 'platform-age') preloadEarthTextures()
   }, [era?.id])
 
-  const selectedEntry = state.entry ? (entries.find((e) => e.id === state.entry) ?? null) : null
+  const selectedEntry = state.entry
+    ? (entries.find((e) => e.id === state.entry) ??
+      (state.view === 'journeys' ? allEntries.find((e) => e.id === state.entry) : null) ??
+      null)
+    : null
   const activeJourney = state.journey
     ? (journeys.find((j) => j.id === state.journey) ?? null)
     : null
@@ -313,6 +473,7 @@ export default function App() {
         onOpenAbout={() => setModal('about')}
         onOpenSources={() => setModal('sources')}
         onOpenNotebook={() => setModal('notebook')}
+        onOpenNotes={() => setNotesModal('home')}
         onReplayIntro={replayIntro}
         periodThemed={eraPrefs.immersive && era !== null}
       />
@@ -328,52 +489,125 @@ export default function App() {
           {sidebarOpen ? 'Hide filters & legend' : 'Show filters & legend'}
         </button>
         <div className={styles.sidebar} id="filters-sidebar" hidden={!sidebarOpen}>
+          <CollectionSelector
+            mode={mode}
+            onMode={chooseMode}
+            curatedCount={curatedEntries.length}
+            mineCount={mineEntries.length}
+            collectionName={notes.active?.name ?? null}
+            onImport={() => setNotesModal('import')}
+            onManage={() => setNotesModal('home')}
+          />
+          {importNotice && (
+            <p className={notesStyles.callout} role="status">
+              {importNotice}{' '}
+              <button type="button" className={notesStyles.btn} onClick={() => setImportNotice('')}>
+                Dismiss
+              </button>
+            </p>
+          )}
           <SearchFilters
             filters={state.filters}
             onChange={(f) => setState({ filters: f })}
             resultCount={periodEntries.length}
+            suggestedAreas={suggestedAreas}
+            extraRelationshipTypes={extraRelationshipTypes}
           />
-          <Legend />
+          <Legend showProvenance={mode !== 'curated'} />
         </div>
 
         <main className={styles.main} id="main-content">
           <div className={styles.viewSurface}>
+            {state.view === 'atlas' && mode !== 'curated' && mineEntries.length > 0 && (
+              <div
+                className={notesStyles.layoutToggle}
+                role="group"
+                aria-label="How to show your notes"
+              >
+                <button
+                  type="button"
+                  className={`${notesStyles.btn} ${layout === 'map' ? notesStyles.btnPrimary : ''}`}
+                  aria-pressed={layout === 'map'}
+                  onClick={() => setLayout('map')}
+                >
+                  Map
+                </button>
+                <button
+                  type="button"
+                  className={`${notesStyles.btn} ${layout === 'concepts' ? notesStyles.btnPrimary : ''}`}
+                  aria-pressed={layout === 'concepts'}
+                  onClick={() => setLayout('concepts')}
+                >
+                  Concept network
+                </button>
+              </div>
+            )}
             <Suspense fallback={<ViewLoading />}>
-              {state.view === 'atlas' && !showGlobe && (
-                <AtlasView
-                  entries={periodEntries}
-                  relationships={filteredRelationships}
-                  eraId={era?.id ?? null}
-                  immersive={eraPrefs.immersive}
-                  ghostEntries={split.echoes}
-                  ghostRelationships={ghostRelationships}
-                  outsideIds={split.outside}
-                  focusRef={mapFocusRef}
-                  selectedEntryId={state.entry}
-                  onSelectEntry={selectEntry}
-                  focusEntryId={state.entry}
-                  focusToken={focusToken}
-                  clusterTools={clusterTools}
-                  reducedMotion={reducedMotion}
+              {state.view === 'atlas' && mode === 'mine' && periodEntries.length === 0 && (
+                <NotesEmpty
+                  loading={notes.loading}
+                  reason={mineEntries.length === 0 ? 'no-collection' : 'no-entries-in-view'}
+                  onImport={() => setNotesModal('import')}
+                  onShowCurated={() => chooseMode('curated')}
                 />
               )}
 
-              {state.view === 'atlas' && showGlobe && (
-                <GlobeView
-                  entries={periodEntries}
-                  relationships={filteredRelationships}
-                  ghostEntries={split.echoes}
-                  ghostRelationships={ghostRelationships}
-                  outsideIds={split.outside}
-                  focusRef={mapFocusRef}
-                  selectedEntryId={state.entry}
-                  onSelectEntry={selectEntry}
-                  focusEntryId={state.entry}
-                  focusToken={focusToken}
-                  clusterTools={clusterTools}
-                  reducedMotion={reducedMotion}
-                />
-              )}
+              {state.view === 'atlas' &&
+                mode !== 'curated' &&
+                layout === 'concepts' &&
+                periodEntries.length > 0 && (
+                  <ConceptNetwork
+                    entries={periodEntries.filter(
+                      (e) => e.origin === 'personal' || e.notesMentions,
+                    )}
+                    relationships={filteredRelationships}
+                    selectedId={state.entry}
+                    onSelect={selectEntry}
+                  />
+                )}
+
+              {state.view === 'atlas' &&
+                !showGlobe &&
+                !(mode === 'mine' && periodEntries.length === 0) &&
+                !(mode !== 'curated' && layout === 'concepts') && (
+                  <AtlasView
+                    entries={periodEntries}
+                    relationships={filteredRelationships}
+                    eraId={era?.id ?? null}
+                    immersive={eraPrefs.immersive}
+                    ghostEntries={split.echoes}
+                    ghostRelationships={ghostRelationships}
+                    outsideIds={split.outside}
+                    focusRef={mapFocusRef}
+                    selectedEntryId={state.entry}
+                    onSelectEntry={selectEntry}
+                    focusEntryId={state.entry}
+                    focusToken={focusToken}
+                    fitPoints={fit}
+                    clusterTools={clusterTools}
+                    reducedMotion={reducedMotion}
+                  />
+                )}
+
+              {state.view === 'atlas' &&
+                showGlobe &&
+                !(mode === 'mine' && periodEntries.length === 0) &&
+                !(mode !== 'curated' && layout === 'concepts') && (
+                  <GlobeView
+                    entries={periodEntries}
+                    relationships={filteredRelationships}
+                    ghostEntries={split.echoes}
+                    ghostRelationships={ghostRelationships}
+                    outsideIds={split.outside}
+                    focusRef={mapFocusRef}
+                    selectedEntryId={state.entry}
+                    onSelectEntry={selectEntry}
+                    focusEntryId={state.entry}
+                    focusToken={focusToken}
+                    clusterTools={clusterTools}
+                    reducedMotion={reducedMotion}
+                  />
+                )}
 
               {state.view === 'timeline' && (
                 <TimelineView entries={periodEntries} onSelectEntry={selectEntry} />
@@ -382,7 +616,7 @@ export default function App() {
               {state.view === 'debates' && (
                 <DebatesView
                   debates={debates}
-                  entries={entries}
+                  entries={curatedEntries}
                   selectedDebateId={state.debate}
                   onSelectDebate={(id) => setState({ debate: id })}
                   onJumpToEntry={jumpToEntryOnMap}
@@ -392,8 +626,8 @@ export default function App() {
               {state.view === 'journeys' && activeJourney && (
                 <>
                   <AtlasView
-                    entries={entries}
-                    relationships={relationships}
+                    entries={allEntries}
+                    relationships={allRelationships}
                     selectedEntryId={state.entry}
                     onSelectEntry={selectEntry}
                     focusEntryId={currentStop?.entryId ?? null}
@@ -405,7 +639,7 @@ export default function App() {
                     journey={activeJourney}
                     stopIndex={state.stop}
                     entry={
-                      currentStop ? entries.find((e) => e.id === currentStop.entryId) : undefined
+                      currentStop ? allEntries.find((e) => e.id === currentStop.entryId) : undefined
                     }
                     onPrev={() => goToStop(state.stop - 1)}
                     onNext={() => goToStop(state.stop + 1)}
@@ -428,6 +662,7 @@ export default function App() {
               entryCount={periodEntries.length}
               echoCount={split.echoes.length}
               hasQuery={hasQuery}
+              distribution={distribution}
             />
           )}
         </main>
@@ -446,6 +681,21 @@ export default function App() {
         />
       )}
 
+      {notesModal && (
+        <Suspense fallback={null}>
+          <NotesModal
+            notes={notes}
+            curated={curatedEntries}
+            appearance={displayAppearance}
+            onAppearance={chooseAppearance}
+            onResetSettings={resetNotesSettings}
+            initial={notesModal}
+            onImported={handleImported}
+            onClose={() => setNotesModal(null)}
+          />
+        </Suspense>
+      )}
+
       {modal === 'about' && (
         <Modal title="About this atlas" onClose={() => setModal(null)}>
           <AboutContent />
@@ -453,14 +703,14 @@ export default function App() {
       )}
       {modal === 'sources' && (
         <Modal title="Sources" onClose={() => setModal(null)}>
-          <SourcesDrawerContent entries={entries} />
+          <SourcesDrawerContent entries={curatedEntries} />
         </Modal>
       )}
       {modal === 'notebook' && (
         <Modal title="Your notebook" onClose={() => setModal(null)}>
           <NotebookContent
             items={notebook.items}
-            entries={entries}
+            entries={allEntries}
             onUpdateNote={notebook.updateNote}
             onRemove={notebook.remove}
             onClearAll={notebook.clearAll}

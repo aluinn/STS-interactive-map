@@ -5,9 +5,11 @@ interface ModalProps {
   title: string
   onClose: () => void
   children: ReactNode
+  /** A roomier dialog for working screens such as the notes review. */
+  wide?: boolean
 }
 
-export function Modal({ title, onClose, children }: ModalProps) {
+export function Modal({ title, onClose, children, wide }: ModalProps) {
   const ref = useRef<HTMLDivElement>(null)
   // Keep the latest onClose in a ref: callers pass inline arrows, and
   // re-running the focus effect on every parent render would yank focus
@@ -61,7 +63,7 @@ export function Modal({ title, onClose, children }: ModalProps) {
       }}
     >
       <div
-        className={styles.dialog}
+        className={`${styles.dialog} ${wide ? styles.dialogWide : ''}`}
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"

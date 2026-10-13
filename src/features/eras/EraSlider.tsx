@@ -12,6 +12,9 @@ interface EraSliderProps {
   entryCount: number
   echoCount: number
   hasQuery: boolean
+  /** Entries per period (keyed by period id, "all" for the total). Shown when the
+   * viewer is looking at their own notes; periods with none are dimmed. */
+  distribution?: Record<string, number> | null
 }
 
 /** Stops on the track: index 0 is "All Time", then one per period. */
@@ -35,6 +38,7 @@ export function EraSlider({
   entryCount,
   echoCount,
   hasQuery,
+  distribution,
 }: EraSliderProps) {
   const index = era ? STOPS.findIndex((s) => s.id === era.id) : 0
   const [playing, setPlaying] = useState(false)
@@ -159,7 +163,7 @@ export function EraSlider({
             {STOPS.map((s, i) => (
               <span
                 key={s.id ?? 'all'}
-                className={`${styles.stop} ${i === index ? styles.stopActive : ''} ${i < index ? styles.stopPast : ''}`}
+                className={`${styles.stop} ${i === index ? styles.stopActive : ''} ${i < index ? styles.stopPast : ''} ${distribution && s.id !== null && !distribution[s.id] ? styles.stopEmpty : ''}`}
                 style={{ left: `${(i / (STOPS.length - 1)) * 100}%` }}
                 aria-hidden
               />
@@ -169,10 +173,15 @@ export function EraSlider({
             {STOPS.map((s, i) => (
               <li
                 key={s.id ?? 'all'}
-                className={i === index ? styles.labelActive : undefined}
+                className={`${i === index ? styles.labelActive : ''} ${distribution && s.id !== null && !distribution[s.id] ? styles.labelEmpty : ''}`}
                 style={{ left: `${(i / (STOPS.length - 1)) * 100}%` }}
               >
                 {s.short}
+                {distribution && (
+                  <span className={styles.stopCount}>
+                    {s.id === null ? distribution.all : (distribution[s.id] ?? 0)}
+                  </span>
+                )}
               </li>
             ))}
           </ol>

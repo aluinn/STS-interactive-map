@@ -24,6 +24,11 @@
   position: relative;
 }
 
+.dialogWide {
+  max-width: 980px;
+  max-height: min(90vh, 900px);
+}
+
 .closeBtn {
   position: absolute;
   top: var(--space-4);

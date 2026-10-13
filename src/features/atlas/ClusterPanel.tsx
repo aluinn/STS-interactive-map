@@ -1,3 +1,4 @@
+import { ProvenanceBadge } from '../notes/ui/ProvenanceBadge'
 import { useEffect, useId, useMemo, useRef, useState } from 'react'
 import type { Entry, EntryKind } from '../../types'
 import { EntryDetail } from '../../components/EntryDetail'
@@ -427,6 +428,11 @@ function EntryRow({
         onClick={() => onOpen(entry.id)}
       >
         <span className={styles.entryTitle}>{entry.title}</span>
+        {entry.origin === 'personal' && (
+          <span className={styles.entryMeta}>
+            <ProvenanceBadge entry={entry} short />
+          </span>
+        )}
         <span className={styles.entryMeta}>
           <MarkerIcon kind={entry.kind} size={12} /> {KIND_LABELS[entry.kind]}
           {' · '}

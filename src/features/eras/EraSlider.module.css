@@ -311,3 +311,18 @@
 .settings label {
   font-size: 0.95rem;
 }
+
+/* Distribution of the viewer's own notes across periods. */
+.stopEmpty {
+  opacity: 0.4;
+  border-style: dashed;
+}
+.labelEmpty {
+  opacity: 0.55;
+}
+.stopCount {
+  display: block;
+  font-size: 0.68rem;
+  opacity: 0.85;
+  line-height: 1.1;
+}

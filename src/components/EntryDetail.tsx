@@ -1,3 +1,6 @@
+import { ProvenanceBadge } from '../features/notes/ui/ProvenanceBadge'
+import { provenanceOf } from '../features/notes/provenance'
+import { NotesPassages } from '../features/notes/ui/NotesPassages'
 import { useState, type ReactNode } from 'react'
 import type { Entry, EvidenceStatus } from '../types'
 import { CommunicationModels } from './CommunicationModels'
@@ -73,6 +76,11 @@ export function EntryDetail({
 
   return (
     <>
+      {entry.origin === 'personal' && (
+        <p style={{ margin: '0 0 var(--space-2)' }}>
+          <ProvenanceBadge entry={entry} />
+        </p>
+      )}
       <p className={styles.kicker}>
         {entry.kind} · {entry.period.replace(/-/g, ' ')}
       </p>
@@ -84,7 +92,7 @@ export function EntryDetail({
       <div className={styles.meta}>
         <span className={styles.chip}>{entry.dateDisplay}</span>
         {entry.places[0] && <span className={styles.chip}>{entry.places[0].name}</span>}
-        {entry.confidence !== 'established' && (
+        {entry.origin !== 'personal' && entry.confidence !== 'established' && (
           <span className={styles.chip}>confidence: {entry.confidence}</span>
         )}
         {entry.theoryStatus && (
@@ -114,7 +122,20 @@ export function EntryDetail({
         </p>
       )}
 
-      {entry.contentStatus === 'draft' && (
+      {entry.origin === 'personal' && (
+        <p className={styles.statusNote}>
+          {provenanceOf(entry).description}{' '}
+          {entry.personal?.extraction
+            ? `Found by ${entry.personal.extraction}; no AI service was used.`
+            : ''}
+          {entry.undated
+            ? ' The notes gave no date, so it has no fixed place on the timeline.'
+            : ''}
+          {entry.places.length === 0 ? ' No location is set, so it is not drawn on the map.' : ''}
+        </p>
+      )}
+
+      {entry.origin !== 'personal' && entry.contentStatus === 'draft' && (
         <p className={styles.statusNote}>
           Draft entry: dates and descriptions come from general scholarship rather than a full
           source check. Please verify current claims before relying on them.
@@ -127,10 +148,23 @@ export function EntryDetail({
 
       {entry.explorer === 'communication-models' && <CommunicationModels initial={entry.id} />}
 
-      <section className={styles.section}>
-        <h3 className={styles.sectionHeading}>Why it matters</h3>
-        <p>{entry.historicalSignificance}</p>
-      </section>
+      {entry.origin === 'personal' && entry.personal && (
+        <section className={styles.section}>
+          <NotesPassages mentions={entry.personal.mentions} heading="In your notes" />
+        </section>
+      )}
+      {entry.notesMentions && entry.notesMentions.length > 0 && (
+        <section className={styles.section}>
+          <NotesPassages mentions={entry.notesMentions} heading="Mentioned in your notes" />
+        </section>
+      )}
+
+      {entry.historicalSignificance && (
+        <section className={styles.section}>
+          <h3 className={styles.sectionHeading}>Why it matters</h3>
+          <p>{entry.historicalSignificance}</p>
+        </section>
+      )}
 
       {entry.theoryStatusNote && (
         <section className={styles.section}>
@@ -242,9 +276,11 @@ export function EntryDetail({
       </section>
 
       <div style={{ display: 'flex', gap: 'var(--space-2)', flexWrap: 'wrap' }}>
-        <button type="button" className={styles.copyBtn} onClick={copyLink}>
-          {copied ? 'Link copied ✓' : 'Copy link to this entry'}
-        </button>
+        {entry.origin !== 'personal' && (
+          <button type="button" className={styles.copyBtn} onClick={copyLink}>
+            {copied ? 'Link copied ✓' : 'Copy link to this entry'}
+          </button>
+        )}
         {extraActions}
         {onToggleSave && (
           <button

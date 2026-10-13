@@ -341,3 +341,20 @@
   stroke-dasharray: 3 2;
   fill-opacity: 0.55;
 }
+
+/* Entries built from the viewer's own notes carry a diamond outline; an
+   unreviewed suggestion's outline is dotted. The shape, not colour alone,
+   tells them apart from curated markers. */
+.personalRing {
+  fill: none;
+  stroke: var(--chart-marker-selected);
+  pointer-events: none;
+}
+.personalRingUnreviewed {
+  stroke-dasharray: 1.5 2.5;
+}
+
+/* A relationship inferred from the viewer's notes and not yet confirmed. */
+.routeProposed {
+  stroke-dasharray: 6 4;
+}

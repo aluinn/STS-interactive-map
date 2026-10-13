@@ -120,6 +120,27 @@ export function AboutContent() {
             textTransform: 'uppercase',
           }}
         >
+          Building an atlas from your own notes
+        </h3>
+        <p>
+          &ldquo;My Notes&rdquo; turns text-based PDFs, .txt and .md files into a personal atlas.
+          Your notes are processed on this device by simple, fixed rules (known names, dates and
+          phrases). They are not uploaded, no AI service is used, and nothing you import is made
+          public. Imported collections stay in this browser unless you export them, and browser
+          storage is not encrypted. Material from your notes is always labelled as yours and
+          unverified; the curated atlas stays separate unless you choose &ldquo;Combined&rdquo;. See
+          docs/MY_NOTES.md in the project for exactly what is kept and which requests the page
+          makes.
+        </p>
+      </section>
+      <section>
+        <h3
+          style={{
+            color: 'var(--color-oxidised-green-bright)',
+            fontSize: '0.85rem',
+            textTransform: 'uppercase',
+          }}
+        >
           Time travel and periods
         </h3>
         <p>
@@ -150,7 +171,8 @@ export function AboutContent() {
           acknowledgement under NASA&rsquo;s media usage guidelines; this use does not imply NASA
           endorsement. Images were resized for web delivery. Coastlines and borders: Natural Earth
           via the world-atlas package. Subsea-cable lines on the globe are schematic corridors, not
-          the paths of individual cables.
+          the paths of individual cables. PDF reading uses PDF.js (Mozilla, Apache License 2.0),
+          bundled with this site.
         </p>
       </section>
       <p style={{ fontSize: '0.78rem', color: 'var(--color-ink-faint)' }}>
