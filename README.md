@@ -4,6 +4,12 @@
 
 > "Knowledge has never travelled in a straight line."
 
+
+
+https://github.com/user-attachments/assets/20be2ade-4bb6-4c8a-a16b-585e517022f4
+
+Test it here: https://sts-interactive-map.vercel.app/?areas=climate 
+
 An interactive atlas exploring how scientific ideas moved between cultures, cities,
 institutions, and historical periods — and how philosophy of science helps us read that
 movement critically. Built as a portfolio project alongside a History and Philosophy of
