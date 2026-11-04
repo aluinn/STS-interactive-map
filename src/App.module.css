@@ -79,8 +79,18 @@
   .viewSurface {
     min-height: 0;
   }
+  /* Fill exactly the screen: the header takes what it needs (it can wrap to
+     two lines) and the map area takes the rest, with no gap beneath it. */
+  .app {
+    height: 100vh;
+    height: 100dvh;
+    min-height: 600px;
+  }
+  .body {
+    grid-template-rows: minmax(0, 1fr);
+  }
   .main {
-    height: calc(100vh - 160px);
+    min-height: 0;
   }
   /* The sidebar can only be toggled below 900px; if the window is resized
      up from a collapsed mobile state without a reload, keep it visible. */
