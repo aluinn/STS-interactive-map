@@ -88,8 +88,6 @@ function ViewLoading() {
   )
 }
 
-const INTRO_SEEN_KEY = 'atlas-intro-seen'
-
 type ModalName = 'about' | 'sources' | 'notebook' | null
 
 export default function App() {
@@ -112,12 +110,8 @@ export default function App() {
   // requested via the URL (both of those should open immediately instead).
   const [introPhase, setIntroPhase] = useState<'cinematic' | 'done'>(() => {
     const isLandingRoute = !state.entry && !state.debate && !state.journey && state.view === 'atlas'
-    if (!isLandingRoute) return 'done'
-    try {
-      return localStorage.getItem(INTRO_SEEN_KEY) === '1' ? 'done' : 'cinematic'
-    } catch {
-      return 'cinematic'
-    }
+    // Always play on the landing route, even for returning visitors.
+    return isLandingRoute ? 'cinematic' : 'done'
   })
   // The walkthrough is only offered automatically on the plain landing route:
   // no entry, debate, journey, other view, period or filters in the URL.
@@ -333,11 +327,6 @@ export default function App() {
 
   function handleIntroComplete() {
     setIntroPhase('done')
-    try {
-      localStorage.setItem(INTRO_SEEN_KEY, '1')
-    } catch {
-      // ignore
-    }
     window.scrollTo(0, 0)
   }
 

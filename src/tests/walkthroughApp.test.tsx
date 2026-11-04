@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { act, cleanup, render, screen, waitFor } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 // The views are heavy (d3, canvas) and irrelevant here; the shell is what is under test.
@@ -66,6 +66,14 @@ afterEach(() => {
   document.documentElement.removeAttribute('style')
 })
 
+/** Renders the app and skips the cinematic intro if it is playing. */
+function renderApp() {
+  const r = render(<App />)
+  const skip = screen.queryByRole('button', { name: 'Skip introduction' })
+  if (skip) fireEvent.click(skip)
+  return r
+}
+
 describe('first-time visit', () => {
   it('does not show the welcome card over the cinematic intro, then offers it after skipping', async () => {
     render(<App />)
@@ -79,31 +87,29 @@ describe('first-time visit', () => {
     expect(screen.getByRole('button', { name: 'Explore independently' })).toBeInTheDocument()
   })
 
-  it('offers it straight away when the intro has been seen before', async () => {
+  it('always plays the intro first, even for a returning visitor', async () => {
     localStorage.setItem('atlas-intro-seen', '1')
     render(<App />)
-    expect(intro()).not.toBeInTheDocument()
-    await waitFor(() => expect(tourDialog()).toBeInTheDocument(), { timeout: 2000 })
+    expect(intro()).toBeInTheDocument()
+    expect(tourDialog()).not.toBeInTheDocument()
   })
 
   it('"Explore on my own" dismisses it and it is not offered again', async () => {
-    localStorage.setItem('atlas-intro-seen', '1')
-    const first = render(<App />)
+    const first = renderApp()
     await waitFor(() => expect(tourDialog()).toBeInTheDocument(), { timeout: 2000 })
     await userEvent.click(screen.getByRole('button', { name: 'Explore independently' }))
     expect(tourDialog()).not.toBeInTheDocument()
     expect(readWalkthroughStatus()).toBe('dismissed')
     first.unmount()
 
-    render(<App />)
+    renderApp()
     await afterDelay()
     expect(tourDialog()).not.toBeInTheDocument()
   })
 
   it('remembers completion', async () => {
-    localStorage.setItem('atlas-intro-seen', '1')
     const user = userEvent.setup()
-    const first = render(<App />)
+    const first = renderApp()
     await waitFor(() => expect(tourDialog()).toBeInTheDocument(), { timeout: 2000 })
     await user.click(screen.getByRole('button', { name: 'Start tour' }))
     for (
@@ -115,7 +121,7 @@ describe('first-time visit', () => {
     await user.click(screen.getByRole('button', { name: 'Begin exploring' }))
     expect(JSON.parse(localStorage.getItem(WALKTHROUGH_KEY)!).status).toBe('completed')
     first.unmount()
-    render(<App />)
+    renderApp()
     await afterDelay()
     expect(tourDialog()).not.toBeInTheDocument()
   })
@@ -131,9 +137,8 @@ describe('deep links', () => {
     ['a chosen period', '?era=ancient'],
   ] as const)
     it(`do not trigger it automatically (${name})`, async () => {
-      localStorage.setItem('atlas-intro-seen', '1')
       visit(search)
-      render(<App />)
+      renderApp()
       await afterDelay()
       expect(tourDialog()).not.toBeInTheDocument()
       expect(screen.getByRole('button', { name: 'Guide' })).toBeInTheDocument()
@@ -141,11 +146,9 @@ describe('deep links', () => {
 })
 
 describe('Guide button', () => {
-  beforeEach(() => localStorage.setItem('atlas-intro-seen', '1'))
-
   it('reopens the walkthrough at any time, even a deep link, and returns focus to itself', async () => {
     visit('?view=timeline&q=kepler')
-    render(<App />)
+    renderApp()
     const guide = screen.getByRole('button', { name: 'Guide' })
     await userEvent.click(guide)
     expect(tourDialog()).toBeInTheDocument()
@@ -158,7 +161,7 @@ describe('Guide button', () => {
 
   it('stays available after completion and replays', async () => {
     localStorage.setItem(WALKTHROUGH_KEY, JSON.stringify({ status: 'completed' }))
-    render(<App />)
+    renderApp()
     await afterDelay()
     expect(tourDialog()).not.toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: 'Guide' }))
@@ -170,7 +173,7 @@ describe('Guide button', () => {
 
   it('is separate from Replay intro', async () => {
     localStorage.setItem(WALKTHROUGH_KEY, JSON.stringify({ status: 'dismissed' }))
-    render(<App />)
+    renderApp()
     await userEvent.click(screen.getByRole('button', { name: /replay intro/i }))
     expect(intro()).toBeInTheDocument()
     expect(tourDialog()).not.toBeInTheDocument()
@@ -180,7 +183,7 @@ describe('Guide button', () => {
 
   it('can be started from the quick reference in About', async () => {
     localStorage.setItem(WALKTHROUGH_KEY, JSON.stringify({ status: 'completed' }))
-    render(<App />)
+    renderApp()
     await userEvent.click(screen.getByRole('button', { name: 'About' }))
     expect(screen.getByRole('heading', { name: 'How to use the atlas' })).toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: 'Start the guided tour' }))
@@ -198,7 +201,7 @@ describe('Guide button', () => {
       store: JSON.stringify({ ...localStorage }),
     }
     const user = userEvent.setup()
-    render(<App />)
+    renderApp()
     await user.click(screen.getByRole('button', { name: 'Guide' }))
     for (
       let i = 0;
@@ -222,7 +225,7 @@ describe('Guide button', () => {
 
   it('"Open Paths" on the last step switches to Paths; nothing starts automatically', async () => {
     const user = userEvent.setup()
-    render(<App />)
+    renderApp()
     await user.click(screen.getByRole('button', { name: 'Guide' }))
     for (let i = 0; i < 20 && screen.queryByRole('button', { name: 'Open Paths' }) === null; i++)
       await user.click(
@@ -238,7 +241,6 @@ describe('Guide button', () => {
 
 describe('narrow screens', () => {
   beforeEach(() => {
-    localStorage.setItem('atlas-intro-seen', '1')
     stubMedia({ narrow: true })
   })
 
@@ -251,7 +253,7 @@ describe('narrow screens', () => {
 
   it('points at the filters button first, opens the sidebar for the filter steps, then restores it', async () => {
     const user = userEvent.setup()
-    render(<App />)
+    renderApp()
     const toggle = filtersToggle()
     expect(toggle).toHaveAttribute('aria-expanded', 'false')
 
@@ -273,7 +275,7 @@ describe('narrow screens', () => {
 
   it('restores the sidebar when the tour is skipped partway', async () => {
     const user = userEvent.setup()
-    render(<App />)
+    renderApp()
     await walkTo(user, /General Notes and Your Notes/)
     expect(document.getElementById('filters-sidebar')).not.toHaveAttribute('hidden')
     await user.click(screen.getByRole('button', { name: 'Skip tour' }))
@@ -283,7 +285,7 @@ describe('narrow screens', () => {
 
   it('leaves an already-open sidebar open', async () => {
     const user = userEvent.setup()
-    render(<App />)
+    renderApp()
     await user.click(filtersToggle())
     await walkTo(user, /General Notes and Your Notes/)
     expect(screen.queryByRole('heading', { name: /^Filters and legend$/ })).not.toBeInTheDocument()
