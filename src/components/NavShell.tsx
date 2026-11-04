@@ -11,6 +11,8 @@ interface NavShellProps {
   onOpenNotebook: () => void
   onOpenNotes?: () => void
   onReplayIntro?: () => void
+  /** Opens the instructional walkthrough (separate from the cinematic intro). */
+  onOpenGuide?: () => void
   /** True while a period theme is overriding the light/dark choice. */
   periodThemed?: boolean
 }
@@ -32,6 +34,7 @@ export function NavShell({
   onOpenNotebook,
   onOpenNotes,
   onReplayIntro,
+  onOpenGuide,
   periodThemed,
 }: NavShellProps) {
   return (
@@ -44,7 +47,7 @@ export function NavShell({
         <span className={styles.brandBy}>by Aluinn McDonald</span>
       </div>
 
-      <nav className={styles.tabs} aria-label="Main views">
+      <nav className={styles.tabs} aria-label="Main views" data-walkthrough="main-navigation">
         {TABS.map((t) => (
           <button
             key={t.value}
@@ -58,43 +61,59 @@ export function NavShell({
         ))}
       </nav>
 
-      {onReplayIntro && (
+      <div className={styles.group} data-walkthrough="guide-group">
+        {onOpenGuide && (
+          <button
+            type="button"
+            className={styles.iconBtn}
+            onClick={onOpenGuide}
+            aria-haspopup="dialog"
+            title="How to use this atlas"
+            data-walkthrough="guide-button"
+          >
+            Guide
+          </button>
+        )}
+        {onReplayIntro && (
+          <button
+            type="button"
+            className={styles.iconBtn}
+            onClick={onReplayIntro}
+            title="Replay the cinematic introduction"
+          >
+            ↺ Replay intro
+          </button>
+        )}
+      </div>
+      <div className={styles.group} data-walkthrough="research-tools">
+        {onOpenNotes && (
+          <button type="button" className={styles.iconBtn} onClick={onOpenNotes}>
+            Your Notes
+          </button>
+        )}
+        <button type="button" className={styles.iconBtn} onClick={onOpenNotebook}>
+          Notebook
+        </button>
+        <button type="button" className={styles.iconBtn} onClick={onOpenSources}>
+          Sources
+        </button>
+        <button type="button" className={styles.iconBtn} onClick={onOpenAbout}>
+          About
+        </button>
         <button
           type="button"
           className={styles.iconBtn}
-          onClick={onReplayIntro}
-          title="Replay the cinematic introduction"
+          onClick={onToggleTheme}
+          aria-pressed={theme === 'light'}
+          title={
+            periodThemed
+              ? 'Light and dark mode apply to All Time and the consistent theme; each period has its own look.'
+              : undefined
+          }
         >
-          ↺ Replay intro
+          {theme === 'dark' ? '☀ Light mode' : '☾ Dark mode'}
         </button>
-      )}
-      {onOpenNotes && (
-        <button type="button" className={styles.iconBtn} onClick={onOpenNotes}>
-          Your Notes
-        </button>
-      )}
-      <button type="button" className={styles.iconBtn} onClick={onOpenNotebook}>
-        Notebook
-      </button>
-      <button type="button" className={styles.iconBtn} onClick={onOpenSources}>
-        Sources
-      </button>
-      <button type="button" className={styles.iconBtn} onClick={onOpenAbout}>
-        About
-      </button>
-      <button
-        type="button"
-        className={styles.iconBtn}
-        onClick={onToggleTheme}
-        aria-pressed={theme === 'light'}
-        title={
-          periodThemed
-            ? 'Light and dark mode apply to All Time and the consistent theme; each period has its own look.'
-            : undefined
-        }
-      >
-        {theme === 'dark' ? '☀ Light mode' : '☾ Dark mode'}
-      </button>
+      </div>
     </header>
   )
 }

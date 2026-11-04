@@ -114,7 +114,12 @@ export function SearchFilters({
     ),
   ]
   return (
-    <div className={styles.panel} role="search" aria-label="Search and filter the atlas">
+    <div
+      className={styles.panel}
+      role="search"
+      aria-label="Search and filter the atlas"
+      data-walkthrough="search-filters"
+    >
       <input
         type="search"
         className={styles.searchInput}

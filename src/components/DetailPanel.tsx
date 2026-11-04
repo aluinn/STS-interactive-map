@@ -55,6 +55,7 @@ export function DetailPanel({
         role="dialog"
         aria-modal="true"
         aria-labelledby="detail-panel-title"
+        data-walkthrough="entry-panel"
         tabIndex={-1}
         ref={panelRef}
       >

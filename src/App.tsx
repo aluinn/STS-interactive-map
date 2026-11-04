@@ -18,7 +18,7 @@ import { Modal } from './components/Modal'
 import { AboutContent } from './components/AboutContent'
 import { SourcesDrawerContent } from './components/SourcesDrawerContent'
 import { NotebookContent } from './components/NotebookContent'
-import { useUrlState } from './hooks/useUrlState'
+import { useUrlState, defaultFilters } from './hooks/useUrlState'
 import { useTheme } from './hooks/useTheme'
 import { usePrefersReducedMotion } from './hooks/usePrefersReducedMotion'
 import { useNotebook } from './hooks/useNotebook'
@@ -41,6 +41,10 @@ import { NotesEmpty } from './features/notes/ui/NotesEmpty'
 import type { Journey, Relationship } from './types'
 import type { PersonalCollection } from './features/notes/types'
 import notesStyles from './features/notes/ui/notes.module.css'
+import { Walkthrough } from './features/walkthrough/Walkthrough'
+import { buildWalkthroughSteps } from './features/walkthrough/walkthroughSteps'
+import { readWalkthroughStatus, shouldOfferWalkthrough } from './features/walkthrough/storage'
+import type { WalkthroughResult, WalkthroughStep } from './features/walkthrough/types'
 
 const AtlasView = lazy(() =>
   import('./features/atlas/AtlasView').then((m) => ({ default: m.AtlasView })),
@@ -115,6 +119,21 @@ export default function App() {
       return 'cinematic'
     }
   })
+  // The walkthrough is only offered automatically on the plain landing route:
+  // no entry, debate, journey, other view, period or filters in the URL.
+  const [landingVisit] = useState(
+    () =>
+      !state.entry &&
+      !state.debate &&
+      !state.journey &&
+      state.view === 'atlas' &&
+      state.era === null &&
+      JSON.stringify(state.filters) === JSON.stringify(defaultFilters),
+  )
+  const [tourSteps, setTourSteps] = useState<WalkthroughStep[] | null>(null)
+  const [tourOffered, setTourOffered] = useState(false)
+  // The narrow-screen sidebar state to restore once the tour no longer needs it.
+  const tourSidebarRestore = useRef<boolean | null>(null)
   const appBehindRef = useRef<HTMLDivElement>(null)
   const [announcement, setAnnouncement] = useState('')
 
@@ -441,6 +460,59 @@ export default function App() {
         }
       : undefined
 
+  function startWalkthrough() {
+    const collapsible = window.matchMedia?.('(max-width: 900px)').matches ?? false
+    setTourOffered(true)
+    setTourSteps(
+      buildWalkthroughSteps({
+        view: state.view,
+        globe: showGlobe,
+        hasPersonal: notes.active !== null,
+        entryOpen: selectedEntry !== null,
+        sidebarCollapsible: collapsible,
+        sidebarClosed: collapsible && !sidebarOpen,
+      }),
+    )
+  }
+
+  // Offer the tour once, after the cinematic introduction (played or skipped).
+  useEffect(() => {
+    if (
+      !shouldOfferWalkthrough({
+        landing: landingVisit,
+        introDone: introPhase === 'done',
+        status: readWalkthroughStatus(),
+        offeredThisVisit: tourOffered,
+      })
+    )
+      return
+    const t = window.setTimeout(startWalkthrough, 600)
+    return () => window.clearTimeout(t)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [introPhase, landingVisit, tourOffered])
+
+  /** On narrow screens, opens the sidebar for the steps that need it and puts it back after. */
+  function handleTourStep(step: WalkthroughStep) {
+    if (!window.matchMedia?.('(max-width: 900px)').matches) return
+    if (step.needsSidebar) {
+      if (tourSidebarRestore.current === null) tourSidebarRestore.current = sidebarOpen
+      setSidebarOpen(true)
+    } else if (tourSidebarRestore.current !== null) {
+      setSidebarOpen(tourSidebarRestore.current)
+      tourSidebarRestore.current = null
+    }
+  }
+
+  function handleTourClose(result: WalkthroughResult) {
+    if (tourSidebarRestore.current !== null) {
+      setSidebarOpen(tourSidebarRestore.current)
+      tourSidebarRestore.current = null
+    }
+    setTourSteps(null)
+    if (result.action === 'open-paths') setState({ view: 'journeys' })
+    if (result.action === 'open-notes') setNotesModal('home')
+  }
+
   const appUi = (
     <div className={styles.app}>
       <AppDecor eraId={era?.id ?? null} enabled={eraPrefs.immersive} />
@@ -461,6 +533,7 @@ export default function App() {
         onOpenNotebook={() => setModal('notebook')}
         onOpenNotes={() => setNotesModal('home')}
         onReplayIntro={replayIntro}
+        onOpenGuide={startWalkthrough}
         periodThemed={eraPrefs.immersive && era !== null}
       />
 
@@ -471,6 +544,7 @@ export default function App() {
           onClick={() => setSidebarOpen((o) => !o)}
           aria-expanded={sidebarOpen}
           aria-controls="filters-sidebar"
+          data-walkthrough="sidebar-toggle"
         >
           {sidebarOpen ? 'Hide filters & legend' : 'Show filters & legend'}
         </button>
@@ -499,11 +573,13 @@ export default function App() {
             suggestedAreas={suggestedAreas}
             extraRelationshipTypes={extraRelationshipTypes}
           />
-          <Legend showProvenance={mode !== 'curated'} />
+          <div data-walkthrough="legend">
+            <Legend showProvenance={mode !== 'curated'} />
+          </div>
         </div>
 
         <main className={styles.main} id="main-content">
-          <div className={styles.viewSurface}>
+          <div className={styles.viewSurface} data-walkthrough="atlas-surface">
             {state.view === 'atlas' && mode !== 'curated' && mineEntries.length > 0 && (
               <div
                 className={notesStyles.layoutToggle}
@@ -692,7 +768,12 @@ export default function App() {
 
       {modal === 'about' && (
         <Modal title="About this atlas" onClose={() => setModal(null)}>
-          <AboutContent />
+          <AboutContent
+            onStartGuide={() => {
+              setModal(null)
+              startWalkthrough()
+            }}
+          />
         </Modal>
       )}
       {modal === 'sources' && (
@@ -714,6 +795,10 @@ export default function App() {
             }}
           />
         </Modal>
+      )}
+
+      {tourSteps && (
+        <Walkthrough steps={tourSteps} onClose={handleTourClose} onStepChange={handleTourStep} />
       )}
     </div>
   )

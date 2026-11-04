@@ -1,0 +1,248 @@
+/*
+  The walkthrough borrows every colour, font, radius and shadow from the
+  period-aware design tokens, so it follows the selected era, light/dark mode
+  and the consistent accessible theme without any colours of its own.
+*/
+.root {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  /* Modal: nothing underneath can be clicked while the tour is open. */
+  pointer-events: auto;
+}
+
+.scrim {
+  position: absolute;
+  inset: 0;
+  background: var(--overlay-scrim);
+}
+
+.spotlight {
+  position: fixed;
+  border-radius: var(--radius-md);
+  /* A huge shadow dims everything except the spotlit box. */
+  box-shadow:
+    0 0 0 100vmax var(--overlay-scrim),
+    0 0 0 2px var(--accent),
+    0 0 18px 2px var(--accent-glow);
+  pointer-events: none;
+}
+.root[data-motion='smooth'] .spotlight {
+  transition:
+    top var(--duration-base) var(--ease-atlas),
+    left var(--duration-base) var(--ease-atlas),
+    width var(--duration-base) var(--ease-atlas),
+    height var(--duration-base) var(--ease-atlas);
+}
+
+.card {
+  position: fixed;
+  box-sizing: border-box;
+  width: min(380px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+  padding: var(--space-4) var(--space-5) var(--space-4);
+  /* Layered over the opaque elevated colour so translucent modern surfaces stay legible. */
+  background:
+    linear-gradient(var(--surface-translucent), var(--surface-translucent)),
+    var(--color-bg-elevated);
+  -webkit-backdrop-filter: var(--panel-backdrop, none);
+  backdrop-filter: var(--panel-backdrop, none);
+  color: var(--text-primary);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--panel-shadow);
+  font-family: var(--body-font);
+}
+.card:focus {
+  outline: none;
+}
+.card:focus-visible {
+  box-shadow: var(--panel-shadow), var(--focus-ring);
+}
+.root[data-motion='smooth'] .card[data-mode='anchored'] {
+  transition:
+    top var(--duration-base) var(--ease-atlas),
+    left var(--duration-base) var(--ease-atlas);
+}
+
+.card[data-mode='center'] {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(460px, calc(100vw - 32px));
+}
+
+/* Pointer towards the highlighted area. */
+.card[data-mode='anchored']:not([data-side='corner'])::before {
+  content: '';
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  background: inherit;
+  border: 1px solid var(--border-strong);
+  transform: rotate(45deg);
+}
+.card[data-side='bottom']::before {
+  top: -8px;
+  left: calc(var(--arrow) - 7px);
+  border-right: none;
+  border-bottom: none;
+}
+.card[data-side='top']::before {
+  bottom: -8px;
+  left: calc(var(--arrow) - 7px);
+  border-left: none;
+  border-top: none;
+}
+.card[data-side='right']::before {
+  left: -8px;
+  top: calc(var(--arrow) - 7px);
+  border-right: none;
+  border-top: none;
+}
+.card[data-side='left']::before {
+  right: -8px;
+  top: calc(var(--arrow) - 7px);
+  border-left: none;
+  border-bottom: none;
+}
+
+/* Narrow screens: a sheet at the screen edge furthest from the target. */
+.card[data-mode='sheet-bottom'],
+.card[data-mode='sheet-top'] {
+  left: 0;
+  right: 0;
+  width: auto;
+  max-height: 46vh;
+  border-radius: var(--radius-lg);
+  padding-left: max(var(--space-4), env(safe-area-inset-left));
+  padding-right: max(var(--space-4), env(safe-area-inset-right));
+}
+.card[data-mode='sheet-bottom'] {
+  bottom: 0;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom));
+}
+.card[data-mode='sheet-top'] {
+  top: 0;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  padding-top: calc(var(--space-4) + env(safe-area-inset-top));
+}
+@media (max-width: 639px) {
+  .card[data-mode='center'] {
+    width: calc(100vw - 32px);
+    max-height: calc(100vh - 32px - env(safe-area-inset-bottom));
+  }
+}
+
+.progress {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+.progressText {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.bar {
+  flex: 1;
+  height: 3px;
+  background: var(--timeline-track);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.barFill {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}
+.root[data-motion='smooth'] .barFill {
+  transition: width var(--duration-base) var(--ease-atlas);
+}
+
+.title {
+  margin: 0 0 var(--space-1);
+  font-family: var(--heading-font);
+  font-size: 1.3rem;
+  line-height: 1.2;
+  color: var(--text-primary);
+}
+.target {
+  margin: 0 0 var(--space-2);
+  font-family: var(--metadata-font);
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+.body {
+  margin: 0 0 var(--space-4);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+.spacer {
+  flex: 1;
+}
+.actions button {
+  min-height: 44px;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.actions button:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+.primary {
+  background: var(--control-active-bg, var(--color-gold));
+  color: var(--control-active-fg, var(--color-charcoal));
+  border: 1px solid var(--control-active-edge, var(--color-gold));
+}
+.secondary {
+  background: var(--button-background);
+  color: var(--text-primary);
+  border: 1px solid var(--border-strong);
+}
+.secondary:hover {
+  background: var(--button-hover);
+}
+.ghost {
+  background: none;
+  color: var(--text-secondary);
+  border: 1px solid transparent;
+  text-decoration: underline;
+}
+.ghost:hover {
+  color: var(--text-primary);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spotlight,
+  .card,
+  .barFill {
+    transition: none !important;
+  }
+}

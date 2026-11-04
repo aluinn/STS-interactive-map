@@ -117,7 +117,7 @@ export function EraSlider({
     : `All Time, every period. ${entryCount} entries.`
 
   return (
-    <section className={styles.dock} aria-labelledby={headingId}>
+    <section className={styles.dock} aria-labelledby={headingId} data-walkthrough="era-slider">
       <h2 id={headingId} className={styles.srOnly}>
         Time travel
       </h2>

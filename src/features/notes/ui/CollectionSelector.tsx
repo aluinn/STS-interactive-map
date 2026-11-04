@@ -32,7 +32,11 @@ export function CollectionSelector({
 }: CollectionSelectorProps) {
   const current = OPTIONS.find((o) => o.value === mode)
   return (
-    <section className={styles.selector} aria-labelledby="collection-selector-title">
+    <section
+      className={styles.selector}
+      aria-labelledby="collection-selector-title"
+      data-walkthrough="collection-selector"
+    >
       <h2 id="collection-selector-title" className={styles.selectorTitle}>
         Collection
       </h2>

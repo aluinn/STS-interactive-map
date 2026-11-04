@@ -1,4 +1,6 @@
-export function AboutContent() {
+import { QuickReference } from '../features/walkthrough/QuickReference'
+
+export function AboutContent({ onStartGuide }: { onStartGuide?: () => void }) {
   return (
     <div
       style={{ display: 'grid', gap: '1rem', fontSize: '0.92rem', color: 'var(--color-ink-dim)' }}
@@ -9,6 +11,7 @@ export function AboutContent() {
         It is not a neutral or exhaustive account: every atlas selects, every selection interprets,
         and every interpretation reflects choices its author could have made differently.
       </p>
+      <QuickReference onStartGuide={onStartGuide} />
       <section>
         <h3
           style={{
