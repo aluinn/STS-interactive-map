@@ -43,7 +43,7 @@ import type { PersonalCollection } from './features/notes/types'
 import notesStyles from './features/notes/ui/notes.module.css'
 import { Walkthrough } from './features/walkthrough/Walkthrough'
 import { buildWalkthroughSteps } from './features/walkthrough/walkthroughSteps'
-import { readWalkthroughStatus, shouldOfferWalkthrough } from './features/walkthrough/storage'
+import { shouldOfferWalkthrough } from './features/walkthrough/storage'
 import type { WalkthroughResult, WalkthroughStep } from './features/walkthrough/types'
 
 const AtlasView = lazy(() =>
@@ -464,18 +464,17 @@ export default function App() {
     )
   }
 
-  // Offer the tour once, after the cinematic introduction (played or skipped).
+  // Start the tour as soon as the cinematic introduction (played or skipped) ends.
   useEffect(() => {
     if (
       !shouldOfferWalkthrough({
         landing: landingVisit,
         introDone: introPhase === 'done',
-        status: readWalkthroughStatus(),
         offeredThisVisit: tourOffered,
       })
     )
       return
-    const t = window.setTimeout(startWalkthrough, 600)
+    const t = window.setTimeout(startWalkthrough, 0)
     return () => window.clearTimeout(t)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [introPhase, landingVisit, tourOffered])

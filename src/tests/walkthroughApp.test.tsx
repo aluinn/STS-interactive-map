@@ -74,6 +74,14 @@ function renderApp() {
   return r
 }
 
+/** Renders on the landing route, skips the intro and closes the automatic tour. */
+async function renderAppWithoutTour() {
+  const r = renderApp()
+  await waitFor(() => expect(tourDialog()).toBeInTheDocument(), { timeout: 2000 })
+  await userEvent.keyboard('{Escape}')
+  return r
+}
+
 describe('first-time visit', () => {
   it('does not show the welcome card over the cinematic intro, then offers it after skipping', async () => {
     render(<App />)
@@ -94,20 +102,21 @@ describe('first-time visit', () => {
     expect(tourDialog()).not.toBeInTheDocument()
   })
 
-  it('"Explore on my own" dismisses it and it is not offered again', async () => {
+  it('"Explore independently" dismisses it for this visit; the next visit starts it again', async () => {
     const first = renderApp()
     await waitFor(() => expect(tourDialog()).toBeInTheDocument(), { timeout: 2000 })
     await userEvent.click(screen.getByRole('button', { name: 'Explore independently' }))
     expect(tourDialog()).not.toBeInTheDocument()
     expect(readWalkthroughStatus()).toBe('dismissed')
+    await afterDelay()
+    expect(tourDialog()).not.toBeInTheDocument()
     first.unmount()
 
     renderApp()
-    await afterDelay()
-    expect(tourDialog()).not.toBeInTheDocument()
+    await waitFor(() => expect(tourDialog()).toBeInTheDocument(), { timeout: 2000 })
   })
 
-  it('remembers completion', async () => {
+  it('records completion, and still starts on the next visit', async () => {
     const user = userEvent.setup()
     const first = renderApp()
     await waitFor(() => expect(tourDialog()).toBeInTheDocument(), { timeout: 2000 })
@@ -122,8 +131,7 @@ describe('first-time visit', () => {
     expect(JSON.parse(localStorage.getItem(WALKTHROUGH_KEY)!).status).toBe('completed')
     first.unmount()
     renderApp()
-    await afterDelay()
-    expect(tourDialog()).not.toBeInTheDocument()
+    await waitFor(() => expect(tourDialog()).toBeInTheDocument(), { timeout: 2000 })
   })
 })
 
@@ -161,8 +169,7 @@ describe('Guide button', () => {
 
   it('stays available after completion and replays', async () => {
     localStorage.setItem(WALKTHROUGH_KEY, JSON.stringify({ status: 'completed' }))
-    renderApp()
-    await afterDelay()
+    await renderAppWithoutTour()
     expect(tourDialog()).not.toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: 'Guide' }))
     expect(tourDialog()).toBeInTheDocument()
@@ -172,8 +179,7 @@ describe('Guide button', () => {
   })
 
   it('is separate from Replay intro', async () => {
-    localStorage.setItem(WALKTHROUGH_KEY, JSON.stringify({ status: 'dismissed' }))
-    renderApp()
+    await renderAppWithoutTour()
     await userEvent.click(screen.getByRole('button', { name: /replay intro/i }))
     expect(intro()).toBeInTheDocument()
     expect(tourDialog()).not.toBeInTheDocument()
@@ -182,8 +188,7 @@ describe('Guide button', () => {
   })
 
   it('can be started from the quick reference in About', async () => {
-    localStorage.setItem(WALKTHROUGH_KEY, JSON.stringify({ status: 'completed' }))
-    renderApp()
+    await renderAppWithoutTour()
     await userEvent.click(screen.getByRole('button', { name: 'About' }))
     expect(screen.getByRole('heading', { name: 'How to use the atlas' })).toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: 'Start the guided tour' }))
@@ -225,7 +230,7 @@ describe('Guide button', () => {
 
   it('"Open Paths" on the last step switches to Paths; nothing starts automatically', async () => {
     const user = userEvent.setup()
-    renderApp()
+    await renderAppWithoutTour()
     await user.click(screen.getByRole('button', { name: 'Guide' }))
     for (let i = 0; i < 20 && screen.queryByRole('button', { name: 'Open Paths' }) === null; i++)
       await user.click(

@@ -32,13 +32,14 @@ export interface EligibilityInput {
   landing: boolean
   /** The cinematic introduction is finished, skipped or was never going to play. */
   introDone: boolean
-  /** The stored outcome from an earlier visit, if any. */
-  status: WalkthroughStatus | null
   /** The tour was already offered during this visit. */
   offeredThisVisit: boolean
 }
 
-/** Whether the welcome card should appear on its own. */
+/**
+ * Whether the welcome card should appear on its own: on every plain landing
+ * visit, as soon as the intro is done, but only once per visit.
+ */
 export function shouldOfferWalkthrough(i: EligibilityInput): boolean {
-  return i.landing && i.introDone && i.status === null && !i.offeredThisVisit
+  return i.landing && i.introDone && !i.offeredThisVisit
 }

@@ -112,17 +112,15 @@ describe('walkthrough content', () => {
 })
 
 describe('first-visit eligibility and storage', () => {
-  const base = { landing: true, introDone: true, status: null, offeredThisVisit: false } as const
-  it('offers the tour on a first landing visit once the intro is done', () => {
+  const base = { landing: true, introDone: true, offeredThisVisit: false } as const
+  it('offers the tour on every landing visit once the intro is done', () => {
     expect(shouldOfferWalkthrough(base)).toBe(true)
   })
   it('never offers it over the cinematic intro', () => {
     expect(shouldOfferWalkthrough({ ...base, introDone: false })).toBe(false)
   })
-  it('does not offer it on deep links, after a decision, or twice in a visit', () => {
+  it('does not offer it on deep links or twice in a visit', () => {
     expect(shouldOfferWalkthrough({ ...base, landing: false })).toBe(false)
-    expect(shouldOfferWalkthrough({ ...base, status: 'dismissed' })).toBe(false)
-    expect(shouldOfferWalkthrough({ ...base, status: 'completed' })).toBe(false)
     expect(shouldOfferWalkthrough({ ...base, offeredThisVisit: true })).toBe(false)
   })
   it('stores its own versioned key, separate from the intro key', () => {
