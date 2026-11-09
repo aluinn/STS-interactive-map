@@ -1,238 +1,208 @@
+<div align="center">
+
 # STS Interactive Map
 
-**A History and Philosophy of Science**
+**An interactive atlas of how scientific ideas travelled between cultures, cities and centuries, with the philosophy of science kept in the same frame.**
 
-> "Knowledge has never travelled in a straight line."
+[![CI](https://github.com/aluinn/STS-interactive-map/actions/workflows/ci.yml/badge.svg)](https://github.com/aluinn/STS-interactive-map/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/aluinn/STS-interactive-map/actions/workflows/codeql.yml/badge.svg)](https://github.com/aluinn/STS-interactive-map/actions/workflows/codeql.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/aluinn/STS-interactive-map?style=flat)](https://github.com/aluinn/STS-interactive-map/stargazers)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Faluinn%2FSTS-interactive-map)
 
+<img src="docs/assets/screenshot-atlas.png" alt="The Atlas view: an old-world-style map of the Renaissance and Early Modern period with clustered markers and a period slider" width="900">
 
+<!-- HERO VIDEO: the line below is the screen recording already linked in the previous README.
+     GitHub renders a bare user-attachments URL as an inline video. To use a GIF instead,
+     put it at docs/assets/demo.gif and swap it for the image above. -->
 
 https://github.com/user-attachments/assets/20be2ade-4bb6-4c8a-a16b-585e517022f4
 
-Test it here: https://sts-interactive-map.vercel.app/?areas=climate 
+[**Live demo**](https://sts-interactive-map.vercel.app/) · [Architecture](docs/ARCHITECTURE.md) · [Roadmap](ROADMAP.md) · [Contributing](CONTRIBUTING.md)
 
-An interactive atlas exploring how scientific ideas moved between cultures, cities,
-institutions, and historical periods — and how philosophy of science helps us read that
-movement critically. Built as a portfolio project alongside a History and Philosophy of
-Science course at UCL; designed to grow into a larger digital-humanities resource.
+</div>
 
-## Concept
+> "Knowledge has never travelled in a straight line."
 
-STS Interactive Map is not a timeline of "great discoveries." It is an attempt to map the
-actual, messier shape of how scientific knowledge has moved: through translation,
-argument, observation, trade, empire, craft, experiment, exclusion, and collaboration —
-and to keep philosophy of science in the same frame as the history, rather than treating
-them as separate subjects.
+STS Interactive Map is not a timeline of "great discoveries". It tries to map the messier
+shape of how scientific knowledge moved (through translation, argument, trade, empire,
+craft, experiment, exclusion and collaboration) and to read that movement critically using
+philosophy of science. It began as a portfolio project alongside a History and Philosophy
+of Science course at UCL and is designed to grow into a larger digital-humanities resource.
 
-Four connected views give four ways into the same dataset:
+## Features
 
-- **Atlas** — an old-world-style interactive map. Entries (people, ideas, discoveries,
-  experiments, instruments, texts, institutions, events, debates) are plotted
-  geographically where that makes sense, and connected by curved "ink routes"
-  representing a documented relationship (influenced, translated, criticised, excluded,
-  funded, and so on).
-- **Timeline** — the same entries grouped into flexible historical periods, explicitly
-  resisting a single linear "march of progress."
-- **Debates** — major philosophy-of-science disputes (induction, falsifiability,
-  paradigms, realism, objectivity, feminist epistemology, and more) presented as
-  explorable positions-and-arguments, each linked back to historical cases that test or
-  complicate it.
-- **Paths** — curated guided journeys that spotlight one stop at a time, panning the map
-  and explaining why each stop connects to the next.
-
-Every suitable historical entry carries a "philosophical lens" — a short prompt tying it
-to a live methodological question — and most debates link back to the historical cases
-that make them concrete.
+- **Atlas**: a parchment-style map of 226 entries (people, ideas, discoveries, experiments,
+  instruments, texts, institutions, events) with clustered markers and curved routes for
+  164 documented relationships (influenced, translated, criticised, excluded, funded and
+  more). A list view gives every entry as a keyboard- and screen-reader-friendly list.
+- **Period slider**: eight periods from Ancient Worlds to the Platform, Climate and AI Age.
+  Each re-themes the interface, shows entries inside the period, and fades in "echoes" from
+  outside it. The latest period swaps the map for a satellite-style globe.
+- **Timeline**: the same entries grouped into flexible historical periods, deliberately
+  not one march of progress.
+- **Debates**: 20 philosophy-of-science disputes (induction, falsifiability, paradigms,
+  realism, values in science and more) shown as positions, arguments for and objections,
+  linked to historical cases.
+- **Paths**: 29 guided journeys that step through entries one at a time, with a caption
+  explaining why each stop connects to the next.
+- **Your Notes**: drop in your own PDFs, `.txt` or `.md` notes and get a private personal
+  atlas on its own map. Everything is read on your device with rules and dictionaries; no
+  AI service, no upload ([details](docs/MY_NOTES.md)).
+- **Honest content model**: entries carry confidence levels, "common myth vs complication"
+  notes, theory status ("modified", "superseded") and typed sources; a test fails the
+  build if an entry has no source and is not marked `sourceNeeded`.
+- **Shareable state**: view, selection, period and filters live in the URL, so any screen
+  can be linked. Filters cover search, subject area, entry type, historical grouping, date
+  range, region and evidence status.
+- **Extras**: first-visit guided tour, cinematic intro, notebook for saved entries
+  (stored in your browser), dark and light themes, reduced-motion support.
 
 ## Screenshots
 
-_Add screenshots here before publishing — e.g. the intro screen, the Atlas view with a
-route tooltip open, the Timeline, a Debates constellation, and a Paths journey in
-progress._
+| Atlas (Renaissance and Early Modern) | Globe (Platform, Climate and AI Age) |
+| :---: | :---: |
+| <img src="docs/assets/screenshot-atlas.png" alt="Atlas view"> | <img src="docs/assets/screenshot-globe.png" alt="Satellite-style globe with entries and subsea-cable corridors"> |
+| **Timeline** | **Debates** |
+| <img src="docs/assets/screenshot-timeline.png" alt="Timeline view grouped by historical period"> | <img src="docs/assets/screenshot-debates.png" alt="A debate on the problem of induction with three positions"> |
 
-| View     | Screenshot             |
-| -------- | ----------------------- |
-| Intro    | `docs/screenshots/intro.png` (placeholder) |
-| Atlas    | `docs/screenshots/atlas.png` (placeholder) |
-| Timeline | `docs/screenshots/timeline.png` (placeholder) |
-| Debates  | `docs/screenshots/debates.png` (placeholder) |
-| Paths    | `docs/screenshots/paths.png` (placeholder) |
+<details>
+<summary>More screenshots</summary>
 
-## Technical stack
+| Paths | Entry detail | Phone (390 × 844) |
+| :---: | :---: | :---: |
+| <img src="docs/assets/screenshot-paths.png" alt="A guided path in progress"> | <img src="docs/assets/screenshot-entry.png" alt="Detail panel for Nicolaus Copernicus"> | <img src="docs/assets/screenshot-phone.png" alt="Atlas on a phone" width="260"> |
 
-- **React 19 + TypeScript + Vite**
-- **D3** (`d3-geo`, `d3-selection`, `d3-zoom`, `d3-transition`) for the map projection,
-  pan/zoom, and curved relationship routes
-- **`world-atlas`** (land-110m TopoJSON, via `topojson-client`) for the basemap —
-  deliberately just coastlines, with no country-border layer, since modern political
-  borders would misrepresent almost every period this atlas covers
-- Plain CSS Modules + a small set of CSS custom-property design tokens (no UI framework)
-- **Vitest + React Testing Library** for tests
-- **ESLint + Prettier** for linting/formatting
-- No backend, no database, no API keys — all content lives in typed local data files
-  designed so a CMS or database could replace them later without changing rendering code
+</details>
 
-## Local setup
+## How it works
+
+```mermaid
+flowchart LR
+  D["Typed content<br/>src/data/*.ts"] --> V["Validated<br/>DataBundle"]
+  U["URL state<br/>(view, filters, entry)"] --> F["Filter + period split"]
+  V --> F
+  N["Your Notes<br/>(IndexedDB, local)"] --> F
+  F --> A["Atlas / Globe"]
+  F --> T["Timeline"]
+  V --> DB["Debates + Paths"]
+```
+
+1. **All content is typed TypeScript** in `src/data/`, bundled with the app. There is no
+   backend, database or API key.
+2. **One validated bundle feeds every view.** A test checks unique ids, dangling
+   references, plausible years and coordinates, and that every entry is sourced.
+3. **The URL is the state.** Filters, view, period and selection are query parameters, so
+   Back/Forward and shared links just work.
+4. **Notes stay on your device.** PDF text is extracted in a web worker, analysed by
+   deterministic rules, reviewed by you, and only accepted items are saved to IndexedDB.
+
+More in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+
+## Quick start
+
+Requires Node.js `^20.19.0` or `>=22.12.0`.
 
 ```bash
+git clone https://github.com/aluinn/STS-interactive-map.git
+cd STS-interactive-map
 npm install
-npm run dev       # start the dev server (http://localhost:5173 by default)
+npm run dev     # http://localhost:5173
 ```
 
-## Development commands
+| Command | What it does |
+| --- | --- |
+| `npm run dev` | Start the Vite dev server |
+| `npm run build` | Typecheck and build to `dist/` |
+| `npm run preview` | Serve the production build locally |
+| `npm run lint` / `npm run typecheck` | ESLint / `tsc -b` |
+| `npm test` | Unit and component tests (Vitest) |
+| `npm run test:e2e` | Playwright smoke test against the production build |
+| `npm run format` | Prettier |
+| `npm run screenshots` | Regenerate `docs/assets/screenshot-*.png` |
+| `npm run perf` | Print the timings quoted in [`docs/PERFORMANCE.md`](docs/PERFORMANCE.md) |
 
-| Command              | What it does                                   |
-| -------------------- | ----------------------------------------------- |
-| `npm run dev`        | Start the Vite dev server                        |
-| `npm run build`      | Type-check and build for production (`dist/`)    |
-| `npm run preview`    | Preview the production build locally             |
-| `npm run typecheck`  | Type-check only (`tsc -b`)                       |
-| `npm run lint`       | Run ESLint                                       |
-| `npm run format`     | Format the repo with Prettier                    |
-| `npm run test`       | Run the test suite once                          |
-| `npm run test:watch` | Run tests in watch mode                          |
+## Deploy
 
-## Content model
+The app is a static build (`npm run build` produces `dist/`) and needs no environment
+variables, so any static host works: Vercel, Netlify, GitHub Pages, Cloudflare Pages. The
+live site is on Vercel; the button at the top clones the repo into your own project.
+The production build adds a Content-Security-Policy meta tag (`connect-src 'self'`).
 
-See [`DATA_MODEL.md`](./DATA_MODEL.md) for the full typed content model. In short:
+## FAQ
 
-- An **Entry** (`src/types/index.ts`) is anything plottable: a person, idea, discovery,
-  experiment, instrument, text, institution, event, or debate. Entries carry dates
-  (numeric, BCE as negative years), places (plural — an entry can have an origin, an
-  institution, a publication place, or none at all if it's genuinely `transregional`),
-  philosophical lenses, myth-vs-complication notes, a theory-status lifecycle, and
-  sources.
-- A **Relationship** connects two entries with a typed, directional edge (`influenced`,
-  `taught`, `translated`, `corresponded`, `travelled`, `collaborated`, `criticised`,
-  `supported`, `challenged`, `replaced`, `preserved`, `funded`, `appropriated`,
-  `excluded`, `extracted`, `institutionalised`, or `independently-developed`), each with
-  a one-sentence justification.
-- A **Debate** is a philosophical question with multiple named positions, each carrying
-  arguments-for and objections, plus links back to historical cases.
-- A **Journey** is an ordered list of entry stops with a caption explaining each
-  transition, used by the Paths view.
+**Is it finished or complete?** No. It is an interpretive, educational project with a
+deliberately selective dataset, not a neutral or exhaustive account. The in-app About page
+says so.
 
-All content lives in `src/data/`, split into period-based files for entries plus
-`relationships.ts`, `debates.ts`, and `journeys.ts`, combined in `src/data/index.ts`.
-`src/utils/validateData.ts` checks referential integrity (unique ids/slugs, valid
-relationship endpoints, no dangling debate/journey references, sensible years and
-coordinates, every non-`sourceNeeded` entry has a source) and is exercised by
-`src/tests/data.test.ts`.
+**Why are there country borders if the periods are centuries apart?** They are modern
+borders drawn for orientation only, and the map says that. Coastlines and borders come
+from Natural Earth.
 
-## How to add an entry
+**Does "Your Notes" send my files anywhere?** No. There is no backend; the production CSP
+blocks requests to other origins, and a test plus an offline browser check
+(`npm run verify:import`, which needs a Playwright browser installed and is not run in CI) guard against regressions. Saved
+collections sit unencrypted in your browser's IndexedDB, and the interface says so. See
+[`docs/MY_NOTES.md`](docs/MY_NOTES.md).
 
-1. Open the relevant period file in `src/data/` (e.g. `entries.renaissance.ts`) — or
-   create a new one and add it to the `entries` array in `src/data/index.ts` if it's a
-   new period.
-2. Add an object matching the `Entry` type. At minimum: `id`/`slug` (unique, kebab-case,
-   usually identical), `title`, `kind`, `period`, `summary`, `longDescription`,
-   `startYear`/`dateDisplay`, `people`/`cultures`/`disciplines`/`themes`,
-   `historicalSignificance`, `sources` (or `contentStatus: 'sourceNeeded'` if you
-   haven't verified one yet), and `confidence`.
-3. If the entry has a single clear location, set `latitude`/`longitude`. If it spans
-   multiple places or none, set `transregional: true` and list what you can in `places`.
-4. Add at least one `philosophicalQuestions` entry if a genuine methodological question
-   applies — don't force it if it doesn't fit.
-5. Run `npm test` — `src/tests/data.test.ts` will catch duplicate ids/slugs, missing
-   sources, bad years, and dangling references.
+**Does it use AI?** No. Note analysis is rules and dictionaries, so it is explainable but
+less clever than a language model, and unsure items are flagged for your review.
 
-See [`CONTENT_GUIDE.md`](./CONTENT_GUIDE.md) for tone, sourcing, and framing guidance
-before writing new entries.
+**Are the subsea cables on the globe accurate?** No, they are schematic corridors, not
+the surveyed paths of individual cables.
 
-## How to add a relationship
+**Is anything loaded from a third party?** Two Google Fonts stylesheets. Everything else is
+bundled or served from the same origin ([roadmap](ROADMAP.md) item to self-host them).
 
-Add an object to the `relationships` array in `src/data/relationships.ts`:
+**Is the whole dataset in the bundle?** Yes, which makes the main JavaScript chunk about
+1 MB (about 310 kB gzipped). See [`docs/PERFORMANCE.md`](docs/PERFORMANCE.md).
 
-```ts
-{
-  id: 'r78',
-  sourceId: 'some-entry-id',
-  targetId: 'other-entry-id',
-  type: 'influenced', // see RelationshipType in src/types
-  summary: 'One sentence explaining *why* this connection matters.',
-  confidence: 'established', // 'established' | 'likely' | 'contested' | 'speculative'
-}
-```
+**Are the "knowledge routes" in the data visible?** Not yet. Seven validated routes exist
+in the data but no view shows them
+([draft issue](docs/issues/06-render-knowledge-routes.md)).
 
-Only add a relationship for a **documented** connection — never because two entries
-happen to share a period or theme. (Shared topics are already expressed through each
-entry's `themes`/`relatedEntryIds`, which don't imply causal influence.)
+**Can I add content?** Yes; see [CONTRIBUTING.md](CONTRIBUTING.md) and
+[`CONTENT_GUIDE.md`](CONTENT_GUIDE.md). Never invent a citation: mark it `sourceNeeded`.
 
-## How to add a guided journey
+## Good first issues
 
-Add an object to the `journeys` array in `src/data/journeys.ts`:
+Scoped drafts live in [`docs/issues/`](docs/issues/); copy one into a new GitHub issue to
+get started.
 
-```ts
-{
-  id: 'my-journey',
-  slug: 'my-journey',
-  title: 'A Short, Evocative Title',
-  summary: 'One or two sentences framing the journey.',
-  themes: ['theme-slug'],
-  stops: [
-    { entryId: 'first-entry-id', caption: 'Why this is the starting point.' },
-    { entryId: 'second-entry-id', caption: 'Why this follows from the last stop.' },
-    // 4–7 stops tends to read best
-  ],
-}
-```
+| Issue | Labels |
+| --- | --- |
+| [Add Open Graph and social-preview meta tags](docs/issues/01-og-meta-tags.md) | good first issue |
+| [Unit-test the easing helpers](docs/issues/02-tests-easing-utils.md) | good first issue |
+| [Unit-test `areas.ts` region and area logic](docs/issues/03-tests-areas-regions.md) | good first issue |
+| [Generate the counts in CONTENT_AUDIT.md from the data](docs/issues/04-generate-content-audit-counts.md) | good first issue |
+| [E2E test: step through a guided path](docs/issues/05-e2e-paths-view.md) | good first issue |
+| [Show knowledge routes in the Atlas](docs/issues/06-render-knowledge-routes.md) | enhancement |
+| [Split the dataset out of the main bundle](docs/issues/07-split-dataset-bundle.md) | enhancement |
+| [Self-host the fonts and tighten the CSP](docs/issues/08-self-host-fonts.md) | enhancement |
+| [Automated accessibility checks in CI](docs/issues/09-a11y-axe-ci.md) | enhancement |
+| [Label-collision layout for Atlas markers](docs/issues/10-atlas-label-collision.md) | enhancement |
 
-Every `entryId` must exist in `src/data/entries.*.ts` — `data.test.ts` will fail
-otherwise.
+## Roadmap
 
-## Academic and citation policy
+See [ROADMAP.md](ROADMAP.md).
 
-- **Never invent a citation, a quotation, or a causal/influence relationship.** If you
-  can't verify a source, set `contentStatus: 'sourceNeeded'` and omit `sources` rather
-  than guessing at a plausible-looking reference.
-- Distinguish `primary` and `secondary` sources on the `Source.type` field.
-- Use `confidence` (`established` / `likely` / `contested` / `speculative`) honestly,
-  especially for historiographically disputed claims.
-- `theoryStatus` (on ideas/discoveries) should resist treating "superseded" as a
-  synonym for "wrong" or "stupid" — use `theoryStatusNote` to say what survived.
-- See [`CONTENT_GUIDE.md`](./CONTENT_GUIDE.md) for the full policy and the pitfalls it's
-  meant to catch (hero-only histories, Eurocentrism, presentism, and so on).
+## Credits
 
-## Accessibility notes
+- **Author:** [Aluinn McDonald](https://github.com/aluinn)
+- **Globe imagery:** [NASA Earth Observatory](https://earthobservatory.nasa.gov/): *Blue
+  Marble* and *Earth at Night* (resized; no NASA endorsement implied)
+- **Coastlines and borders:** [Natural Earth](https://www.naturalearthdata.com/) via
+  [`world-atlas`](https://github.com/topojson/world-atlas)
+- **Libraries:** [React](https://react.dev/), [Vite](https://vitejs.dev/),
+  [D3](https://d3js.org/), [TopoJSON](https://github.com/topojson/topojson-client),
+  [PDF.js](https://mozilla.github.io/pdf.js/) (Mozilla, Apache-2.0),
+  [Vitest](https://vitest.dev/), [Playwright](https://playwright.dev/)
+- **Fonts:** [Cormorant Garamond](https://fonts.google.com/specimen/Cormorant+Garamond)
+  and [EB Garamond](https://fonts.google.com/specimen/EB+Garamond) via Google Fonts
+- **Context:** built alongside a History and Philosophy of Science course at UCL
 
-- The Atlas map exposes a **list-view toggle** (the ☰ control) giving every filtered
-  entry as a keyboard- and screen-reader-navigable list, as an alternative to the SVG
-  map.
-- All markers, routes, and clusters are focusable (`tabIndex=0`, `role="button"`) with
-  descriptive `aria-label`s, and respond to Enter/Space as well as click.
-- The detail panel and all modals are proper dialogs (`role="dialog"`,
-  `aria-modal="true"`), trap focus on open, close on <kbd>Escape</kbd>, and restore
-  focus to the triggering element on close.
-- Theming respects `prefers-reduced-motion` (disables the spinning compass on the intro
-  screen and swaps animated zoom transitions for instant jumps) and ships a
-  high-contrast light mode alongside the default dark ink-on-parchment theme.
-- Filters, the current view, and the current selection all live in the URL (`?view=…`),
-  so any state is shareable via "Copy link."
+Cite this project with [`CITATION.cff`](CITATION.cff) (GitHub's "Cite this repository").
 
-## Deployment
+## Licence
 
-The app is a static build with no backend. From the project root:
-
-```bash
-npm run build   # outputs to dist/
-```
-
-`dist/` can be deployed to any static host (Netlify, Vercel, GitHub Pages, Cloudflare
-Pages, etc.) — no environment variables or server configuration are required.
-
-## Future ideas
-
-- Expand the seed dataset — the content model already supports far more entries than are
-  currently included; see `CONTENT_GUIDE.md` for what to prioritise.
-- Swap the local data files for a CMS or lightweight database without touching rendering
-  code (the whole app only depends on the `DataBundle` shape in `src/types`).
-- Add a proper label-collision layout algorithm to the Atlas view instead of the current
-  hover/zoom-threshold approach.
-- Add non-geographic "debate constellation" visual layouts (the Debates view is
-  currently card-based, not yet a force-directed graph).
-- Localise place names/period labels for non-English audiences.
-- Add a lightweight CMS-style admin form for contributing new entries without hand-editing TypeScript.
-
----
-
-This atlas is an interpretive, educational project — not a neutral or exhaustive
-account. See the in-app **About** page for more on its limits and editorial choices.
+[MIT](LICENSE) © 2026 Aluinn McDonald
