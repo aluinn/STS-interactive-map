@@ -6,7 +6,7 @@ import tseslint from 'typescript-eslint'
 import { globalIgnores } from 'eslint/config'
 import globals from 'globals'
 
-export default tseslint.config(globalIgnores(['dist', 'node_modules']), {
+export default tseslint.config(globalIgnores(['dist', 'node_modules', 'playwright-report', 'test-results']), {
   extends: [
     js.configs.recommended,
     ...tseslint.configs.recommended,
