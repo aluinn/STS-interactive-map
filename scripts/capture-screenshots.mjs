@@ -11,7 +11,10 @@ mkdirSync(out, { recursive: true })
 
 // Pre-mark the walkthrough as seen so the tour overlay does not cover the shots.
 const seen = () =>
-  localStorage.setItem('sts-walkthrough:v1', JSON.stringify({ status: 'completed', at: '2026-01-01' }))
+  localStorage.setItem(
+    'sts-walkthrough:v1',
+    JSON.stringify({ status: 'completed', at: '2026-01-01' }),
+  )
 
 const shots = [
   { name: 'screenshot-atlas', url: '/?era=early-modern', wait: 2000, skipIntro: true },
@@ -19,7 +22,11 @@ const shots = [
   { name: 'screenshot-globe', url: '/?era=platform-age', wait: 4000, skipIntro: true },
   { name: 'screenshot-timeline', url: '/?view=timeline', wait: 1000 },
   { name: 'screenshot-debates', url: '/?view=debates&debate=induction-problem', wait: 1000 },
-  { name: 'screenshot-paths', url: '/?view=journeys&journey=aristotle-to-newton&stop=1', wait: 2500 },
+  {
+    name: 'screenshot-paths',
+    url: '/?view=journeys&journey=aristotle-to-newton&stop=1',
+    wait: 2500,
+  },
   { name: 'screenshot-phone', url: '/?era=early-modern', wait: 2000, skipIntro: true, phone: true },
 ]
 
@@ -27,7 +34,12 @@ const browser = await chromium.launch({ channel: 'chrome' })
 for (const s of shots) {
   const ctx = await browser.newContext(
     s.phone
-      ? { viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true }
+      ? {
+          viewport: { width: 390, height: 844 },
+          deviceScaleFactor: 2,
+          isMobile: true,
+          hasTouch: true,
+        }
       : { viewport: { width: 1600, height: 900 }, deviceScaleFactor: 1 },
   )
   await ctx.addInitScript(seen)

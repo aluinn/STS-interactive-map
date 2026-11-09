@@ -1,5 +1,29 @@
 {
   "name": "sts-interactive-map",
+  "description": "Interactive atlas of how scientific ideas moved between cultures, cities and periods, with the philosophy of science kept in the same frame.",
+  "author": "Aluinn McDonald",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aluinn/STS-interactive-map.git"
+  },
+  "homepage": "https://sts-interactive-map.vercel.app",
+  "bugs": {
+    "url": "https://github.com/aluinn/STS-interactive-map/issues"
+  },
+  "keywords": [
+    "history-of-science",
+    "philosophy-of-science",
+    "sts",
+    "digital-humanities",
+    "interactive-map",
+    "d3",
+    "react",
+    "typescript"
+  ],
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -12,7 +36,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc -b",
-    "verify:import": "node scripts/verify-offline-import.mjs"
+    "verify:import": "node scripts/verify-offline-import.mjs",
+    "test:e2e": "playwright test",
+    "screenshots": "node scripts/capture-screenshots.mjs"
   },
   "dependencies": {
     "d3": "^7.9.0",
