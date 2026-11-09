@@ -8,7 +8,7 @@
 [![CodeQL](https://github.com/aluinn/STS-interactive-map/actions/workflows/codeql.yml/badge.svg)](https://github.com/aluinn/STS-interactive-map/actions/workflows/codeql.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/aluinn/STS-interactive-map?style=flat)](https://github.com/aluinn/STS-interactive-map/stargazers)
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Faluinn%2FSTS-interactive-map)
+<a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Faluinn%2FSTS-interactive-map"><img src="https://vercel.com/button" alt="Deploy with Vercel" height="20"></a>
 
 <img src="docs/assets/screenshot-atlas.png" alt="The Atlas view: an old-world-style map of the Renaissance and Early Modern period with clustered markers and a period slider" width="900">
 
