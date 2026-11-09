@@ -1,0 +1,29 @@
+name: Bug report
+description: Something in the app is broken or behaves unexpectedly
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: input
+    id: url
+    attributes:
+      label: Link that shows the problem
+      description: The app keeps view, filters and selection in the URL, so a copied link reproduces most states.
+      placeholder: https://sts-interactive-map.vercel.app/?view=timeline
+  - type: input
+    id: browser
+    attributes:
+      label: Browser, version and device
+      placeholder: Firefox 130 on macOS; Safari on iPhone
+    validations:
+      required: true
+  - type: textarea
+    id: extra
+    attributes:
+      label: Screenshots or console errors
+      description: Optional, but very helpful.

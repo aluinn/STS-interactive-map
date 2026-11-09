@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+message: If you use this software or its dataset, please cite it as below.
+title: 'STS Interactive Map: an atlas of the history and philosophy of science'
+type: software
+authors:
+  - family-names: McDonald
+    given-names: Aluinn
+repository-code: 'https://github.com/aluinn/STS-interactive-map'
+url: 'https://sts-interactive-map.vercel.app'
+abstract: >-
+  An interactive atlas of how scientific ideas moved between cultures, cities,
+  institutions and historical periods, keeping the philosophy of science in the
+  same frame as the history. Four views (Atlas, Timeline, Debates, Paths) over
+  one typed, referentially checked dataset.
+license: MIT
+keywords:
+  - history of science
+  - philosophy of science
+  - science and technology studies
+  - digital humanities
+  - interactive map

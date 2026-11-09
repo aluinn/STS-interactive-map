@@ -1,0 +1,25 @@
+name: Feature request or content suggestion
+description: Suggest a feature, a new entry, or a correction to existing content
+labels: [enhancement]
+body:
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What kind of suggestion is this?
+      options:
+        - Feature or interface change
+        - New entry, relationship, debate or journey
+        - Correction to existing content
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What would you like to see?
+      description: For content, say what is missing or wrong and name a source (never an invented citation).
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why does it matter?
